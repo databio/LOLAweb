@@ -1,0 +1,9 @@
+*.Rproj.user
+*.Rhistory
+.Rproj.user/
+.Rproj.user
+inst/doc
+**/.DS_Store
+cache/*
+*.bed
+lola_vignette_data/*.bed
