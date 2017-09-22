@@ -21,8 +21,6 @@ hist(resRedefined$pValueLog)
 # userSetB = reduce(do.call(c, (sampleGRL(regionDB$regionGRL,
 #                                         prop=c(.2,.05,.05,.05,0)))))
 
-
-
 userSetB = read.table(file = "lola_vignette_data/setB_100.bed", header = F) 
 colnames(userSetB) <- c('chr','start','end','id','score','strand')
 userSetB <- with(userSetB, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
@@ -33,7 +31,6 @@ userSetC <- with(userSetC, GRanges(chr, IRanges(start+1, end), strand, score, id
 
 userSets = GRangesList(list(setB=userSetB, setC=userSetC))
 userSets = GRangesList(setB=userSetB)
-c(GRangesList)
 
 userUniverse = read.table(file = "lola_vignette_data/activeDHS_universe.bed", header = F) 
 colnames(userUniverse) <- c('chr','start','end','id','score','strand')

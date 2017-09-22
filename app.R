@@ -19,11 +19,10 @@ ui <- fluidPage(
       fileInput("userset", "Upload User Set(s)",
                 multiple = TRUE,
                 accept = c(".bed")),
-      fileInput("universe", "Upload Universe",
-                accept = c(".bed")),
+      checkboxInput("checkbox", label = "Check Here to Upload Your Own Universe", value = FALSE),
+      uiOutput("universe"),
       actionButton("run","runLOLA")
     ),
-    
     mainPanel(
       plotOutput("plot"),
       DT::dataTableOutput("res")
@@ -32,7 +31,24 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  
+    
+    output$universe <- renderUI({
+      
+      if(input$checkbox) {
+        
+        fileInput("useruniverse", "Upload Universe",
+                  accept = c(".bed"))
+        
+      } else {
+        
+        selectInput("defaultuniverse", 
+                    label = "Select Pre-Loaded Universe", 
+                    choices = list.files("universes"))
+        
+      }
+      
+    })
+    
     dat <- eventReactive(input$run, {
       
       withProgress(message = 'reticulating splines ... ', style = "old", value = 0, {
@@ -51,7 +67,17 @@ server <- function(input, output) {
       
       userSets = GRangesList(userSets)
       
-      userUniverse = read.table(file = input$universe$datapath, header = F)
+      if(input$checkbox) {
+        
+        userUniverse = read.table(file = input$useruniverse$datapath, header = F)
+        
+      } else {
+        
+        datapath <- paste0("universes/", input$defaultuniverse)
+        
+        userUniverse = read.table(file = datapath, header = F)
+        
+      }
       colnames(userUniverse) <- c('chr','start','end','id','score','strand')
       userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
       
