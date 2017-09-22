@@ -7,3 +7,4 @@ inst/doc
 cache/*
 *.bed
 lola_vignette_data/*.bed
+universes/*
