@@ -57,7 +57,7 @@ server <- function(input, output) {
       
       userSetsRedefined =	redefineUserSets(userSets, userUniverse)
       
-      resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
+      resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=2)
       
       return(resRedefined)
       
