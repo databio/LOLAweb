@@ -51,7 +51,7 @@ server <- function(input, output) {
     
     dat <- eventReactive(input$run, {
       
-      withProgress(message = 'reticulating splines ... ', style = "old", value = 0, {
+      withProgress(message = 'calculating region set enrichments...', style = "old", value = 0, {
         
       userSets <- list()
       
