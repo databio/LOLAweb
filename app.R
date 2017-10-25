@@ -14,21 +14,36 @@ ui <- fluidPage(
   
   titlePanel("LOLA"),
   
-  sidebarLayout(
-    sidebarPanel(
-      fileInput("userset", "Upload User Set(s)",
-                multiple = TRUE,
-                accept = c(".bed")),
-      checkboxInput("checkbox", label = "Check Here to Upload Your Own Universe", value = FALSE),
-      uiOutput("universe"),
-      actionButton("run","runLOLA")
-    ),
-    mainPanel(
-      plotOutput("plot"),
-      DT::dataTableOutput("res")
-    )
+      fluidRow(
+        column(8,
+                   fileInput("userset", "Upload User Set(s)",
+                             multiple = TRUE,
+                             accept = c(".bed")),
+                   checkboxInput("checkbox", label = "Check Here to Upload Your Own Universe", value = FALSE),
+                   uiOutput("universe")
+        ),
+        column(4, 
+            # actionButton("run","runLOLA", 
+            #              style='padding:40px; font-size:200%')
+            actionButton("run","runLOLA")
+              
+        )
+      ),
+      fluidRow(
+        column(4,
+               plotOutput("logodds_plot")
+        ),
+        column(4, 
+               plotOutput("support_plot")
+        ),
+        column(4,
+               plotOutput("pvalue_plot")
+        )
+      ),
+      fluidRow(
+        column(DT::dataTableOutput("res"), width = 12) 
+      )   
   )
-)
 
 server <- function(input, output) {
     
@@ -90,19 +105,39 @@ server <- function(input, output) {
     })
   })
   
-  output$plot <- renderPlot({
+  output$logodds_plot <- renderPlot({
     
-    ggplot(dat(), aes(logOddsRatio)) +
-      geom_histogram() +
+    ggplot(dat(), aes(description, logOddsRatio)) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
       theme_ns()
 
   })
   
-  output$res <- DT::renderDataTable({
-  
-    dat()
+  output$support_plot <- renderPlot({
+    
+    ggplot(dat(), aes(description, support)) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      theme_ns()
     
   })
+  
+  output$pvalue_plot <- renderPlot({
+    
+    ggplot(dat(), aes(description, pValueLog)) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      theme_ns()
+    
+  })
+  
+  output$res <- DT::renderDataTable({
+    
+    # data.table of results ordered by ranks
+    dat()[order(meanRnk, maxRnk)]
+    
+  }, options = list(scrollX = TRUE))
 }
 
 shinyApp(ui = ui, server = server)

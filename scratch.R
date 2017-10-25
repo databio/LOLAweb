@@ -44,3 +44,8 @@ ggplot(resRedefined, aes(logOddsRatio)) +
   geom_histogram() +
   facet_wrap(~userSet, ncol = 1) +
   theme_ns()
+
+?sort
+
+resRedefined
+resRedefined[order(meanRnk, maxRnk)]
