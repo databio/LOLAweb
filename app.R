@@ -23,20 +23,21 @@ ui <- fluidPage(
                    uiOutput("universe")
         ),
         column(4, 
-            # actionButton("run","runLOLA", 
-            #              style='padding:40px; font-size:200%')
             actionButton("run","runLOLA")
               
         )
       ),
       fluidRow(
         column(4,
+               downloadButton("logodds_plot_dl"),
                plotOutput("logodds_plot")
         ),
         column(4, 
+               downloadButton("support_plot_dl"),
                plotOutput("support_plot")
         ),
         column(4,
+               downloadButton("pvalue_plot_dl"),
                plotOutput("pvalue_plot")
         )
       ),
@@ -105,32 +106,90 @@ server <- function(input, output) {
     })
   })
   
-  output$logodds_plot <- renderPlot({
+  # barplots
+    
+  # log odds
+    
+  # set up function
+  logodds_plot_input <- function() {
     
     ggplot(dat(), aes(description, logOddsRatio)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
+    
+  }
+  
+  # call plot
+  output$logodds_plot <- renderPlot({
+    
+    logodds_plot_input()
 
   })
   
-  output$support_plot <- renderPlot({
+  # download handler
+  output$logodds_plot_dl <- downloadHandler(
+    filename = function() { paste(gsub(".bed", "", input$userset),
+                                  "_logodds", 
+                                  ".png", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = logodds_plot_input(), device = "png")
+    }
+  )
+  
+  # set up function
+  support_plot_input <- function() {
     
     ggplot(dat(), aes(description, support)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
     
+  }
+  
+  output$support_plot <- renderPlot({
+    
+    support_plot_input()
+    
   })
   
-  output$pvalue_plot <- renderPlot({
+  # download handler
+  output$support_plot_dl <- downloadHandler(
+    filename = function() { paste(gsub(".bed", "", input$userset),
+                                  "_support", 
+                                  ".png", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = support_plot_input(), device = "png")
+    }
+  )
+  
+  # set up function
+  
+  pvalue_plot_input <- function() {
     
     ggplot(dat(), aes(description, pValueLog)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
     
+  }
+  output$pvalue_plot <- renderPlot({
+    
+    pvalue_plot_input()
+    
   })
+  
+  output$pvalue_plot_dl <- downloadHandler(
+    filename = function() { paste(gsub(".bed", "", input$userset),
+                                  "_pvalue", 
+                                  ".png", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = pvalue_plot_input(), device = "png")
+    }
+  )
   
   output$res <- DT::renderDataTable({
     
