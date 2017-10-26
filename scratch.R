@@ -49,3 +49,24 @@ ggplot(resRedefined, aes(logOddsRatio)) +
 
 resRedefined
 resRedefined[order(meanRnk, maxRnk)]
+
+system.time({
+  dbPath = system.file("extdata", "hg19", package="LOLA")
+  regionDB = loadRegionDB(dbLocation="~/Downloads/scratch/ns5bc/resources/regions/LOLACore/hg19/")
+})
+
+system.time({
+  dbPath = system.file("extdata", "hg38", package="LOLA")
+  regionDB = loadRegionDB(dbLocation="~/Downloads/scratch/ns5bc/resources/regions/LOLACore/hg38/")
+})
+
+system.time({
+  dbPath = system.file("extdata", "mm10", package="LOLA")
+  regionDB = loadRegionDB(dbLocation="~/Downloads/scratch/ns5bc/resources/regions/LOLACore/mm10/")
+})
+
+
+
+
+
+

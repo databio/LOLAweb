@@ -7,9 +7,14 @@ library(ggplot2)
 library(GenomicRanges)
 library(DT)
 
-# load region data
-dbPath = system.file("extdata", "hg19", package="LOLA")
-regionDB = loadRegionDB(dbLocation=dbPath)
+# load region data for each genome
+# dbPath = system.file("extdata", "hg19", package="LOLA")
+# regionDB = loadRegionDB(dbLocation=dbPath)
+
+dbPath = "scratch/ns5bc/resources/regions/"
+hg19 = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/hg19"))
+hg38 = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/hg38"))
+mm10 = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/mm10"))
 
 ui <- fluidPage(
   
@@ -21,15 +26,21 @@ ui <- fluidPage(
   
       fluidRow(
         column(8,
-                   fileInput("userset", "Upload User Set(s)",
-                             multiple = TRUE,
-                             accept = c(".bed")),
-                   checkboxInput("checkbox", label = "Check Here to Upload Your Own Universe", value = FALSE),
-                   uiOutput("universe")
+               fileInput("userset", "Upload User Set(s)",
+                         multiple = TRUE,
+                         accept = c(".bed")),
+               checkboxInput("checkbox", 
+                             label = "Check Here to Upload Your Own Universe",
+                             value = FALSE),
+               uiOutput("universe"),
+               selectInput("refgenome", 
+                           "Reference Genome", 
+                           choices = c("hg19","hg38", "mm10"))
         ),
         column(4, 
-            actionButton("run","RUN LOLA", class = "runLOLA")
-              
+               actionButton("run",
+                            "RUN LOLA", 
+                            class = "runLOLA")
         ),
       class = "headerBox"),
       fluidRow(
@@ -110,7 +121,10 @@ server <- function(input, output) {
       
       userSetsRedefined =	redefineUserSets(userSets, userUniverse)
       
-      resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=2)
+      resRedefined = runLOLA(userSetsRedefined, 
+                             userUniverse, 
+                             eval(parse(text = input$refgenome)), 
+                             cores=2)
       
       return(resRedefined)
       
