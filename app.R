@@ -5,6 +5,7 @@ library(shiny)
 library(LOLA)
 library(ggplot2)
 library(GenomicRanges)
+library(DT)
 
 # load region data
 dbPath = system.file("extdata", "hg19", package="LOLA")
@@ -200,9 +201,12 @@ server <- function(input, output) {
   output$res <- DT::renderDataTable({
     
     # data.table of results ordered by ranks
-    dat()[order(meanRnk, maxRnk)]
+    dat()[order(meanRnk, maxRnk)] %>%
+      datatable() %>%
+      formatRound(columns=c('logOddsRatio', 'pValueLog'),
+                  digits = 4)
     
-  }, options = list(scrollX = TRUE))
+  })
 }
 
 shinyApp(ui = ui, server = server)
