@@ -29,15 +29,21 @@ ui <- fluidPage(
       ),
       fluidRow(
         column(4,
-               downloadButton("logodds_plot_dl"),
+               conditionalPanel(condition = "output.logodds_plot",
+                                downloadButton("logodds_plot_dl",
+                                               label = "Download Plot")),
                plotOutput("logodds_plot")
         ),
         column(4, 
-               downloadButton("support_plot_dl"),
+               conditionalPanel(condition = "output.support_plot",
+                                downloadButton("support_plot_dl",
+                                               label = "Download Plot")),
                plotOutput("support_plot")
         ),
         column(4,
-               downloadButton("pvalue_plot_dl"),
+               conditionalPanel(condition = "output.pvalue_plot",
+                                downloadButton("pvalue_plot_dl", 
+                                               label = "Download Plot")),
                plotOutput("pvalue_plot")
         )
       ),
