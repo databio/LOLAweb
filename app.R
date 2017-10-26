@@ -7,15 +7,6 @@ library(ggplot2)
 library(GenomicRanges)
 library(DT)
 
-# load region data for each genome
-# dbPath = system.file("extdata", "hg19", package="LOLA")
-# regionDB = loadRegionDB(dbLocation=dbPath)
-
-dbPath = "scratch/ns5bc/resources/regions/"
-hg19 = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/hg19"))
-hg38 = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/hg38"))
-mm10 = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/mm10"))
-
 ui <- fluidPage(
   
   tags$head(
@@ -121,9 +112,13 @@ server <- function(input, output) {
       
       userSetsRedefined =	redefineUserSets(userSets, userUniverse)
       
+      # load region data for each reference genome
+      dbPath = "scratch/ns5bc/resources/regions/"
+      regionDB = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/", input$refgenome))
+      
       resRedefined = runLOLA(userSetsRedefined, 
                              userUniverse, 
-                             eval(parse(text = input$refgenome)), 
+                             regionDB,
                              cores=2)
       
       return(resRedefined)
