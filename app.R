@@ -13,6 +13,10 @@ regionDB = loadRegionDB(dbLocation=dbPath)
 
 ui <- fluidPage(
   
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+  ),
+  
   titlePanel("LOLA"),
   
       fluidRow(
@@ -24,10 +28,10 @@ ui <- fluidPage(
                    uiOutput("universe")
         ),
         column(4, 
-            actionButton("run","runLOLA")
+            actionButton("run","RUN LOLA", class = "runLOLA")
               
-        )
-      ),
+        ),
+      class = "headerBox"),
       fluidRow(
         column(4,
                conditionalPanel(condition = "output.logodds_plot",
