@@ -44,18 +44,21 @@ ui <- fluidPage(
       fluidRow(
         column(4,
                conditionalPanel(condition = "output.logodds_plot",
+                                h3("Log Odds"),
                                 downloadButton("logodds_plot_dl",
                                                label = "Download Plot")),
                plotOutput("logodds_plot")
         ),
         column(4, 
                conditionalPanel(condition = "output.support_plot",
+                                h3("Support"),
                                 downloadButton("support_plot_dl",
                                                label = "Download Plot")),
                plotOutput("support_plot")
         ),
         column(4,
                conditionalPanel(condition = "output.pvalue_plot",
+                                h3("P Value"),
                                 downloadButton("pvalue_plot_dl", 
                                                label = "Download Plot")),
                plotOutput("pvalue_plot")
@@ -229,7 +232,7 @@ server <- function(input, output) {
     
     # data.table of results ordered by ranks
     dat()[order(meanRnk, maxRnk)] %>%
-      datatable() %>%
+      datatable(rownames = FALSE) %>%
       formatRound(columns=c('logOddsRatio', 'pValueLog'),
                   digits = 4)
     
