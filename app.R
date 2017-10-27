@@ -20,10 +20,12 @@ ui <- fluidPage(
                fileInput("userset", "Upload User Set(s)",
                          multiple = TRUE,
                          accept = c(".bed")),
+               h3("Select a universe"),
+               tags$div(HTML("<a href='http://code.databio.org/LOLA/articles/choosingUniverse.html'>How to choose a universe</a>")),
+               uiOutput("universe"),
                checkboxInput("checkbox", 
                              label = "Check Here to Upload Your Own Universe",
                              value = FALSE),
-               uiOutput("universe"),
                radioButtons("loladb", 
 "Specify Core or Extended LOLA Databases", choices = c("Core", "Extended")), 
                conditionalPanel(condition = "input.loladb == 'Core'",
@@ -72,7 +74,7 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     output$universe <- renderUI({
-      
+
       if(input$checkbox) {
         
         fileInput("useruniverse", "Upload Universe",
