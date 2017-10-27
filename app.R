@@ -24,9 +24,16 @@ ui <- fluidPage(
                              label = "Check Here to Upload Your Own Universe",
                              value = FALSE),
                uiOutput("universe"),
-               selectInput("refgenome", 
-                           "Reference Genome", 
-                           choices = c("hg19","hg38", "mm10"))
+               radioButtons("loladb", 
+"Specify Core or Extended LOLA Databases", choices = c("Core", "Extended")), 
+               conditionalPanel(condition = "input.loladb == 'Core'",
+                                selectInput("refgenome_core", 
+                                            "Reference Genome", 
+                                            choices = c("hg19","hg38", "mm10"))),
+               conditionalPanel(condition = "input.loladb == 'Extended'",
+                                selectInput("refgenome_ext", 
+                                            "Reference Genome", 
+                                            choices = c("hg19","hg38")))
         ),
         column(4, 
                actionButton("run",
@@ -113,8 +120,15 @@ server <- function(input, output) {
       userSetsRedefined =	redefineUserSets(userSets, userUniverse)
       
       # load region data for each reference genome
-      dbPath = "scratch/ns5bc/resources/regions/"
-      regionDB = loadRegionDB(dbLocation=paste0(dbPath, "LOLACore/", input$refgenome))
+      dbPath = paste("reference", 
+                      input$loladb, 
+                      ifelse(input$loladb == "Core", 
+                             input$refgenome_core,
+                             input$refgenome_ext),
+                     sep = "/"
+                      )
+                      
+      regionDB = loadRegionDB(dbLocation=dbPath)
       
       resRedefined = runLOLA(userSetsRedefined, 
                              userUniverse, 
