@@ -20,14 +20,24 @@ ui <- fluidPage(
                fileInput("userset", "Upload User Set(s)",
                          multiple = TRUE,
                          accept = c(".bed")),
-               h3("Select a universe"),
-               tags$div(HTML("<a href='http://code.databio.org/LOLA/articles/choosingUniverse.html'>How to choose a universe</a>")),
+               tags$div(
+                h3("Select a universe",
+                tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
+                       icon("question-circle-o"), 
+                       target = "blank"))
+               ),
                uiOutput("universe"),
                checkboxInput("checkbox", 
                              label = "Check Here to Upload Your Own Universe",
                              value = FALSE),
+               tags$div(
+               h3("Select Region Database",
+               tags$a(href = "http://databio.org/regiondb", 
+                      icon("question-circle-o"), 
+                      target = "blank"))
+               ),
                radioButtons("loladb", 
-"Specify Core or Extended LOLA Databases", choices = c("Core", "Extended")), 
+"", choices = c("Core", "Extended")), 
                conditionalPanel(condition = "input.loladb == 'Core'",
                                 selectInput("refgenome_core", 
                                             "Reference Genome", 
