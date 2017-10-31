@@ -145,10 +145,12 @@ server <- function(input, output) {
                       
       regionDB = loadRegionDB(dbLocation=dbPath)
       
+      cores = parallel::detectCores()
+      
       resRedefined = runLOLA(userSetsRedefined, 
                              userUniverse, 
                              regionDB,
-                             cores=2)
+                             cores=cores)
       
       return(resRedefined)
       
