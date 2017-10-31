@@ -58,21 +58,28 @@ ui <- fluidPage(
                conditionalPanel(condition = "output.logodds_plot",
                                 h3("Log Odds"),
                                 downloadButton("logodds_plot_dl",
-                                               label = "Download Plot")),
+                                               label = "Download Plot"),
+                                HTML("<br>"),
+                                uiOutput("slider_logOdds")),
+            
                plotOutput("logodds_plot")
         ),
         column(4, 
                conditionalPanel(condition = "output.support_plot",
                                 h3("Support"),
                                 downloadButton("support_plot_dl",
-                                               label = "Download Plot")),
+                                               label = "Download Plot"),
+                                HTML("<br>"),
+                                uiOutput("slider_support")),
                plotOutput("support_plot")
         ),
         column(4,
                conditionalPanel(condition = "output.pvalue_plot",
                                 h3("P Value"),
                                 downloadButton("pvalue_plot_dl", 
-                                               label = "Download Plot")),
+                                               label = "Download Plot"),
+                                HTML("<br>"),
+                                uiOutput("slider_pvalue")),
                plotOutput("pvalue_plot")
         )
       ),
@@ -160,11 +167,25 @@ server <- function(input, output) {
   # barplots
     
   # log odds
+  
+  output$slider_logOdds <- renderUI({
     
+    req(input$run)
+    
+    sliderInput("slider_logOdds_i", 
+                "Select Cutoff", 
+                min = round(min(dat()$logOddsRatio), 3), 
+                max = round(max(dat()$logOddsRatio), 3),
+                value = round(min(dat()$logOddsRatio), 3))
+    
+    })  
+  
   # set up function
   logodds_plot_input <- function() {
     
-    ggplot(dat(), aes(description, logOddsRatio)) +
+    dat <- subset(dat(), logOddsRatio >= input$slider_logOdds_i)
+    
+    ggplot(dat, aes(description, logOddsRatio)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -189,10 +210,27 @@ server <- function(input, output) {
     }
   )
   
+  # support
+  
+  # slider
+  output$slider_support <- renderUI({
+    
+    req(input$run)
+    
+    sliderInput("slider_support_i", 
+                "Select Cutoff", 
+                min = round(min(dat()$support), 3), 
+                max = round(max(dat()$support), 3),
+                value = round(min(dat()$support), 3))
+    
+  })  
+  
   # set up function
   support_plot_input <- function() {
     
-    ggplot(dat(), aes(description, support)) +
+    dat <- subset(dat(), support >= input$slider_support_i)
+    
+    ggplot(dat, aes(description, support)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -216,11 +254,29 @@ server <- function(input, output) {
     }
   )
   
+  # pvalue
+  
+  # slider input
+  
+  output$slider_pvalue <- renderUI({
+    
+    req(input$run)
+    
+    sliderInput("slider_pvalue_i", 
+                "Select Cutoff", 
+                min = round(min(dat()$pValueLog), 3), 
+                max = round(max(dat()$pValueLog), 3),
+                value = round(min(dat()$pValueLog), 3))
+    
+  })  
+  
   # set up function
   
   pvalue_plot_input <- function() {
     
-    ggplot(dat(), aes(description, pValueLog)) +
+    dat <- subset(dat(), pValueLog >= input$slider_pvalue_i)
+    
+    ggplot(dat, aes(description, pValueLog)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
