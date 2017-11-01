@@ -1,5 +1,6 @@
 options(shiny.maxRequestSize=100*1024^2)
 source("themes.R")
+source("misc.R")
 
 library(shiny)
 library(LOLA)
@@ -174,9 +175,13 @@ server <- function(input, output) {
     dat <- subset(raw_dat(), 
                   logOddsRatio >= input$slider_logOdds_i & 
                     support >= input$slider_support_i &
-                    pValueLog >= input$slider_pvalue_i &
-                    collection == input$select_collection_i
-                  )
+                    pValueLog >= input$slider_pvalue_i)
+    
+    if (input$select_collection_i != "All Collections") {
+      
+       dat <- subset(dat, collection == input$select_collection_i)
+       
+    }
     
     return(dat)
 
@@ -189,7 +194,8 @@ server <- function(input, output) {
   
     selectInput("select_collection_i", 
                 "Select Collection", 
-                choices = unique(raw_dat()$collection))
+                choices = c("All Collections", unique(raw_dat()$collection)),
+                selected = "All Collections")
     
   })  
   
@@ -205,7 +211,7 @@ server <- function(input, output) {
                 "Specify Log Odds Cutoff", 
                 min = round(min(raw_dat()$logOddsRatio), 3), 
                 max = round(max(raw_dat()$logOddsRatio), 3),
-                value = round(min(raw_dat()$logOddsRatio), 3))
+                value = round_top(raw_dat()$logOddsRatio, 30))
     
     })  
   
@@ -291,15 +297,13 @@ server <- function(input, output) {
                 "Specify P Value Cutoff", 
                 min = round(min(raw_dat()$pValueLog), 3), 
                 max = round(max(raw_dat()$pValueLog), 3),
-                value = round(min(raw_dat()$pValueLog), 3))
+                value = round_top(raw_dat()$pValueLog, 30))
     
   })  
   
   # set up function
   
   pvalue_plot_input <- function() {
-    
-    # dat <- subset(dat(), pValueLog >= input$slider_pvalue_i)
     
     ggplot(dat(), aes(description, pValueLog)) +
       geom_bar(stat = "identity") +
