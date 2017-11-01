@@ -55,31 +55,36 @@ ui <- fluidPage(
       class = "headerBox"),
       fluidRow(
         column(4,
+               uiOutput("slider_logOdds"),
+               uiOutput("select_collection")
+        ),
+        column(4,
+               uiOutput("slider_support")
+               ),
+        column(4,
+               uiOutput("slider_pvalue")
+               )
+      ),
+      fluidRow(
+        column(4,
                conditionalPanel(condition = "output.logodds_plot",
                                 h3("Log Odds"),
                                 downloadButton("logodds_plot_dl",
-                                               label = "Download Plot"),
-                                HTML("<br>"),
-                                uiOutput("slider_logOdds")),
-            
+                                               label = "Download Plot")),
                plotOutput("logodds_plot")
         ),
         column(4, 
                conditionalPanel(condition = "output.support_plot",
                                 h3("Support"),
                                 downloadButton("support_plot_dl",
-                                               label = "Download Plot"),
-                                HTML("<br>"),
-                                uiOutput("slider_support")),
+                                               label = "Download Plot")),
                plotOutput("support_plot")
         ),
         column(4,
                conditionalPanel(condition = "output.pvalue_plot",
                                 h3("P Value"),
                                 downloadButton("pvalue_plot_dl", 
-                                               label = "Download Plot"),
-                                HTML("<br>"),
-                                uiOutput("slider_pvalue")),
+                                               label = "Download Plot")),
                plotOutput("pvalue_plot")
         )
       ),
@@ -107,7 +112,7 @@ server <- function(input, output) {
       
     })
     
-    dat <- eventReactive(input$run, {
+    raw_dat <- eventReactive(input$run, {
       
       withProgress(message = 'calculating region set enrichments...', style = "old", value = 0, {
         
@@ -163,6 +168,30 @@ server <- function(input, output) {
       
     })
   })
+    
+  dat <- reactive({
+    
+    dat <- subset(raw_dat(), 
+                  logOddsRatio >= input$slider_logOdds_i & 
+                    support >= input$slider_support_i &
+                    pValueLog >= input$slider_pvalue_i &
+                    collection == input$select_collection_i
+                  )
+    
+    return(dat)
+
+  })
+    
+  
+  output$select_collection <- renderUI({
+    
+    req(input$run)
+  
+    selectInput("select_collection_i", 
+                "Select Collection", 
+                choices = unique(raw_dat()$collection))
+    
+  })  
   
   # barplots
     
@@ -173,19 +202,17 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_logOdds_i", 
-                "Select Cutoff", 
-                min = round(min(dat()$logOddsRatio), 3), 
-                max = round(max(dat()$logOddsRatio), 3),
-                value = round(min(dat()$logOddsRatio), 3))
+                "Specify Log Odds Cutoff", 
+                min = round(min(raw_dat()$logOddsRatio), 3), 
+                max = round(max(raw_dat()$logOddsRatio), 3),
+                value = round(min(raw_dat()$logOddsRatio), 3))
     
     })  
   
   # set up function
   logodds_plot_input <- function() {
     
-    dat <- subset(dat(), logOddsRatio >= input$slider_logOdds_i)
-    
-    ggplot(dat, aes(description, logOddsRatio)) +
+    ggplot(dat(), aes(description, logOddsRatio)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -218,19 +245,17 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_support_i", 
-                "Select Cutoff", 
-                min = round(min(dat()$support), 3), 
-                max = round(max(dat()$support), 3),
-                value = round(min(dat()$support), 3))
+                "Specify Support Cutoff", 
+                min = round(min(raw_dat()$support), 3), 
+                max = round(max(raw_dat()$support), 3),
+                value = round(min(raw_dat()$support), 3))
     
   })  
   
   # set up function
   support_plot_input <- function() {
     
-    dat <- subset(dat(), support >= input$slider_support_i)
-    
-    ggplot(dat, aes(description, support)) +
+    ggplot(dat(), aes(description, support)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -263,10 +288,10 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_pvalue_i", 
-                "Select Cutoff", 
-                min = round(min(dat()$pValueLog), 3), 
-                max = round(max(dat()$pValueLog), 3),
-                value = round(min(dat()$pValueLog), 3))
+                "Specify P Value Cutoff", 
+                min = round(min(raw_dat()$pValueLog), 3), 
+                max = round(max(raw_dat()$pValueLog), 3),
+                value = round(min(raw_dat()$pValueLog), 3))
     
   })  
   
@@ -274,9 +299,9 @@ server <- function(input, output) {
   
   pvalue_plot_input <- function() {
     
-    dat <- subset(dat(), pValueLog >= input$slider_pvalue_i)
+    # dat <- subset(dat(), pValueLog >= input$slider_pvalue_i)
     
-    ggplot(dat, aes(description, pValueLog)) +
+    ggplot(dat(), aes(description, pValueLog)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
