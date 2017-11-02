@@ -338,8 +338,11 @@ server <- function(input, output) {
                                 dat$dbSet,
                                 "</a>"),
                         dat$dbSet)
+    
     dat %>%
-      datatable(rownames = FALSE, escape = FALSE) %>%
+      datatable(rownames = FALSE, 
+                escape = FALSE,
+                extensions = "Responsive") %>%
       formatRound(columns=c('logOddsRatio', 'pValueLog'),
                   digits = 4)
     
