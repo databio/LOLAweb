@@ -329,9 +329,17 @@ server <- function(input, output) {
   
   output$res <- DT::renderDataTable({
     
-    # data.table of results ordered by ranks
-    dat()[order(meanRnk, maxRnk)] %>%
-      datatable(rownames = FALSE) %>%
+    dat <- dat()
+    
+    dat$dbSet <- ifelse(dat$collection == "sheffield_dnase",
+                        paste0("<a href = 'http://db.databio.org/clusterDetail.php?clusterID=",
+                               tools::file_path_sans_ext(dat$filename),
+                               "' target = '_blank'>",
+                                dat$dbSet,
+                                "</a>"),
+                        dat$dbSet)
+    dat %>%
+      datatable(rownames = FALSE, escape = FALSE) %>%
       formatRound(columns=c('logOddsRatio', 'pValueLog'),
                   digits = 4)
     
