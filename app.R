@@ -1,6 +1,7 @@
 options(shiny.maxRequestSize=100*1024^2)
 source("themes.R")
 source("misc.R")
+source("disabler.R")
 
 library(shiny)
 library(LOLA)
@@ -37,9 +38,11 @@ ui <- fluidPage(
                       icon("question-circle-o"), 
                       target = "blank"))
                ),
-               radioButtons("loladb", 
-                            "", 
-                            choices = c("Core", "Extended")), 
+               # radioButtons("loladb", 
+               #              "", 
+               #              choices = c("Core", "Extended")), 
+               # must be a better way to do this
+               HTML(disabledbutton),
                conditionalPanel(condition = "input.loladb == 'Core'",
                                 selectInput("refgenome_core", 
                                             "Reference Genome", 
