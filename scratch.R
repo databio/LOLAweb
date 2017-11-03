@@ -15,7 +15,10 @@ userSetsRedefined =	redefineUserSets(userSets, userUniverse)
 resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
 
 hist(resRedefined$pValueLog)
-  
+
+dplyr::arrange(resRedefined, userSet)
+sort(resRedefined, collection)
+resRedefined[order(resRedefined[,"collection"])]
 # userSetA = reduce(do.call(c, (LOLA::sampleGRL(regionDB$regionGRL,
 #                                         prop=c(.1,.25,.05,.05,0)))))
 # userSetB = reduce(do.call(c, (sampleGRL(regionDB$regionGRL,
@@ -67,6 +70,11 @@ system.time({
 
 
 
+ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), logOddsRatio)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_ns()
 
 
+resRedefined[order("meanRnk")]
 

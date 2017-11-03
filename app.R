@@ -38,7 +38,8 @@ ui <- fluidPage(
                       target = "blank"))
                ),
                radioButtons("loladb", 
-"", choices = c("Core", "Extended")), 
+                            "", 
+                            choices = c("Core", "Extended")), 
                conditionalPanel(condition = "input.loladb == 'Core'",
                                 selectInput("refgenome_core", 
                                             "Reference Genome", 
@@ -60,7 +61,8 @@ ui <- fluidPage(
                uiOutput("select_collection")
         ),
         column(4,
-               uiOutput("slider_support")
+               uiOutput("slider_support"),
+               uiOutput("select_sort")
                ),
         column(4,
                uiOutput("slider_pvalue")
@@ -95,6 +97,7 @@ ui <- fluidPage(
   )
 
 server <- function(input, output) {
+    
     
     output$universe <- renderUI({
 
@@ -177,12 +180,13 @@ server <- function(input, output) {
                     support >= input$slider_support_i &
                     pValueLog >= input$slider_pvalue_i)
     
+    
     if (input$select_collection_i != "All Collections") {
       
        dat <- subset(dat, collection == input$select_collection_i)
        
     }
-    
+  
     return(dat)
 
   })
@@ -196,6 +200,17 @@ server <- function(input, output) {
                 "Select Collection", 
                 choices = c("All Collections", unique(raw_dat()$collection)),
                 selected = "All Collections")
+    
+  })  
+  
+  output$select_sort <- renderUI({
+    
+    req(input$run)
+    
+    selectInput("select_sort_i", 
+                "Select Sort Column", 
+                choices = names(raw_dat()),
+                selected = "meanRank")
     
   })  
   
@@ -218,7 +233,7 @@ server <- function(input, output) {
   # set up function
   logodds_plot_input <- function() {
     
-    ggplot(dat(), aes(description, logOddsRatio)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), logOddsRatio)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -261,7 +276,7 @@ server <- function(input, output) {
   # set up function
   support_plot_input <- function() {
     
-    ggplot(dat(), aes(description, support)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), support)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -305,7 +320,7 @@ server <- function(input, output) {
   
   pvalue_plot_input <- function() {
     
-    ggplot(dat(), aes(description, pValueLog)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), pValueLog)) +
       geom_bar(stat = "identity") +
       coord_flip() +
       theme_ns()
@@ -329,7 +344,7 @@ server <- function(input, output) {
   
   output$res <- DT::renderDataTable({
     
-    dat <- dat()
+    dat <- dat()[order(eval(parse(text = input$select_sort_i)), decreasing = TRUE)]
     
     dat$dbSet <- ifelse(dat$collection == "sheffield_dnase",
                         paste0("<a href = 'http://db.databio.org/clusterDetail.php?clusterID=",
@@ -343,10 +358,25 @@ server <- function(input, output) {
       datatable(rownames = FALSE, 
                 escape = FALSE,
                 extensions = "Responsive") %>%
-      formatRound(columns=c('logOddsRatio', 'pValueLog'),
+      formatRound(columns=c('logOddsRatio', 'pValueLog', 'qValue'),
                   digits = 4)
     
   })
+  
+  # observe({
+  #   
+  #   if(nrow(dat()) == 0) {
+  #     showNotification("No results found. Please try adjusting the inputs.", 
+  #                      type = "error", 
+  #                      duration = 10)
+  #   } else {
+  #     
+  #     invisible()
+  #     
+  #   }
+  #   
+  # })
+  
 }
 
 shinyApp(ui = ui, server = server)
