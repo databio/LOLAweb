@@ -75,6 +75,10 @@ ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), logOddsR
   coord_flip() +
   theme_ns()
 
-
+mtcars %>%
+  mutate(car = rownames(mtcars)) %>%
+  ggplot(aes(reorder(car, mpg, rev))), mpg)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
 resRedefined[order("meanRnk")]
 

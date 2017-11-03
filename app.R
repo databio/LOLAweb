@@ -186,7 +186,9 @@ server <- function(input, output) {
        dat <- subset(dat, collection == input$select_collection_i)
        
     }
-  
+    
+    dat$id <- paste(dat$description, dat$dbSet, sep = "_")
+      
     return(dat)
 
   })
@@ -233,8 +235,10 @@ server <- function(input, output) {
   # set up function
   logodds_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), logOddsRatio)) +
+    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), logOddsRatio)) +
       geom_bar(stat = "identity") +
+      xlab("Description") +
+      ylab("Log Odds Ratio") +
       coord_flip() +
       theme_ns()
     
@@ -276,8 +280,10 @@ server <- function(input, output) {
   # set up function
   support_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), support)) +
+    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), support)) +
       geom_bar(stat = "identity") +
+      xlab("Description") +
+      ylab("Support") +
       coord_flip() +
       theme_ns()
     
@@ -320,8 +326,10 @@ server <- function(input, output) {
   
   pvalue_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), pValueLog)) +
+    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), pValueLog)) +
       geom_bar(stat = "identity") +
+      xlab("Description") +
+      ylab("P Value (log scale)") +
       coord_flip() +
       theme_ns()
     
