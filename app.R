@@ -368,10 +368,11 @@ server <- function(input, output) {
     dat %>%
       datatable(rownames = FALSE, 
                 escape = FALSE,
-                extensions = "Responsive") %>%
+                extensions = c("Responsive", "Buttons"),
+                options = list(dom = "Bfrtip",
+                               buttons = "csv")) %>%
       formatRound(columns=c('logOddsRatio', 'pValueLog', 'qValue'),
                   digits = 4)
-    
   })
   
   # observe({
