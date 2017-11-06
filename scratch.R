@@ -70,15 +70,9 @@ system.time({
 
 
 
-ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), logOddsRatio)) +
-  geom_bar(stat = "identity") +
+ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), logOddsRatio, fill = userSet)) +
+  geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   theme_ns()
 
-mtcars %>%
-  mutate(car = rownames(mtcars)) %>%
-  ggplot(aes(reorder(car, mpg, rev))), mpg)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
-resRedefined[order("meanRnk")]
 

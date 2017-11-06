@@ -68,7 +68,8 @@ ui <- fluidPage(
                uiOutput("select_sort")
                ),
         column(4,
-               uiOutput("slider_pvalue")
+               uiOutput("slider_pvalue"),
+               uiOutput("select_userset")
                )
       ),
       fluidRow(
@@ -171,6 +172,9 @@ server <- function(input, output) {
                              regionDB,
                              cores=cores)
       
+      # need to make sure user set is discrete even if coded as number
+      resRedefined$userSet = as.character(resRedefined$userSet)
+      
       return(resRedefined)
       
     })
@@ -182,12 +186,17 @@ server <- function(input, output) {
                   logOddsRatio >= input$slider_logOdds_i & 
                     support >= input$slider_support_i &
                     pValueLog >= input$slider_pvalue_i)
-    
-    
+  
     if (input$select_collection_i != "All Collections") {
       
        dat <- subset(dat, collection == input$select_collection_i)
        
+    }
+    
+    if (input$select_userset_i != "All User Sets") {
+      
+      dat <- subset(dat, userSet == input$select_userset_i)
+      
     }
     
     dat$id <- paste(dat$description, dat$dbSet, sep = "_")
@@ -219,6 +228,16 @@ server <- function(input, output) {
     
   })  
   
+  output$select_userset <- renderUI({
+    
+    req(input$run)
+    
+    selectInput("select_userset_i", 
+                "Select User Set", 
+                choices = setchoices())
+    
+  })  
+  
   # barplots
     
   # log odds
@@ -238,8 +257,8 @@ server <- function(input, output) {
   # set up function
   logodds_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), logOddsRatio)) +
-      geom_bar(stat = "identity") +
+    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), logOddsRatio, fill = userSet)) +
+      geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("Log Odds Ratio") +
       coord_flip() +
@@ -283,8 +302,8 @@ server <- function(input, output) {
   # set up function
   support_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), support)) +
-      geom_bar(stat = "identity") +
+    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), support, fill = userSet)) +
+      geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("Support") +
       coord_flip() +
@@ -329,8 +348,8 @@ server <- function(input, output) {
   
   pvalue_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), pValueLog)) +
-      geom_bar(stat = "identity") +
+    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), pValueLog, fill = userSet)) +
+      geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("P Value (log scale)") +
       coord_flip() +
