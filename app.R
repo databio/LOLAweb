@@ -165,12 +165,12 @@ server <- function(input, output) {
                       
       regionDB = loadRegionDB(dbLocation=dbPath)
       
-      cores = parallel::detectCores()
+      # cores = parallel::detectCores()
       
       resRedefined = runLOLA(userSetsRedefined, 
                              userUniverse, 
                              regionDB,
-                             cores=cores)
+                             cores=1)
       
       # need to make sure user set is discrete even if coded as number
       resRedefined$userSet = as.character(resRedefined$userSet)
@@ -404,7 +404,7 @@ server <- function(input, output) {
                 extensions = c("Responsive", "Buttons"),
                 options = list(dom = "Bfrtip",
                                buttons = "csv")) %>%
-      formatRound(columns=c('logOddsRatio', 'pValueLog', 'qValue'),
+      formatRound(columns=c('logOddsRatio', 'pValueLog'),
                   digits = 4)
   })
   
