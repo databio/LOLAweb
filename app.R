@@ -194,9 +194,9 @@ server <- function(input, output) {
     }
     
     if (input$select_userset_i != "All User Sets") {
-      
+
       dat <- subset(dat, userSet == input$select_userset_i)
-      
+
     }
     
     dat$id <- paste(dat$description, dat$dbSet, sep = "_")
@@ -205,6 +205,20 @@ server <- function(input, output) {
 
   })
     
+  setchoices <- function() {
+    
+    req(input$run)
+    
+    if(length(unique(raw_dat()$userSet)) == 1) {
+      
+      unique(raw_dat()$userSet)
+      
+    } else {
+      
+      c("All User Sets", unique(raw_dat()$userSet))
+      
+    }
+  }
   
   output$select_collection <- renderUI({
     
