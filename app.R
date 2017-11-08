@@ -138,6 +138,8 @@ server <- function(input, output) {
       
       userSets = GRangesList(userSets)
       
+      names(userSets) = input$userset[,"name"]
+      
       if(input$checkbox) {
         
         userUniverse = read.table(file = input$useruniverse$datapath, header = F)
