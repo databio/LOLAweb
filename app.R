@@ -270,7 +270,7 @@ server <- function(input, output) {
   # set up function
   logodds_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), logOddsRatio, fill = userSet)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), logOddsRatio, fill = userSet, group = id)) +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("Log Odds Ratio") +
@@ -315,7 +315,7 @@ server <- function(input, output) {
   # set up function
   support_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), support, fill = userSet)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), support, fill = userSet, group = id)) +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("Support") +
@@ -361,7 +361,7 @@ server <- function(input, output) {
   
   pvalue_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(id, eval(parse(text = input$select_sort_i))), pValueLog, fill = userSet)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), pValueLog, fill = userSet, group = id)) +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("P Value (log scale)") +
