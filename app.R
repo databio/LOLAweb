@@ -58,43 +58,76 @@ ui <- fluidPage(
                             class = "runLOLA")
         ),
       class = "headerBox"),
+      # fluidRow(
+      #   column(4,
+      #          uiOutput("slider_logOdds"),
+      #          uiOutput("select_collection")
+      #   ),
+      #   column(4,
+      #          uiOutput("slider_support"),
+      #          uiOutput("select_sort")
+      #          ),
+      #   column(4,
+      #          uiOutput("slider_pvalue"),
+      #          uiOutput("select_userset")
+      #          )
+      # ),
+      # fluidRow(
+      #   column(4,
+      #          conditionalPanel(condition = "output.logodds_plot",
+      #                           h3("Log Odds"),
+      #                           downloadButton("logodds_plot_dl",
+      #                                          label = "Download Plot")),
+      #          plotOutput("logodds_plot")
+      #   ),
+      #   column(4, 
+      #          conditionalPanel(condition = "output.support_plot",
+      #                           h3("Support"),
+      #                           downloadButton("support_plot_dl",
+      #                                          label = "Download Plot")),
+      #          plotOutput("support_plot")
+      #   ),
+      #   column(4,
+      #          conditionalPanel(condition = "output.pvalue_plot",
+      #                           h3("P Value"),
+      #                           downloadButton("pvalue_plot_dl", 
+      #                                          label = "Download Plot")),
+      #          plotOutput("pvalue_plot")
+      #   )
+      # ),
       fluidRow(
-        column(4,
+        
+        column(2,
                uiOutput("slider_logOdds"),
-               uiOutput("select_collection")
-        ),
-        column(4,
                uiOutput("slider_support"),
-               uiOutput("select_sort")
-               ),
-        column(4,
                uiOutput("slider_pvalue"),
+               HTML("<br>"),
+               uiOutput("select_collection"),
+               uiOutput("select_sort"),
                uiOutput("select_userset")
-               )
-      ),
-      fluidRow(
-        column(4,
+                 
+          ),
+
+        column(5,
                conditionalPanel(condition = "output.logodds_plot",
                                 h3("Log Odds"),
                                 downloadButton("logodds_plot_dl",
                                                label = "Download Plot")),
-               plotOutput("logodds_plot")
-        ),
-        column(4, 
+               plotOutput("logodds_plot"),
                conditionalPanel(condition = "output.support_plot",
                                 h3("Support"),
                                 downloadButton("support_plot_dl",
                                                label = "Download Plot")),
                plotOutput("support_plot")
         ),
-        column(4,
+        column(5,
                conditionalPanel(condition = "output.pvalue_plot",
                                 h3("P Value"),
                                 downloadButton("pvalue_plot_dl", 
                                                label = "Download Plot")),
                plotOutput("pvalue_plot")
         )
-      ),
+        ),
       fluidRow(
         column(DT::dataTableOutput("res"), width = 12) 
       )   
