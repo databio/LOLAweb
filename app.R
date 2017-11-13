@@ -11,6 +11,8 @@ library(DT)
 
 ui <- fluidPage(
   
+  shinyjs::useShinyjs(),
+  
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
@@ -55,7 +57,8 @@ ui <- fluidPage(
         column(4, 
                actionButton("run",
                             "RUN LOLA", 
-                            class = "runLOLA")
+                            class = "runLOLA"),
+               textOutput("messages")
         ),
       class = "headerBox"),
       fluidRow(
@@ -98,6 +101,19 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     
+  observeEvent(input$run, {
+    withCallingHandlers({
+      shinyjs::html(id = "messages", html = "")
+      raw_dat()
+    },
+    message = function(m) {
+      shinyjs::html(id = "messages", html = m$message, add = FALSE)
+    },
+    warning = function(m) {
+      shinyjs::html(id = "messages", html = m$message, add = FALSE)
+    })
+  })
+  
     output$universe <- renderUI({
 
       if(input$checkbox) {
@@ -171,6 +187,13 @@ server <- function(input, output) {
       
       # need to make sure user set is discrete even if coded as number
       resRedefined$userSet = as.character(resRedefined$userSet)
+      
+      # seeing some missing pvalues need to make sure these are not present
+      # resRedefined = subset(resRedefined, 
+      #                       logOddsRatio != "",
+      #                       pValueLog != "",
+      #                       support != ""
+      #                       )
       
       return(resRedefined)
       
