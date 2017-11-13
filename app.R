@@ -64,7 +64,7 @@ ui <- fluidPage(
       fluidRow(
         
         column(2,
-                 uiOutput("slider_logOdds"),
+                 uiOutput("slider_oddsratio"),
                  uiOutput("slider_support"),
                  uiOutput("slider_pvalue"),
                  uiOutput("select_collection"),
@@ -75,10 +75,10 @@ ui <- fluidPage(
 
         column(5,
                conditionalPanel(condition = "output.res",
-                                h3("Log Odds"),
-                                downloadButton("logodds_plot_dl",
+                                h3("Odds Ratio"),
+                                downloadButton("oddsratio_plot_dl",
                                                label = "Download Plot")),
-               plotOutput("logodds_plot"),
+               plotOutput("oddsratio_plot"),
                conditionalPanel(condition = "output.res",
                                 h3("Support"),
                                 downloadButton("support_plot_dl",
@@ -190,7 +190,7 @@ server <- function(input, output) {
       
       # seeing some missing pvalues need to make sure these are not present
       # resRedefined = subset(resRedefined, 
-      #                       logOddsRatio != "",
+      #                       oddsRatio != "",
       #                       pValueLog != "",
       #                       support != ""
       #                       )
@@ -203,7 +203,7 @@ server <- function(input, output) {
   dat <- reactive({
     
     dat <- subset(raw_dat(), 
-                  logOddsRatio >= input$slider_logOdds_i & 
+                  oddsRatio >= input$slider_oddsratio_i & 
                     support >= input$slider_support_i &
                     pValueLog >= input$slider_pvalue_i)
   
@@ -276,47 +276,47 @@ server <- function(input, output) {
   
   # barplots
     
-  # log odds
+  # odds ratio
   
-  output$slider_logOdds <- renderUI({
+  output$slider_oddsratio <- renderUI({
     
     req(input$run)
     
-    sliderInput("slider_logOdds_i", 
-                "Specify Log Odds Cutoff", 
-                min = round(min(raw_dat()$logOddsRatio), 3), 
-                max = round(max(raw_dat()$logOddsRatio), 3),
-                value = round_top(raw_dat()$logOddsRatio, 30))
+    sliderInput("slider_oddsratio_i", 
+                "Specify Odds Ratio Cutoff", 
+                min = round(min(raw_dat()$oddsRatio), 3), 
+                max = round(max(raw_dat()$oddsRatio), 3),
+                value = round_top(raw_dat()$oddsRatio, 30))
     
     })  
   
   # set up function
-  logodds_plot_input <- function() {
+  oddsratio_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), logOddsRatio, fill = userSet, group = id)) +
+    ggplot(dat(), aes(reorder(description, eval(parse(text = input$select_sort_i))), oddsRatio, fill = userSet, group = id)) +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
-      ylab("Log Odds Ratio") +
+      ylab("Odds Ratio") +
       coord_flip() +
       theme_ns()
     
   }
   
   # call plot
-  output$logodds_plot <- renderPlot({
+  output$oddsratio_plot <- renderPlot({
     
-    logodds_plot_input()
+    oddsratio_plot_input()
 
   })
   
   # download handler
-  output$logodds_plot_dl <- downloadHandler(
+  output$oddsratio_plot_dl <- downloadHandler(
     filename = function() { paste(gsub(".bed", "", input$userset),
-                                  "_logodds", 
+                                  "_oddsratio", 
                                   ".png", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = logodds_plot_input(), device = "png")
+      ggsave(file, plot = oddsratio_plot_input(), device = "png")
     }
   )
   
@@ -426,7 +426,7 @@ server <- function(input, output) {
                 extensions = c("Responsive", "Buttons"),
                 options = list(dom = "Bfrtip",
                                buttons = "csv")) %>%
-      formatRound(columns=c('logOddsRatio', 'pValueLog'),
+      formatRound(columns=c('oddsRatio', 'pValueLog'),
                   digits = 4)
   })
   
