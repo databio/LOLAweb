@@ -16,6 +16,8 @@ resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
 
 hist(resRedefined$pValueLog)
 
+resRedefined[order(pValueLog)]$pValueLog[5]
+resRedefined
 dplyr::arrange(resRedefined, userSet)
 sort(resRedefined, collection)
 resRedefined[order(resRedefined[,"collection"])]

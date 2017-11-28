@@ -77,19 +77,22 @@ ui <- fluidPage(
                conditionalPanel(condition = "output.res",
                                 h3("Odds Ratio"),
                                 downloadButton("oddsratio_plot_dl",
-                                               label = "Download Plot")),
+                                               label = "Download Plot",
+                                               class = "dt-button")),
                plotOutput("oddsratio_plot"),
                conditionalPanel(condition = "output.res",
                                 h3("Support"),
                                 downloadButton("support_plot_dl",
-                                               label = "Download Plot")),
+                                               label = "Download Plot",
+                                               class = "dt-button")),
                plotOutput("support_plot")
         ),
         column(5,
                conditionalPanel(condition = "output.res",
                                 h3("P Value"),
                                 downloadButton("pvalue_plot_dl",
-                                               label = "Download Plot")),
+                                               label = "Download Plot",
+                                               class = "dt-button")),
                plotOutput("pvalue_plot")
         )
         ),
@@ -224,6 +227,26 @@ server <- function(input, output) {
     return(dat)
 
   })
+  
+  # pval_cuttoff <- eventReactive(input$run, {
+  # 
+  #   pvaldat <- subset(raw_dat(),
+  #                     oddsRatio >= input$slider_oddsratio_i &
+  #                       support >= input$slider_support_i)
+  # 
+  #   if (nrow(raw_dat()) < 25) {
+  # 
+  #     pvalcut <- min(pvaldat$pValueLog)
+  # 
+  #   } else {
+  # 
+  #     pvalcut <- pvaldat[order(pValueLog)]$pValueLog[25]
+  # 
+  #   }
+  # 
+  #   return(pvalcut)
+  # 
+  # })
     
   setchoices <- function() {
     
@@ -282,12 +305,17 @@ server <- function(input, output) {
     
     req(input$run)
     
-    sliderInput("slider_oddsratio_i", 
-                "Specify Odds Ratio Cutoff", 
-                min = round(min(raw_dat()$oddsRatio), 3), 
+    sliderInput("slider_oddsratio_i",
+                "Specify Odds Ratio Cutoff",
+                min = round(min(raw_dat()$oddsRatio), 3),
                 max = round(max(raw_dat()$oddsRatio), 3),
                 value = round_top(raw_dat()$oddsRatio, 30))
     
+    # sliderInput("slider_oddsratio_i", 
+    #             "Specify Odds Ratio Cutoff", 
+    #             min = round(min(raw_dat()$oddsRatio), 3), 
+    #             max = round(max(raw_dat()$oddsRatio), 3),
+    #             value = quantile(raw_dat()$oddsRatio, .75))
     })  
   
   # set up function
@@ -327,11 +355,17 @@ server <- function(input, output) {
     
     req(input$run)
     
-    sliderInput("slider_support_i", 
-                "Specify Support Cutoff", 
-                min = round(min(raw_dat()$support), 3), 
+    sliderInput("slider_support_i",
+                "Specify Support Cutoff",
+                min = round(min(raw_dat()$support), 3),
                 max = round(max(raw_dat()$support), 3),
                 value = round(min(raw_dat()$support), 3))
+    
+    # sliderInput("slider_support_i", 
+    #             "Specify Support Cutoff", 
+    #             min = round(min(raw_dat()$support), 3), 
+    #             max = round(max(raw_dat()$support), 3),
+    #             value = quantile(raw_dat()$support, .75))
     
   })  
   
@@ -372,11 +406,17 @@ server <- function(input, output) {
     
     req(input$run)
     
+    # sliderInput("slider_pvalue_i", 
+    #             "Specify P Value Cutoff", 
+    #             min = round(min(raw_dat()$pValueLog), 3), 
+    #             max = round(max(raw_dat()$pValueLog), 3),
+    #             value = round_top(raw_dat()$pValueLog, 30))
+    
     sliderInput("slider_pvalue_i", 
                 "Specify P Value Cutoff", 
                 min = round(min(raw_dat()$pValueLog), 3), 
                 max = round(max(raw_dat()$pValueLog), 3),
-                value = round_top(raw_dat()$pValueLog, 30))
+                value = round(min(raw_dat()$pValueLog), 3))
     
   })  
   
@@ -425,24 +465,12 @@ server <- function(input, output) {
                 escape = FALSE,
                 extensions = c("Responsive", "Buttons"),
                 options = list(dom = "Bfrtip",
-                               buttons = "csv")) %>%
+                               buttons = list(list(
+                                 extend = "csv",
+                                 text = '<i class="fa fa-download"></i> Download CSV')))) %>%
       formatRound(columns=c('oddsRatio', 'pValueLog'),
                   digits = 4)
   })
-  
-  # observe({
-  #   
-  #   if(nrow(dat()) == 0) {
-  #     showNotification("No results found. Please try adjusting the inputs.", 
-  #                      type = "error", 
-  #                      duration = 10)
-  #   } else {
-  #     
-  #     invisible()
-  #     
-  #   }
-  #   
-  # })
   
 }
 
