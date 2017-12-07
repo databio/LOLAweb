@@ -20,25 +20,34 @@ ui <- fluidPage(
   titlePanel("LOLA"),
   
       fluidRow(
-        column(8,
+        column(4,
+               h3("#1 Input Query Set"),
                fileInput("userset", "Upload User Set(s)",
                          multiple = TRUE,
-                         accept = c(".bed")),
+                         accept = c(".bed"))
+        ),
+        column(4,
                tags$div(
-                h3("Select a universe",
-                tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
-                       icon("question-circle-o"), 
-                       target = "blank"))
+                 h3("#2 Select a universe",
+                    tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
+                           icon("question-circle-o"), 
+                           target = "blank"))
                ),
                uiOutput("universe"),
                checkboxInput("checkbox", 
                              label = "Check Here to Upload Your Own Universe",
                              value = FALSE),
+               actionButton("run",
+                            "RUN LOLA", 
+                            class = "runLOLA"),
+               textOutput("messages")
+               ),
+        column(4, 
                tags$div(
-               h3("Select Region Database",
-               tags$a(href = "http://databio.org/regiondb", 
-                      icon("question-circle-o"), 
-                      target = "blank"))
+                 h3("#3 Select Region Database",
+                    tags$a(href = "http://databio.org/regiondb", 
+                           icon("question-circle-o"), 
+                           target = "blank"))
                ),
                # radioButtons("loladb", 
                #              "", 
@@ -53,12 +62,6 @@ ui <- fluidPage(
                                 selectInput("refgenome_ext", 
                                             "Reference Genome", 
                                             choices = c("hg19","hg38")))
-        ),
-        column(4, 
-               actionButton("run",
-                            "RUN LOLA", 
-                            class = "runLOLA"),
-               textOutput("messages")
         ),
       class = "headerBox"),
       fluidRow(
@@ -103,19 +106,31 @@ ui <- fluidPage(
 
 server <- function(input, output) {
     
-    
-  observeEvent(input$run, {
-    withCallingHandlers({
-      shinyjs::html(id = "messages", html = "")
-      raw_dat()
-    },
-    message = function(m) {
-      shinyjs::html(id = "messages", html = m$message, add = FALSE)
-    },
-    warning = function(m) {
-      shinyjs::html(id = "messages", html = m$message, add = FALSE)
-    })
+    observeEvent(input$run, {
+      withCallingHandlers({
+        shinyjs::html(id = "messages", html = "")
+        raw_dat()
+      },
+      message = function(m) {
+        shinyjs::html(id = "messages", html = m$message, add = FALSE)
+      },
+      warning = function(m) {
+        shinyjs::html(id = "messages", html = m$message, add = FALSE)
+      })
   })
+  
+  # observeEvent(input$select_userset_i, {
+  #   withCallingHandlers({
+  #     shinyjs::html(id = "messages", html = "")
+  #     "Done!"
+  #   },
+  #   message = function(m) {
+  #     shinyjs::html(id = "messages", html = m$message, add = FALSE)
+  #   },
+  #   warning = function(m) {
+  #     shinyjs::html(id = "messages", html = m$message, add = FALSE)
+  #   })
+  # })
   
     output$universe <- renderUI({
 
@@ -136,8 +151,8 @@ server <- function(input, output) {
     
     raw_dat <- eventReactive(input$run, {
       
-      withProgress(message = 'calculating region set enrichments...', style = "old", value = 0, {
-        
+      withProgress(message = "<i class = 'fa fa-2x fa-spin fa-cog'></i>", style = "old", value = 0, {
+
       userSets <- list()
       
       for (i in 1:length(input$userset[,1])) {
@@ -227,26 +242,6 @@ server <- function(input, output) {
     return(dat)
 
   })
-  
-  # pval_cuttoff <- eventReactive(input$run, {
-  # 
-  #   pvaldat <- subset(raw_dat(),
-  #                     oddsRatio >= input$slider_oddsratio_i &
-  #                       support >= input$slider_support_i)
-  # 
-  #   if (nrow(raw_dat()) < 25) {
-  # 
-  #     pvalcut <- min(pvaldat$pValueLog)
-  # 
-  #   } else {
-  # 
-  #     pvalcut <- pvaldat[order(pValueLog)]$pValueLog[25]
-  # 
-  #   }
-  # 
-  #   return(pvalcut)
-  # 
-  # })
     
   setchoices <- function() {
     
@@ -309,14 +304,8 @@ server <- function(input, output) {
                 "Specify Odds Ratio Cutoff",
                 min = round(min(raw_dat()$oddsRatio), 3),
                 max = round(max(raw_dat()$oddsRatio), 3),
-                value = round_top(raw_dat()$oddsRatio, 30))
-    
-    # sliderInput("slider_oddsratio_i", 
-    #             "Specify Odds Ratio Cutoff", 
-    #             min = round(min(raw_dat()$oddsRatio), 3), 
-    #             max = round(max(raw_dat()$oddsRatio), 3),
-    #             value = quantile(raw_dat()$oddsRatio, .75))
-    })  
+                value = quantile(raw_dat()$oddsRatio, .25))
+    })
   
   # set up function
   oddsratio_plot_input <- function() {
@@ -359,13 +348,7 @@ server <- function(input, output) {
                 "Specify Support Cutoff",
                 min = round(min(raw_dat()$support), 3),
                 max = round(max(raw_dat()$support), 3),
-                value = round(min(raw_dat()$support), 3))
-    
-    # sliderInput("slider_support_i", 
-    #             "Specify Support Cutoff", 
-    #             min = round(min(raw_dat()$support), 3), 
-    #             max = round(max(raw_dat()$support), 3),
-    #             value = quantile(raw_dat()$support, .75))
+                value = quantile(raw_dat()$support, .25))
     
   })  
   
@@ -406,17 +389,12 @@ server <- function(input, output) {
     
     req(input$run)
     
-    # sliderInput("slider_pvalue_i", 
-    #             "Specify P Value Cutoff", 
-    #             min = round(min(raw_dat()$pValueLog), 3), 
-    #             max = round(max(raw_dat()$pValueLog), 3),
-    #             value = round_top(raw_dat()$pValueLog, 30))
-    
     sliderInput("slider_pvalue_i", 
                 "Specify P Value Cutoff", 
                 min = round(min(raw_dat()$pValueLog), 3), 
                 max = round(max(raw_dat()$pValueLog), 3),
-                value = round(min(raw_dat()$pValueLog), 3))
+                value = round_top(raw_dat()$pValueLog, 30))
+    
     
   })  
   
@@ -467,7 +445,8 @@ server <- function(input, output) {
                 options = list(dom = "Bfrtip",
                                buttons = list(list(
                                  extend = "csv",
-                                 text = '<i class="fa fa-download"></i> Download CSV')))) %>%
+                                 text = '<i class="fa fa-download"></i> Download CSV')),
+                               paging = FALSE)) %>%
       formatRound(columns=c('oddsRatio', 'pValueLog'),
                   digits = 4)
   })

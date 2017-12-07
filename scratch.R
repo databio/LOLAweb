@@ -72,7 +72,7 @@ system.time({
 
 
 
-ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), logOddsRatio, fill = userSet)) +
+ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), oddsRatio, fill = userSet)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   theme_ns()
