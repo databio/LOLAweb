@@ -40,7 +40,8 @@ ui <- fluidPage(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               textOutput("messages")
+               htmlOutput("gear"),
+               htmlOutput("messages")
                ),
         column(4, 
                tags$div(
@@ -107,30 +108,21 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     observeEvent(input$run, {
+      
       withCallingHandlers({
         shinyjs::html(id = "messages", html = "")
+        shinyjs::html(id = "gear", html = "<i class='fa fa-2x fa-spin fa-cog'></i>", add = FALSE)
         raw_dat()
       },
       message = function(m) {
         shinyjs::html(id = "messages", html = m$message, add = FALSE)
-      },
-      warning = function(m) {
-        shinyjs::html(id = "messages", html = m$message, add = FALSE)
+        
       })
+    
+      shinyjs::hide("messages")
+      shinyjs::hide("gear")
+      
   })
-  
-  # observeEvent(input$select_userset_i, {
-  #   withCallingHandlers({
-  #     shinyjs::html(id = "messages", html = "")
-  #     "Done!"
-  #   },
-  #   message = function(m) {
-  #     shinyjs::html(id = "messages", html = m$message, add = FALSE)
-  #   },
-  #   warning = function(m) {
-  #     shinyjs::html(id = "messages", html = m$message, add = FALSE)
-  #   })
-  # })
   
     output$universe <- renderUI({
 
@@ -151,8 +143,6 @@ server <- function(input, output) {
     
     raw_dat <- eventReactive(input$run, {
       
-      withProgress(message = "<i class = 'fa fa-2x fa-spin fa-cog'></i>", style = "old", value = 0, {
-
       userSets <- list()
       
       for (i in 1:length(input$userset[,1])) {
@@ -215,7 +205,7 @@ server <- function(input, output) {
       
       return(resRedefined)
       
-    })
+
   })
     
   dat <- reactive({
