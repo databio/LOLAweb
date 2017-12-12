@@ -9,3 +9,4 @@ cache/*
 lola_vignette_data/*.bed
 universes/*
 reference/
+userSets/*

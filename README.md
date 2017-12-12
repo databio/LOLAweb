@@ -23,15 +23,19 @@ source("https://bioconductor.org/biocLite.R")
 biocLite(c("LOLA", "GenomicRanges"))
 ```
 
-You'll also need underlying data that is not available in this repository in order to establish the universes and reference genome directories. Run the following from within the root of this folder to download the data and create the `universes/` and `reference/` respectively:
+You'll also need underlying data that is not available in this repository in order to establish the universes, example user sets and reference genome directories. Run the following from within the root of this folder to download the data and create the `universes/`, `userSets/` and `reference/` respectively:
 
 ```
 # create universes dir
 mkdir universes
+mkdir userSets
 
-# example universe
+# example universe and user set
 curl http://cloud.databio.org.s3.amazonaws.com/vignettes/lola_vignette_data_150505.tgz | tarxvz
+
 mv lola_vignette_data/activeDHS_universe.bed universes/.
+mv lola_vignette_data/setB_100.bed userSets/.
+
 rm -rf lola_vignette_data
 ```
 

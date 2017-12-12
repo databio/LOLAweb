@@ -21,14 +21,15 @@ ui <- fluidPage(
   
       fluidRow(
         column(4,
-               h3("#1 Input Query Set"),
-               fileInput("userset", "Upload User Set(s)",
-                         multiple = TRUE,
-                         accept = c(".bed"))
+               h3("#1 Select Query Set"),
+               uiOutput("usersets"),
+               checkboxInput("checkbox_userset", 
+                             label = "Check Here to Upload Your Own Query Set(s)",
+                             value = TRUE)
         ),
         column(4,
                tags$div(
-                 h3("#2 Select a universe",
+                 h3("#2 Select Universe",
                     tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
                            icon("question-circle-o"), 
                            target = "blank"))
@@ -40,8 +41,14 @@ ui <- fluidPage(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               htmlOutput("gear"),
-               htmlOutput("messages")
+               HTML("<br>"),
+               HTML("<br>"),
+               column(1,
+                      htmlOutput("gear")
+                      ),
+               column(3,
+                      htmlOutput("messages")
+                      )
                ),
         column(4, 
                tags$div(
@@ -50,10 +57,6 @@ ui <- fluidPage(
                            icon("question-circle-o"), 
                            target = "blank"))
                ),
-               # radioButtons("loladb", 
-               #              "", 
-               #              choices = c("Core", "Extended")), 
-               # must be a better way to do this
                HTML(disabledbutton),
                conditionalPanel(condition = "input.loladb == 'Core'",
                                 selectInput("refgenome_core", 
@@ -141,23 +144,60 @@ server <- function(input, output) {
       
     })
     
+    output$usersets <- renderUI({
+      
+      if(input$checkbox_userset) {
+        
+        fileInput("userset", "Upload User Set(s)",
+                  multiple = TRUE,
+                  accept = c(".bed"))
+        
+      } else {
+        
+        selectInput("defaultuserset", 
+                    label = "Select Pre-Loaded User Set", 
+                    choices = list.files("userSets"))
+        
+      }
+      
+    })
+    
     raw_dat <- eventReactive(input$run, {
+      
       
       userSets <- list()
       
-      for (i in 1:length(input$userset[,1])) {
+      if(input$checkbox_userset) {
         
-        userSet <- read.table(input$userset[[i, 'datapath']], header = F)
+        for (i in 1:length(input$userset[,1])) {
+          
+          userSet <- read.table(input$userset[[i, 'datapath']], header = F)
+          colnames(userSet) <- c('chr','start','end','id','score','strand')
+          userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+          
+          userSets[[i]] <- userSet
+          
+        }
+        
+        userSets = GRangesList(userSets)
+        
+        names(userSets) = input$userset[,"name"]
+
+      } else {
+        
+        datapath <- paste0("userSets/", input$defaultuserset)
+        
+        userSet = read.table(file = datapath, header = F)
         colnames(userSet) <- c('chr','start','end','id','score','strand')
         userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
         
-        userSets[[i]] <- userSet
-      
+        userSets[[1]] <- userSet
+        
+        userSets = GRangesList(userSets)
+        
+        names(userSets) = input$defaultuserset
+        
       }
-      
-      userSets = GRangesList(userSets)
-      
-      names(userSets) = input$userset[,"name"]
       
       if(input$checkbox) {
         
