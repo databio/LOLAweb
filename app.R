@@ -21,7 +21,12 @@ ui <- fluidPage(
   
       fluidRow(
         column(4,
-               h3("#1 Select Query Set"),
+               tags$div(
+                 h3("#1 Select Query Set",
+                    tags$a(href = "http://code.databio.org/LOLA/articles/gettingStarted.html", 
+                           icon("question-circle-o"), 
+                           target = "blank"))
+               ),
                uiOutput("usersets"),
                checkboxInput("checkbox_userset", 
                              label = "Check Here to Upload Your Own Query Set(s)",
