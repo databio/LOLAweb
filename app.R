@@ -1,4 +1,5 @@
 options(shiny.maxRequestSize=100*1024^2)
+
 source("themes.R")
 source("misc.R")
 source("disabler.R")
@@ -168,7 +169,6 @@ server <- function(input, output) {
     })
     
     raw_dat <- eventReactive(input$run, {
-      
       
       userSets <- list()
       
@@ -357,6 +357,8 @@ server <- function(input, output) {
   # call plot
   output$oddsratio_plot <- renderPlot({
     
+    req(input$select_sort_i)
+    
     oddsratio_plot_input()
 
   })
@@ -400,6 +402,8 @@ server <- function(input, output) {
   }
   
   output$support_plot <- renderPlot({
+    
+    req(input$select_sort_i)
     
     support_plot_input()
     
@@ -447,6 +451,8 @@ server <- function(input, output) {
   }
   output$pvalue_plot <- renderPlot({
     
+    req(input$select_sort_i)
+    
     pvalue_plot_input()
     
   })
@@ -462,6 +468,8 @@ server <- function(input, output) {
   )
   
   output$res <- DT::renderDataTable({
+    
+    req(input$select_sort_i)
     
     dat <- dat()[order(eval(parse(text = input$select_sort_i)), decreasing = TRUE)]
     
