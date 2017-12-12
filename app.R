@@ -18,7 +18,7 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
   
-  titlePanel("LOLA"),
+  titlePanel(HTML("<img src='LOLA-logo.png' alt='LOLA logo' width='200'>")),
   
       fluidRow(
         column(4,
