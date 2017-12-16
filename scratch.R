@@ -14,6 +14,12 @@ userSetsRedefined =	redefineUserSets(userSets, userUniverse)
 
 resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
 
+resRedefined = subset(as.data.frame(resRedefined),
+                      oddsRatio > 2
+                      pValueLog > 2,
+                      support > 2
+)
+
 hist(resRedefined$pValueLog)
 
 resRedefined[order(pValueLog)]$pValueLog[5]

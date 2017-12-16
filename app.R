@@ -78,6 +78,7 @@ ui <- fluidPage(
       fluidRow(
         
         column(2,
+                 uiOutput("slider_rank"),
                  uiOutput("slider_oddsratio"),
                  uiOutput("slider_support"),
                  uiOutput("slider_pvalue"),
@@ -171,6 +172,7 @@ server <- function(input, output) {
     
     raw_dat <- eventReactive(input$run, {
       
+      message("Calculating region set enrichments ...")
       userSets <- list()
       
       if(input$checkbox_userset) {
@@ -243,10 +245,16 @@ server <- function(input, output) {
       resRedefined$userSet = as.character(resRedefined$userSet)
       
       # seeing some missing pvalues need to make sure these are not present
-      # resRedefined = subset(resRedefined, 
-      #                       oddsRatio != "",
-      #                       pValueLog != "",
+      # resRedefined = subset(resRedefined,
+      #                       oddsRatio != "" &
+      #                       pValueLog != "" &
       #                       support != ""
+      #                       )
+      
+      # resRedefined = subset(resRedefined,
+      #                       oddsRatio > 0 &
+      #                       pValueLog > 0 &
+      #                       support > 0
       #                       )
       
       return(resRedefined)
@@ -256,10 +264,14 @@ server <- function(input, output) {
     
   dat <- reactive({
     
-    dat <- subset(raw_dat(), 
-                  oddsRatio >= input$slider_oddsratio_i & 
+    dat <- subset(raw_dat(), maxRnk <= input$slider_rank_i)
+    
+    dat <- subset(dat,
+                  oddsRatio >= input$slider_oddsratio_i &
                     support >= input$slider_support_i &
                     pValueLog >= input$slider_pvalue_i)
+    
+    # dat <- subset(dat, maxRnk >= input$slider_rank_i)
   
     if (input$select_collection_i != "All Collections") {
       
@@ -307,6 +319,18 @@ server <- function(input, output) {
     
   })  
   
+  output$slider_rank <- renderUI({
+    
+    req(input$run)
+    
+    sliderInput("slider_rank_i", 
+                "Specify Max Rank Cutoff", 
+                min = min(raw_dat()$maxRnk),
+                max = max(raw_dat()$maxRnk),
+                value = quantile(raw_dat()$maxRnk, probs = 20/nrow(raw_dat())))
+    
+  })  
+  
   output$select_sort <- renderUI({
     
     req(input$run)
@@ -314,7 +338,7 @@ server <- function(input, output) {
     selectInput("select_sort_i", 
                 "Select Sort Column", 
                 choices = names(raw_dat()),
-                selected = "meanRank")
+                selected = "meanRnk")
     
   })  
   
@@ -340,7 +364,7 @@ server <- function(input, output) {
                 "Specify Odds Ratio Cutoff",
                 min = round(min(raw_dat()$oddsRatio), 3),
                 max = round(max(raw_dat()$oddsRatio), 3),
-                value = quantile(raw_dat()$oddsRatio, .25))
+                value = round(min(raw_dat()$oddsRatio), 3))
     })
   
   # set up function
@@ -386,7 +410,7 @@ server <- function(input, output) {
                 "Specify Support Cutoff",
                 min = round(min(raw_dat()$support), 3),
                 max = round(max(raw_dat()$support), 3),
-                value = quantile(raw_dat()$support, .25))
+                value = round(min(raw_dat()$support), 3))
     
   })  
   
@@ -433,7 +457,7 @@ server <- function(input, output) {
                 "Specify P Value Cutoff", 
                 min = round(min(raw_dat()$pValueLog), 3), 
                 max = round(max(raw_dat()$pValueLog), 3),
-                value = round_top(raw_dat()$pValueLog, 30))
+                value = round(min(raw_dat()$pValueLog), 3))
     
     
   })  
