@@ -24,14 +24,14 @@ ui <- fluidPage(
       fluidRow(
         column(4,
                tags$div(
-                 h3("#1 Select Query Set",
+                 h3("#1 Select User Set",
                     tags$a(href = "http://code.databio.org/LOLA/articles/gettingStarted.html", 
                            icon("question-circle-o"), 
                            target = "blank"))
                ),
                uiOutput("usersets"),
                checkboxInput("checkbox_userset", 
-                             label = "Check Here to Upload Your Own Query Set(s)",
+                             label = "Check Here to Upload Your Own User Set(s)",
                              value = TRUE)
         ),
         column(4,
@@ -257,6 +257,9 @@ server <- function(input, output) {
       #                       support > 0
       #                       )
       
+      # garbage collection
+      # rm(regionDB, userSetsRedefined, userUniverse)
+      
       return(resRedefined)
       
 
@@ -288,7 +291,7 @@ server <- function(input, output) {
     dat$id <- paste(dat$description, dat$dbSet, sep = "_")
       
     return(dat)
-
+    
   })
     
   setchoices <- function() {
