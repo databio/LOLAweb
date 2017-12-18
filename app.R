@@ -47,15 +47,15 @@ ui <- fluidPage(
                              value = FALSE),
                actionButton("run",
                             "RUN LOLA", 
-                            class = "runLOLA"),
-               HTML("<br>"),
-               HTML("<br>"),
-               column(1,
-                      htmlOutput("gear")
-                      ),
-               column(3,
-                      htmlOutput("messages")
-                      )
+                            class = "runLOLA")
+               # HTML("<br>"),
+               # HTML("<br>"),
+               # column(1,
+               #        htmlOutput("gear")
+               #        ),
+               # column(3,
+               #        htmlOutput("messages")
+               #        )
                ),
         column(4, 
                tags$div(
@@ -76,18 +76,18 @@ ui <- fluidPage(
         ),
       class = "headerBox"),
       fluidRow(
-        
         column(2,
-                 uiOutput("slider_rank"),
-                 uiOutput("slider_oddsratio"),
-                 uiOutput("slider_support"),
-                 uiOutput("slider_pvalue"),
-                 uiOutput("select_collection"),
-                 uiOutput("select_sort"),
-                 uiOutput("select_userset")
-                 
+               htmlOutput("gear"),
+               uiOutput("slider_rank"),
+               uiOutput("slider_oddsratio"),
+               uiOutput("slider_support"),
+               uiOutput("slider_pvalue"),
+               uiOutput("select_collection"),
+               uiOutput("select_sort"),
+               uiOutput("select_userset")
           ),
-
+        column(10,
+               htmlOutput("messages")),
         column(5,
                conditionalPanel(condition = "output.res",
                                 h3("Odds Ratio"),
@@ -122,7 +122,7 @@ server <- function(input, output) {
       
       withCallingHandlers({
         shinyjs::html(id = "messages", html = "")
-        shinyjs::html(id = "gear", html = "<i class='fa fa-2x fa-spin fa-cog'></i>", add = FALSE)
+        shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
         raw_dat()
       },
       message = function(m) {
@@ -134,7 +134,7 @@ server <- function(input, output) {
       shinyjs::hide("gear")
       
   })
-  
+    
     output$universe <- renderUI({
 
       if(input$checkbox) {
