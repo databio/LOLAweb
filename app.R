@@ -186,7 +186,7 @@ server <- function(input, output) {
       message("Calculating region set enrichments ...")
       userSets <- list()
       
-      if(input$checkbox_userset) {
+      if(!input$switch_userset) {
         
         for (i in 1:length(input$userset[,1])) {
           
