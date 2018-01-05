@@ -9,6 +9,7 @@ library(LOLA)
 library(ggplot2)
 library(GenomicRanges)
 library(DT)
+library(shinyWidgets)
 
 ui <- fluidPage(
   
@@ -30,9 +31,19 @@ ui <- fluidPage(
                            target = "blank"))
                ),
                uiOutput("usersets"),
-               checkboxInput("checkbox_userset", 
-                             label = "Check Here to Upload Your Own User Set(s)",
-                             value = TRUE)
+               HTML("<p>Use the toggle below to specify whether you would like to upload your own user set(s) or use a sample user set.</p>"),
+               # checkboxInput("checkbox_userset", 
+               #               label = "Check Here to Upload Your Own User Set(s)",
+               #               value = TRUE)
+               # actionButton("button_userset",
+               #              "USE SAMPLE", 
+               #              class = "runLOLA"),
+               switchInput("switch_userset",
+                           onLabel = "Upload User Set",
+                           offLabel = "Sample User Set",
+                           value = FALSE, 
+                           width = "auto",
+                           inline = FALSE)
         ),
         column(4,
                tags$div(
@@ -154,7 +165,7 @@ server <- function(input, output) {
     
     output$usersets <- renderUI({
       
-      if(input$checkbox_userset) {
+      if(!input$switch_userset) {
         
         fileInput("userset", "Upload User Set(s)",
                   multiple = TRUE,

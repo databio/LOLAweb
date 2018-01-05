@@ -17,7 +17,7 @@ git clone https://github.com/databio/shinyLOLA.git
 The app requires R to be installed, as well as several packages. From within R run the following to install the dependencies:
 
 ```
-install.packages(c("ggplot2", "shiny", "DT", "simpleCache"))
+install.packages(c("ggplot2", "shiny", "DT", "simpleCache", "shinyWidgets", "shinyjs"))
 
 source("https://bioconductor.org/biocLite.R")
 biocLite(c("LOLA", "GenomicRanges"))
@@ -31,7 +31,7 @@ mkdir universes
 mkdir userSets
 
 # example universe and user set
-curl http://cloud.databio.org.s3.amazonaws.com/vignettes/lola_vignette_data_150505.tgz | tarxvz
+curl http://cloud.databio.org.s3.amazonaws.com/vignettes/lola_vignette_data_150505.tgz | tar xvz
 
 mv lola_vignette_data/activeDHS_universe.bed universes/.
 mv lola_vignette_data/setB_100.bed userSets/.
