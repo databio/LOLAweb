@@ -340,7 +340,7 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_rank_i", 
-                "Specify Max Rank Cutoff", 
+                "Max Rank Cutoff", 
                 min = min(raw_dat()$maxRnk),
                 max = max(raw_dat()$maxRnk),
                 value = quantile(raw_dat()$maxRnk, probs = 20/nrow(raw_dat())))
@@ -377,7 +377,7 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_oddsratio_i",
-                "Specify Odds Ratio Cutoff",
+                "Odds Ratio Cutoff",
                 min = round(min(raw_dat()$oddsRatio), 3),
                 max = round(max(raw_dat()$oddsRatio), 3),
                 value = round(min(raw_dat()$oddsRatio), 3))
@@ -423,7 +423,7 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_support_i",
-                "Specify Support Cutoff",
+                "Support Cutoff",
                 min = round(min(raw_dat()$support), 3),
                 max = round(max(raw_dat()$support), 3),
                 value = round(min(raw_dat()$support), 3))
@@ -470,7 +470,7 @@ server <- function(input, output) {
     req(input$run)
     
     sliderInput("slider_pvalue_i", 
-                "Specify P Value Cutoff", 
+                "P Value Cutoff", 
                 min = round(min(raw_dat()$pValueLog), 3), 
                 max = round(max(raw_dat()$pValueLog), 3),
                 value = round(min(raw_dat()$pValueLog), 3))
