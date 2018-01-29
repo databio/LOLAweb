@@ -83,7 +83,6 @@ ui <- fluidPage(
       class = "headerBox"),
       fluidRow(
         column(2,
-               textOutput("debug"),
                htmlOutput("gear"),
                uiOutput("slider_rank"),
                uiOutput("slider_oddsratio"),
@@ -94,7 +93,8 @@ ui <- fluidPage(
                uiOutput("select_userset")
           ),
         column(10,
-               htmlOutput("messages")),
+               htmlOutput("messages"),
+               tags$h4(htmlOutput("link"))),
         column(5,
                conditionalPanel(condition = "output.res",
                                 h3("Odds Ratio"),
@@ -154,23 +154,37 @@ server <- function(input, output, session) {
     
   })
   
-    observeEvent(input$run, {
+  observeEvent(input$run, {
       
-      withCallingHandlers({
-        shinyjs::html(id = "messages", html = "")
-        shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
-        raw_dat_nocache()
-      },
-      message = function(m) {
-        shinyjs::html(id = "messages", html = m$message, add = FALSE)
+    withCallingHandlers({
+      shinyjs::html(id = "messages", html = "")
+      shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
+      raw_dat_nocache()
+    },
+    message = function(m) {
+      shinyjs::html(id = "messages", html = m$message, add = FALSE)
         
-      })
+    })
     
-      shinyjs::hide("messages")
-      shinyjs::hide("gear")
+    shinyjs::hide("messages")
+    shinyjs::hide("gear")
       
   })
     
+  output$link <- renderText({
+    
+    req(input$select_sort_i)
+    
+    baseurl <- session$clientData$url_hostname
+    port <- session$clientData$url_port
+    pathname <- session$clientData$url_pathname
+
+ 
+    link <- paste0(baseurl, ":", port, pathname, "?key=", keyphrase())
+    
+    paste0("<a href = 'http://", link, "' target = 'blank'>", link, "</a>")
+    
+  })
     output$universe <- renderUI({
 
       if(input$checkbox) {
@@ -185,6 +199,12 @@ server <- function(input, output, session) {
                     choices = list.files("universes"))
         
       }
+      
+    })
+    
+  keyphrase <- eventReactive(input$run, {
+      
+    paste0(sample(c(LETTERS,1:9), 15), collapse = "")
       
     })
     
@@ -281,13 +301,13 @@ server <- function(input, output, session) {
       # rm(regionDB, userSetsRedefined, userUniverse)
 
       # caching
-      keyphrase <- paste0(sample(c(LETTERS,1:9), 15), collapse = "")
-      key <- hash(charToRaw(keyphrase))
+      # need to call keyphrase from reactive above because it is used to construct link
+      key <- hash(charToRaw(keyphrase()))
       msg <- serialize(resRedefined, connection = NULL)
 
       cipher <- data_encrypt(msg, key)
 
-      simpleCache(keyphrase, cipher)
+      simpleCache(keyphrase(), cipher)
 
       return(resRedefined)
 
@@ -366,14 +386,6 @@ server <- function(input, output, session) {
       
     }
   }
-  # 
-  # output$debug <- renderText({
-  #   
-  #   paste0(usecache$setting,
-  #          "\n",
-  #          query()[[1]])
-  #   
-  # })
   
   output$select_collection <- renderUI({
     
