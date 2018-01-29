@@ -185,13 +185,14 @@ server <- function(input, output, session) {
     paste0("<a href = 'http://", link, "' target = 'blank'>", link, "</a>")
     
   })
-    output$universe <- renderUI({
+  
+  output$universe <- renderUI({
 
-      if(input$checkbox) {
+    if(input$checkbox) {
         
-        fileInput("useruniverse", "Upload Universe",
-                  accept = c(".bed"))
-        
+      fileInput("useruniverse", "Upload Universe",
+                accept = c(".bed"))
+      
       } else {
         
         selectInput("defaultuniverse", 
@@ -326,12 +327,23 @@ server <- function(input, output, session) {
     cipher <- get("cipher", envir = globalenv())
     
     # keyphrase
-    
     key <- hash(charToRaw(keyphrase))
     
     dat <- data_decrypt(cipher, key)
     
     raw_dat_res$raw_dat <- unserialize(dat)
+    
+    # disable all buttons in header when query is good
+    shinyjs::disable("run")
+    shinyjs::disable("userset")
+    shinyjs::disable("universe")
+    shinyjs::disable("loladb")
+    shinyjs::disable("button_userset_example")
+    shinyjs::disable("refgenome_core")
+    shinyjs::disable("refgenome_ext")
+    shinyjs::disable("defaultuniverse")
+    shinyjs::disable("useruniverse")
+    shinyjs::disable("checkbox")
     
     } else {
     
