@@ -159,7 +159,7 @@ server <- function(input, output, session) {
     withCallingHandlers({
       shinyjs::html(id = "messages", html = "")
       shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
-      raw_dat_nocache()
+      rawdat_nocache()
     },
     message = function(m) {
       shinyjs::html(id = "messages", html = m$message, add = FALSE)
@@ -209,7 +209,7 @@ server <- function(input, output, session) {
       
     })
     
-    raw_dat_nocache <- eventReactive(input$run, {
+    rawdat_nocache <- eventReactive(input$run, {
     
       message("Calculating region set enrichments ...")
       userSets <- list()
@@ -314,7 +314,7 @@ server <- function(input, output, session) {
 
   })
 
-  raw_dat_res <- reactiveValues()
+  rawdat_res <- reactiveValues()
   
   observe({
     
@@ -331,7 +331,7 @@ server <- function(input, output, session) {
     
     dat <- data_decrypt(cipher, key)
     
-    raw_dat_res$raw_dat <- unserialize(dat)
+    rawdat_res$rawdat <- unserialize(dat)
     
     # disable all buttons in header when query is good
     shinyjs::disable("run")
@@ -347,7 +347,7 @@ server <- function(input, output, session) {
     
     } else {
     
-    raw_dat_res$raw_dat <- raw_dat_nocache()
+    rawdat_res$rawdat <- rawdat_nocache()
     
     }
 
@@ -355,7 +355,7 @@ server <- function(input, output, session) {
   
   dat <- reactive({
     
-      dat <- subset(raw_dat_res$raw_dat, maxRnk <= input$slider_rank_i)
+      dat <- subset(rawdat_res$rawdat, maxRnk <= input$slider_rank_i)
       
       dat <- subset(dat,
                     oddsRatio >= input$slider_oddsratio_i &
@@ -386,58 +386,58 @@ server <- function(input, output, session) {
     
   setchoices <- function() {
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
-    if(length(unique(raw_dat_res$raw_dat$userSet)) == 1) {
+    if(length(unique(rawdat_res$rawdat$userSet)) == 1) {
       
-      unique(raw_dat_res$raw_dat$userSet)
+      unique(rawdat_res$rawdat$userSet)
       
     } else {
       
-      c("All User Sets", unique(raw_dat_res$raw_dat$userSet))
+      c("All User Sets", unique(rawdat_res$rawdat$userSet))
       
     }
   }
   
   output$select_collection <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     list(
       HTML("<hr>"),
       selectInput("select_collection_i", 
                 "Select Collection", 
-                choices = c("All Collections", unique(raw_dat_res$raw_dat$collection)),
+                choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
                 selected = "All Collections"))
     
   })  
   
   output$slider_rank <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_rank_i", 
                 "Max Rank Cutoff", 
-                min = min(raw_dat_res$raw_dat$maxRnk),
-                max = max(raw_dat_res$raw_dat$maxRnk),
-                value = quantile(raw_dat_res$raw_dat$maxRnk, probs = 20/nrow(raw_dat_res$raw_dat)))
+                min = min(rawdat_res$rawdat$maxRnk),
+                max = max(rawdat_res$rawdat$maxRnk),
+                value = quantile(rawdat_res$rawdat$maxRnk, probs = 20/nrow(rawdat_res$rawdat)))
     
   })  
   
   output$select_sort <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     selectInput("select_sort_i", 
                 "Select Sort Column", 
-                choices = names(raw_dat_res$raw_dat),
+                choices = names(rawdat_res$rawdat),
                 selected = "meanRnk")
     
   })  
   
   output$select_userset <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     selectInput("select_userset_i", 
                 "Select User Set", 
@@ -451,13 +451,13 @@ server <- function(input, output, session) {
   
   output$slider_oddsratio <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_oddsratio_i",
                 "Odds Ratio Cutoff",
-                min = round(min(raw_dat_res$raw_dat$oddsRatio), 3),
-                max = round(max(raw_dat_res$raw_dat$oddsRatio), 3),
-                value = round(min(raw_dat_res$raw_dat$oddsRatio), 3))
+                min = round(min(rawdat_res$rawdat$oddsRatio), 3),
+                max = round(max(rawdat_res$rawdat$oddsRatio), 3),
+                value = round(min(rawdat_res$rawdat$oddsRatio), 3))
     })
   
   # set up function
@@ -497,13 +497,13 @@ server <- function(input, output, session) {
   # slider
   output$slider_support <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_support_i",
                 "Support Cutoff",
-                min = round(min(raw_dat_res$raw_dat$support), 3),
-                max = round(max(raw_dat_res$raw_dat$support), 3),
-                value = round(min(raw_dat_res$raw_dat$support), 3))
+                min = round(min(rawdat_res$rawdat$support), 3),
+                max = round(max(rawdat_res$rawdat$support), 3),
+                value = round(min(rawdat_res$rawdat$support), 3))
     
   })  
   
@@ -544,13 +544,13 @@ server <- function(input, output, session) {
   
   output$slider_pvalue <- renderUI({
     
-    req(raw_dat_res$raw_dat)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_pvalue_i", 
                 "P Value Cutoff", 
-                min = round(min(raw_dat_res$raw_dat$pValueLog), 3), 
-                max = round(max(raw_dat_res$raw_dat$pValueLog), 3),
-                value = round(min(raw_dat_res$raw_dat$pValueLog), 3))
+                min = round(min(rawdat_res$rawdat$pValueLog), 3), 
+                max = round(max(rawdat_res$rawdat$pValueLog), 3),
+                value = round(min(rawdat_res$rawdat$pValueLog), 3))
     
     
   })  
