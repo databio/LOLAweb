@@ -308,7 +308,9 @@ server <- function(input, output, session) {
 
       cipher <- data_encrypt(msg, key)
 
-      simpleCache(keyphrase(), cipher)
+      simpleCache(cacheName = keyphrase(), 
+                  instruction = { cipher },
+                  noload = TRUE)
 
       return(resRedefined)
 
@@ -324,9 +326,11 @@ server <- function(input, output, session) {
     
     keyphrase <- as.character(query()[[1]])
     
-    loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
+    env <- new.env()
     
-    cipher <- get("cipher", envir = globalenv())
+    loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = env, cacheDir = "cache")
+    
+    cipher <- get("cipher", envir = env)
     
     # keyphrase
     key <- hash(charToRaw(keyphrase))
