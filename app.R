@@ -9,6 +9,10 @@ library(LOLA)
 library(ggplot2)
 library(GenomicRanges)
 library(DT)
+library(simpleCache)
+library(sodium)
+
+setCacheDir("cache")
 
 ui <- fluidPage(
   
@@ -89,7 +93,8 @@ ui <- fluidPage(
                uiOutput("select_userset")
           ),
         column(10,
-               htmlOutput("messages")),
+               htmlOutput("messages"),
+               tags$h4(htmlOutput("link"))),
         column(5,
                conditionalPanel(condition = "output.res",
                                 h3("Odds Ratio"),
@@ -118,12 +123,18 @@ ui <- fluidPage(
       )   
   )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  exampleuserset <- reactiveValues(toggle = TRUE)
+  
+  # get url parameter for retrieval query key
+  query <- reactive({
     
+    parseQueryString(session$clientData$url_search)
     
-   exampleuserset <- reactiveValues(toggle = TRUE)
-   
-   observeEvent(input$button_userset_upload, {
+    })
+  
+  observeEvent(input$button_userset_upload, {
     
     list(shinyjs::show("button_userset_example"),
          shinyjs::hide("button_userset_upload"),
@@ -143,30 +154,45 @@ server <- function(input, output) {
     
   })
   
-    observeEvent(input$run, {
+  observeEvent(input$run, {
       
-      withCallingHandlers({
-        shinyjs::html(id = "messages", html = "")
-        shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
-        raw_dat()
-      },
-      message = function(m) {
-        shinyjs::html(id = "messages", html = m$message, add = FALSE)
+    withCallingHandlers({
+      shinyjs::html(id = "messages", html = "")
+      shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
+      rawdat_nocache()
+    },
+    message = function(m) {
+      shinyjs::html(id = "messages", html = m$message, add = FALSE)
         
-      })
+    })
     
-      shinyjs::hide("messages")
-      shinyjs::hide("gear")
+    shinyjs::hide("messages")
+    shinyjs::hide("gear")
       
   })
     
-    output$universe <- renderUI({
+  output$link <- renderText({
+    
+    req(input$select_sort_i)
+    
+    baseurl <- session$clientData$url_hostname
+    port <- session$clientData$url_port
+    pathname <- session$clientData$url_pathname
 
-      if(input$checkbox) {
+ 
+    link <- paste0(baseurl, ":", port, pathname, "?key=", keyphrase())
+    
+    paste0("<a href = 'http://", link, "' target = 'blank'>", link, "</a>")
+    
+  })
+  
+  output$universe <- renderUI({
+
+    if(input$checkbox) {
         
-        fileInput("useruniverse", "Upload Universe",
-                  accept = c(".bed"))
-        
+      fileInput("useruniverse", "Upload Universe",
+                accept = c(".bed"))
+      
       } else {
         
         selectInput("defaultuniverse", 
@@ -177,188 +203,243 @@ server <- function(input, output) {
       
     })
     
-    raw_dat <- eventReactive(input$run, {
+  keyphrase <- eventReactive(input$run, {
       
+    paste0(sample(c(LETTERS,1:9), 15), collapse = "")
+      
+    })
+    
+    rawdat_nocache <- eventReactive(input$run, {
+    
       message("Calculating region set enrichments ...")
       userSets <- list()
-      
+
       # if(!input$switch_userset) {
       if(!exampleuserset$toggle) {
-        
-        
+
+
         for (i in 1:length(input$userset[,1])) {
-          
+
           userSet <- read.table(input$userset[[i, 'datapath']], header = F)
           colnames(userSet) <- c('chr','start','end','id','score','strand')
           userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-          
+
           userSets[[i]] <- userSet
-          
+
         }
-        
+
         userSets = GRangesList(userSets)
-        
+
         names(userSets) = input$userset[,"name"]
 
       } else {
-        
+
         datapath <- paste0("userSets/", input$defaultuserset)
-        
+
         userSet = read.table(file = datapath, header = F)
         colnames(userSet) <- c('chr','start','end','id','score','strand')
         userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-        
+
         userSets[[1]] <- userSet
-        
+
         userSets = GRangesList(userSets)
-        
+
         names(userSets) = input$defaultuserset
-        
+
       }
-      
+
       if(input$checkbox) {
-        
+
         userUniverse = read.table(file = input$useruniverse$datapath, header = F)
-        
+
       } else {
-        
+
         datapath <- paste0("universes/", input$defaultuniverse)
-        
+
         userUniverse = read.table(file = datapath, header = F)
-        
+
       }
       colnames(userUniverse) <- c('chr','start','end','id','score','strand')
       userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-      
+
       userSetsRedefined =	redefineUserSets(userSets, userUniverse)
-      
+
       # load region data for each reference genome
-      dbPath = paste("reference", 
-                      input$loladb, 
-                      ifelse(input$loladb == "Core", 
+      dbPath = paste("reference",
+                      input$loladb,
+                      ifelse(input$loladb == "Core",
                              input$refgenome_core,
                              input$refgenome_ext),
                      sep = "/"
                       )
-                      
+
       regionDB = loadRegionDB(dbLocation=dbPath)
-      
+
       # cores = parallel::detectCores()
-      
-      resRedefined = runLOLA(userSetsRedefined, 
-                             userUniverse, 
+
+      resRedefined = runLOLA(userSetsRedefined,
+                             userUniverse,
                              regionDB,
                              cores=1)
-      
+
       # need to make sure user set is discrete even if coded as number
       resRedefined$userSet = as.character(resRedefined$userSet)
-      
+
       # seeing some missing pvalues need to make sure these are not present
       # resRedefined = subset(resRedefined,
       #                       oddsRatio != "" &
       #                       pValueLog != "" &
       #                       support != ""
       #                       )
-      
+
       # resRedefined = subset(resRedefined,
       #                       oddsRatio > 0 &
       #                       pValueLog > 0 &
       #                       support > 0
       #                       )
-      
+
       # garbage collection
       # rm(regionDB, userSetsRedefined, userUniverse)
-      
+
+      # caching
+      # need to call keyphrase from reactive above because it is used to construct link
+      key <- hash(charToRaw(keyphrase()))
+      msg <- serialize(resRedefined, connection = NULL)
+
+      cipher <- data_encrypt(msg, key)
+
+      simpleCache(keyphrase(), cipher)
+
       return(resRedefined)
-      
 
   })
+
+  rawdat_res <- reactiveValues()
+  
+  observe({
     
+    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    
+    if(length(query()) != 0 && query()[[1]] %in% cachenames) {
+    
+    keyphrase <- as.character(query()[[1]])
+    
+    loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
+    
+    cipher <- get("cipher", envir = globalenv())
+    
+    # keyphrase
+    key <- hash(charToRaw(keyphrase))
+    
+    dat <- data_decrypt(cipher, key)
+    
+    rawdat_res$rawdat <- unserialize(dat)
+    
+    # disable all buttons in header when query is good
+    shinyjs::disable("run")
+    shinyjs::disable("userset")
+    shinyjs::disable("universe")
+    shinyjs::disable("loladb")
+    shinyjs::disable("button_userset_example")
+    shinyjs::disable("refgenome_core")
+    shinyjs::disable("refgenome_ext")
+    shinyjs::disable("defaultuniverse")
+    shinyjs::disable("useruniverse")
+    shinyjs::disable("checkbox")
+    
+    } else {
+    
+    rawdat_res$rawdat <- rawdat_nocache()
+    
+    }
+
+  })
+  
   dat <- reactive({
     
-    dat <- subset(raw_dat(), maxRnk <= input$slider_rank_i)
-    
-    dat <- subset(dat,
-                  oddsRatio >= input$slider_oddsratio_i &
-                    support >= input$slider_support_i &
-                    pValueLog >= input$slider_pvalue_i)
-    
-    # dat <- subset(dat, maxRnk >= input$slider_rank_i)
-  
-    if (input$select_collection_i != "All Collections") {
+      dat <- subset(rawdat_res$rawdat, maxRnk <= input$slider_rank_i)
       
-       dat <- subset(dat, collection == input$select_collection_i)
-       
-    }
+      dat <- subset(dat,
+                    oddsRatio >= input$slider_oddsratio_i &
+                      support >= input$slider_support_i &
+                      pValueLog >= input$slider_pvalue_i)
+      
+      # dat <- subset(dat, maxRnk >= input$slider_rank_i)
     
-    if (input$select_userset_i != "All User Sets") {
-
-      dat <- subset(dat, userSet == input$select_userset_i)
-
-    }
-    
-    dat$id <- paste(dat$description, dat$dbSet, sep = "_")
-    
-    dat$axis_label <- strtrim(dat$description, 50)
-    
-    return(dat)
+      if (input$select_collection_i != "All Collections") {
+        
+         dat <- subset(dat, collection == input$select_collection_i)
+         
+      }
+      
+      if (input$select_userset_i != "All User Sets") {
+  
+        dat <- subset(dat, userSet == input$select_userset_i)
+  
+      }
+      
+      dat$id <- paste(dat$description, dat$dbSet, sep = "_")
+      
+      dat$axis_label <- strtrim(dat$description, 50)
+      
+      return(dat)
     
   })
     
   setchoices <- function() {
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
-    if(length(unique(raw_dat()$userSet)) == 1) {
+    if(length(unique(rawdat_res$rawdat$userSet)) == 1) {
       
-      unique(raw_dat()$userSet)
+      unique(rawdat_res$rawdat$userSet)
       
     } else {
       
-      c("All User Sets", unique(raw_dat()$userSet))
+      c("All User Sets", unique(rawdat_res$rawdat$userSet))
       
     }
   }
   
   output$select_collection <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     list(
       HTML("<hr>"),
       selectInput("select_collection_i", 
                 "Select Collection", 
-                choices = c("All Collections", unique(raw_dat()$collection)),
+                choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
                 selected = "All Collections"))
     
   })  
   
   output$slider_rank <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_rank_i", 
                 "Max Rank Cutoff", 
-                min = min(raw_dat()$maxRnk),
-                max = max(raw_dat()$maxRnk),
-                value = quantile(raw_dat()$maxRnk, probs = 20/nrow(raw_dat())))
+                min = min(rawdat_res$rawdat$maxRnk),
+                max = max(rawdat_res$rawdat$maxRnk),
+                value = quantile(rawdat_res$rawdat$maxRnk, probs = 20/nrow(rawdat_res$rawdat)))
     
   })  
   
   output$select_sort <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     selectInput("select_sort_i", 
                 "Select Sort Column", 
-                choices = names(raw_dat()),
+                choices = names(rawdat_res$rawdat),
                 selected = "meanRnk")
     
   })  
   
   output$select_userset <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     selectInput("select_userset_i", 
                 "Select User Set", 
@@ -372,13 +453,13 @@ server <- function(input, output) {
   
   output$slider_oddsratio <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_oddsratio_i",
                 "Odds Ratio Cutoff",
-                min = round(min(raw_dat()$oddsRatio), 3),
-                max = round(max(raw_dat()$oddsRatio), 3),
-                value = round(min(raw_dat()$oddsRatio), 3))
+                min = round(min(rawdat_res$rawdat$oddsRatio), 3),
+                max = round(max(rawdat_res$rawdat$oddsRatio), 3),
+                value = round(min(rawdat_res$rawdat$oddsRatio), 3))
     })
   
   # set up function
@@ -418,13 +499,13 @@ server <- function(input, output) {
   # slider
   output$slider_support <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_support_i",
                 "Support Cutoff",
-                min = round(min(raw_dat()$support), 3),
-                max = round(max(raw_dat()$support), 3),
-                value = round(min(raw_dat()$support), 3))
+                min = round(min(rawdat_res$rawdat$support), 3),
+                max = round(max(rawdat_res$rawdat$support), 3),
+                value = round(min(rawdat_res$rawdat$support), 3))
     
   })  
   
@@ -465,13 +546,13 @@ server <- function(input, output) {
   
   output$slider_pvalue <- renderUI({
     
-    req(input$run)
+    req(rawdat_res$rawdat)
     
     sliderInput("slider_pvalue_i", 
                 "P Value Cutoff", 
-                min = round(min(raw_dat()$pValueLog), 3), 
-                max = round(max(raw_dat()$pValueLog), 3),
-                value = round(min(raw_dat()$pValueLog), 3))
+                min = round(min(rawdat_res$rawdat$pValueLog), 3), 
+                max = round(max(rawdat_res$rawdat$pValueLog), 3),
+                value = round(min(rawdat_res$rawdat$pValueLog), 3))
     
     
   })  
@@ -511,7 +592,7 @@ server <- function(input, output) {
     req(input$select_sort_i)
     
     dat <- dat()[order(eval(parse(text = input$select_sort_i)), decreasing = TRUE)]
-    
+
     dat$dbSet <- ifelse(dat$collection == "sheffield_dnase",
                         paste0("<a href = 'http://db.databio.org/clusterDetail.php?clusterID=",
                                tools::file_path_sans_ext(dat$filename),
