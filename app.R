@@ -318,7 +318,9 @@ server <- function(input, output, session) {
   
   observe({
     
-    if(length(query()) != 0) {
+    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    
+    if(length(query()) != 0 && query()[[1]] %in% cachenames) {
     
     keyphrase <- as.character(query()[[1]])
     
