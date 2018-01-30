@@ -17,13 +17,14 @@ git clone https://github.com/databio/shinyLOLA.git
 The app requires R to be installed, as well as several packages. From within R run the following to install the dependencies:
 
 ```
-install.packages(c("ggplot2", "shiny", "DT", "simpleCache", "shinyWidgets", "shinyjs"))
+install.packages(c("ggplot2", "shiny", "DT", "shinyWidgets", "shinyjs", "sodium", "devtools"))
+devtools::install_github("databio/simpleCache")
 
 source("https://bioconductor.org/biocLite.R")
 biocLite(c("LOLA", "GenomicRanges"))
 ```
 
-You'll also need underlying data that is not available in this repository in order to establish the universes, example user sets and reference genome directories. Run the following from within the root of this folder to download the data and create the `universes/`, `userSets/` and `reference/` respectively:
+You'll also need underlying data that is not available in this repository in order to establish the universes, example user sets and reference genome directories. Run the following from within the root of this folder to download the data and create the `universes/`, `userSets/`, `reference/` and `cache/` directories respectively:
 
 ```
 # create universes dir
@@ -54,4 +55,8 @@ mv scratch/ns5bc/resources/regions/LOLAExt reference/Extended
 rm -rf scratch
 ```
 
+```
+# create cache dir
+mkdir cache
+```
 With all of the above installed you can now launch the app with `shiny::runApp()` from within R at the root of this directory.
