@@ -1,12 +1,12 @@
-## shinyLOLA
+## LOLAweb
 
 ### Getting Started
 
-`shinyLOLA` is an interactive application that implements functions from the LOLA package in a web interface via the [Shiny](https://shiny.rstudio.com/) framework.
+`LOLAweb` is an interactive application that implements functions from the LOLA package in a web interface via the [Shiny](https://shiny.rstudio.com/) framework.
 
 The app is hosted and available for use at:
 
-<http://lola.databio.org/shinyLOLA/>
+<http://lolaweb.databio.org>
 
 To run the application locally, you'll need to first clone this repository:
 
