@@ -11,7 +11,7 @@ The app is hosted and available for use at:
 To run the application locally, you'll need to first clone this repository:
 
 ```
-git clone https://github.com/databio/shinyLOLA.git
+git clone https://github.com/databio/LOLAweb.git
 ```
 
 The app requires R to be installed, as well as several packages. From within R run the following to install the dependencies:
