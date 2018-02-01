@@ -4,9 +4,9 @@
 .Rproj.user
 inst/doc
 **/.DS_Store
-cache/*
+apps/LOLAweb/cache/*
 *.bed
-lola_vignette_data/*.bed
-universes/*
-reference/
-userSets/*
+apps/LOLAweb/lola_vignette_data/*.bed
+apps/LOLAweb/universes/*
+apps/LOLAweb/reference/
+apps/LOLAwebuserSets/*
