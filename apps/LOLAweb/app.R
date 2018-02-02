@@ -19,7 +19,10 @@ ui <- fluidPage(
   shinyjs::useShinyjs(),
   
   tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+    tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
+    # javascript for redirect to results view
+    tags$script("Shiny.addCustomMessageHandler('redirect', 
+                function(result_url) {window.location = result_url;});")   
   ),
   
   titlePanel(title = HTML("<img src='LOLA-logo.png' alt='LOLA logo' width='200'>"),
@@ -168,21 +171,40 @@ server <- function(input, output, session) {
     
     shinyjs::hide("messages")
     shinyjs::hide("gear")
-      
+    
+    showModal(modalDialog(
+      title = "Results",
+      HTML(paste0("You are about to be re-directed to your results:<br>",
+      result_url()$result_url)
+      )
+    ))
+    
+    Sys.sleep(3)
+    
+    # initiate redirect
+    session$sendCustomMessage(type = "redirect", result_url()$link)
+    
   })
-    
-  output$link <- renderText({
-    
-    req(input$select_sort_i)
+  
+  result_url <- reactive({
     
     baseurl <- session$clientData$url_hostname
     port <- session$clientData$url_port
     pathname <- session$clientData$url_pathname
-
- 
-    link <- paste0(baseurl, ":", port, pathname, "?key=", keyphrase())
     
-    paste0("<a href = 'http://", link, "' target = 'blank'>", link, "</a>")
+    link <- paste0("http://", baseurl, ":", port, pathname, "?key=", keyphrase())
+    
+    result_url <- paste0("<a href = '", link, "' target = 'blank'>", link, "</a>")
+    
+    # paste0("http://", baseurl, ":", port, pathname, "?key=", keyphrase())
+    list(link = link,
+         result_url = result_url)
+    
+  })
+  
+  output$link <- renderText({
+    
+    result_url()$result_url
     
   })
   
