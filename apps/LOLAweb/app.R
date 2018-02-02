@@ -192,8 +192,17 @@ server <- function(input, output, session) {
     port <- session$clientData$url_port
     pathname <- session$clientData$url_pathname
     
-    link <- paste0("http://", baseurl, ":", port, pathname, "?key=", keyphrase())
-    
+    # logic to remove phantom : when running at port 80
+    if (port == 80) {
+      
+      link <- paste0("http://", baseurl, port, pathname, "?key=", keyphrase())
+      
+    } else {
+      
+      link <- paste0("http://", baseurl, ":", port, pathname, "?key=", keyphrase())
+      
+    }
+  
     result_url <- paste0("<a href = '", link, "' target = 'blank'>", link, "</a>")
     
     # paste0("http://", baseurl, ":", port, pathname, "?key=", keyphrase())
