@@ -32,11 +32,11 @@ COPY shiny-server.sh /usr/bin/shiny-server.sh
 
 # get the code
 WORKDIR /srv/shiny-server
-RUN git clone -b staging https://github.com/databio/LOLAweb.git
+RUN git clone -b dev https://github.com/databio/LOLAweb.git
 
 # add dir for cache
-RUN mkdir shinyLOLA/cache
-RUN chown -R shiny:shiny shinyLOLA/cache
+RUN mkdir LOLAweb/cache
+RUN chown -R shiny:shiny LOLAweb/cache
 
 # run the server setup script
 CMD ["/usr/bin/shiny-server.sh"]
