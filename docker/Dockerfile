@@ -32,7 +32,7 @@ COPY shiny-server.sh /usr/bin/shiny-server.sh
 
 # get the code
 WORKDIR /srv/shiny-server
-RUN git clone https://github.com/databio/shinyLOLA.git
+RUN git clone https://github.com/databio/LOLAweb.git
 
 # add dir for cache
 RUN mkdir shinyLOLA/cache
