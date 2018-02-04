@@ -49,7 +49,9 @@ ui <- fluidPage(
                shinyjs::hidden(
                  actionButton("button_userset_upload",
                             "Upload data")
-               )
+               ),
+               HTML("<br>"),
+               radioButtons("refgenome", label = "Reference Genome", choices = c("hg19", "hg38", "mm10"))
         ),
         column(4,
                tags$div(
@@ -73,15 +75,16 @@ ui <- fluidPage(
                            icon("question-circle-o"), 
                            target = "blank"))
                ),
-               HTML(disabledbutton),
-               conditionalPanel(condition = "input.loladb == 'Core'",
-                                selectInput("refgenome_core", 
-                                            "Reference Genome", 
-                                            choices = c("hg19","hg38", "mm10"))),
-               conditionalPanel(condition = "input.loladb == 'Extended'",
-                                selectInput("refgenome_ext", 
-                                            "Reference Genome", 
-                                            choices = c("hg19","hg38")))
+               # HTML(disabledbutton),
+               uiOutput("loladbs")
+               # conditionalPanel(condition = "input.loladb == 'Core'",
+               #                  selectInput("refgenome_core", 
+               #                              "Reference Genome", 
+               #                              choices = c("hg19","hg38", "mm10"))),
+               # conditionalPanel(condition = "input.loladb == 'Extended'",
+               #                  selectInput("refgenome_ext", 
+               #                              "Reference Genome", 
+               #                              choices = c("hg19","hg38")))
         ),
       class = "headerBox"),
       fluidRow(
@@ -220,6 +223,21 @@ server <- function(input, output, session) {
     
   })
   
+  
+  output$loladbs <- renderUI({
+    
+    if(input$refgenome == "mm10") {
+      
+      selectInput("loladb", label = "", choices = c("Core"))
+      
+    } else {
+      
+      selectInput("loladb", label = "", choices = c("Core", "LOLAJaspar", "LOLARoadmap"))
+      
+    }
+    
+  })
+  
   output$universe <- renderUI({
 
     if(input$checkbox) {
@@ -230,8 +248,10 @@ server <- function(input, output, session) {
       } else {
         
         selectInput("defaultuniverse", 
-                    label = "Select Pre-Loaded Universe", 
-                    choices = list.files("universes"))
+                    label = "Select Pre-Loaded Universe",
+                    choices = list.files(paste0("universes/", input$refgenome)))
+                    # choices = list.files("universes"))
+  
         
       }
       
@@ -288,7 +308,7 @@ server <- function(input, output, session) {
 
       } else {
 
-        datapath <- paste0("universes/", input$defaultuniverse)
+        datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
 
         userUniverse = read.table(file = datapath, header = F)
 
@@ -301,9 +321,7 @@ server <- function(input, output, session) {
       # load region data for each reference genome
       dbPath = paste("reference",
                       input$loladb,
-                      ifelse(input$loladb == "Core",
-                             input$refgenome_core,
-                             input$refgenome_ext),
+                      input$refgenome,
                      sep = "/"
                       )
 
@@ -379,8 +397,7 @@ server <- function(input, output, session) {
     shinyjs::disable("universe")
     shinyjs::disable("loladb")
     shinyjs::disable("button_userset_example")
-    shinyjs::disable("refgenome_core")
-    shinyjs::disable("refgenome_ext")
+    shinyjs::disable("refgenome")
     shinyjs::disable("defaultuniverse")
     shinyjs::disable("useruniverse")
     shinyjs::disable("checkbox")
