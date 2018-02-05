@@ -15,7 +15,7 @@ userSetsRedefined =	redefineUserSets(userSets, userUniverse)
 resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
 
 resRedefined = subset(as.data.frame(resRedefined),
-                      oddsRatio > 2
+                      oddsRatio > 2,
                       pValueLog > 2,
                       support > 2
 )
@@ -84,3 +84,28 @@ ggplot(resRedefined, aes(reorder(description, sort(b, decreasing = F)), oddsRati
   theme_ns()
 
 
+regionDB = loadRegionDB("reference/LOLAJaspar/hg19/")
+# regionDB = loadRegionDB("reference/LOLARoadmap/hg19/")
+# regionDB = loadRegionDB("reference/CORE/hg19/")
+
+userSet = read.table(file = "lola_vignette_data/setB_100.bed", header = F, stringsAsFactors = F) 
+colnames(userSet) <- c('chr','start','end','id','score','strand')
+userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+userSet = GRangesList(userSet)
+
+
+
+userUniverse = read.table(file = "universes/hg19/tiles1000.hg19.bed", header = F, stringsAsFactors = F)
+colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+
+
+userSetsRedefined =	redefineUserSets(userSet, userUniverse)
+
+resRedefined = runLOLA(userSetsRedefined,
+                       userUniverse,
+                       regionDB,
+                       cores=1)
+
+
+shiny::showModal("foo")

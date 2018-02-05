@@ -17,7 +17,7 @@ git clone https://github.com/databio/LOLAweb.git
 The app requires R to be installed, as well as several packages. From within R run the following to install the dependencies:
 
 ```
-install.packages(c("ggplot2", "shiny", "DT", "shinyWidgets", "shinyjs", "sodium", "devtools"))
+install.packages(c("ggplot2", "shiny", "DT", "shinyWidgets", "shinyjs", "sodium", "devtools", "shinyBS"))
 devtools::install_github("databio/simpleCache")
 
 source("https://bioconductor.org/biocLite.R")

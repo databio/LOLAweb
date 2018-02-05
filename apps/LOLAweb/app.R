@@ -11,6 +11,7 @@ library(GenomicRanges)
 library(DT)
 library(simpleCache)
 library(sodium)
+library(shinyBS)
 
 setCacheDir("cache")
 
@@ -22,7 +23,9 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     # javascript for redirect to results view
     tags$script("Shiny.addCustomMessageHandler('redirect', 
-                function(result_url) {window.location = result_url;});")   
+                function(result_url) {window.location = result_url;});"),
+    tags$link(rel="shortcut icon", href="favicon.ico")
+
   ),
   
   titlePanel(title = HTML("<img src='LOLA-logo.png' alt='LOLA logo' width='200'>"),
@@ -30,11 +33,15 @@ ui <- fluidPage(
   
       fluidRow(
         column(4,
+               # need the bootstrap button invocation for popovers to work
+               # but we don't actually want to show it
+               shinyjs::hidden(bsButton("renderButton", "Render")),
                tags$div(
                  h3("#1 Select User Set",
-                    tags$a(href = "http://code.databio.org/LOLA/articles/gettingStarted.html", 
-                           icon("question-circle-o"), 
-                           target = "blank"))
+                    # tags$a(href = "http://code.databio.org/LOLA/articles/gettingStarted.html", 
+                    #        icon("question-circle-o"), 
+                    #        target = "blank"))
+                    actionLink("infouserset", "", icon = icon("question-circle-o")))
                ),
                shinyjs::hidden(
                  selectInput("defaultuserset", 
@@ -49,14 +56,18 @@ ui <- fluidPage(
                shinyjs::hidden(
                  actionButton("button_userset_upload",
                             "Upload data")
-               )
+               ),
+               tags$div(
+               selectInput("refgenome", label = "Reference Genome", choices = c("hg19", "hg38", "mm10")),
+               style = "margin-top:30px;")
         ),
         column(4,
                tags$div(
                  h3("#2 Select Universe",
-                    tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
-                           icon("question-circle-o"), 
-                           target = "blank"))
+                    # tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
+                    #        icon("question-circle-o"), 
+                    #        target = "blank"))
+                 actionLink("infouniverse", "", icon = icon("question-circle-o")))
                ),
                uiOutput("universe"),
                checkboxInput("checkbox", 
@@ -69,19 +80,13 @@ ui <- fluidPage(
         column(4, 
                tags$div(
                  h3("#3 Select Region Database",
-                    tags$a(href = "http://databio.org/regiondb", 
-                           icon("question-circle-o"), 
-                           target = "blank"))
+                    # tags$a(href = "http://databio.org/regiondb", 
+                    #        icon("question-circle-o"), 
+                    #        target = "blank"))
+                 actionLink("infodb", "", icon = icon("question-circle-o")))
                ),
-               HTML(disabledbutton),
-               conditionalPanel(condition = "input.loladb == 'Core'",
-                                selectInput("refgenome_core", 
-                                            "Reference Genome", 
-                                            choices = c("hg19","hg38", "mm10"))),
-               conditionalPanel(condition = "input.loladb == 'Extended'",
-                                selectInput("refgenome_ext", 
-                                            "Reference Genome", 
-                                            choices = c("hg19","hg38")))
+               # HTML(disabledbutton),
+               uiOutput("loladbs")
         ),
       class = "headerBox"),
       fluidRow(
@@ -91,22 +96,35 @@ ui <- fluidPage(
                uiOutput("slider_oddsratio"),
                uiOutput("slider_support"),
                uiOutput("slider_pvalue"),
+               shinyjs::hidden(
+                 tags$div(
+                   HTML("<hr>"),
+                   h4("Select Collection",
+                      actionLink("infocollection", "", icon = icon("question-circle-o"))),
+                   id = "infocollection_div")
+                ),
                uiOutput("select_collection"),
                uiOutput("select_sort"),
                uiOutput("select_userset")
           ),
         column(10,
                htmlOutput("messages"),
-               tags$h4(htmlOutput("link"))),
+               tags$h4(htmlOutput("link")),
+               shinyjs::hidden(
+                 tags$div(
+                   h2("LOLA Results",
+                      actionLink("infoplot", "", icon = icon("question-circle-o"))),
+                   id = "infoplot_div")
+               )),
         column(5,
                conditionalPanel(condition = "output.res",
-                                h3("Odds Ratio"),
+                                h4("Odds Ratio"),
                                 downloadButton("oddsratio_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
                plotOutput("oddsratio_plot"),
                conditionalPanel(condition = "output.res",
-                                h3("Support"),
+                                h4("Support"),
                                 downloadButton("support_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
@@ -114,7 +132,7 @@ ui <- fluidPage(
         ),
         column(5,
                conditionalPanel(condition = "output.res",
-                                h3("P Value"),
+                                h4("P Value"),
                                 downloadButton("pvalue_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
@@ -131,6 +149,55 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
+  # popover text
+  # user sets
+  addPopover(session=session, 
+             id="infouserset", 
+             title="User Sets", 
+             content="<p>The User Set is your set of genomic regions that you want to test for overlap with the database. Upload a file in <a href = 'https://genome.ucsc.edu/FAQ/FAQformat.html' target 'blank'>BED format</a> (really, it just needs the first 3 columns: chr, start, and end). You can also drag and drop multiple files and they will be analyzed simultaneously!<button type='button' id='close' class='close' onclick='$(&quot;#infouserset&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             placement = "bottom",
+             trigger = "click", 
+             options = NULL)
+  # universes
+  addPopover(session=session, 
+             id="infouniverse", 
+             title="Universes", 
+             content="<p>The universe is your background set of regions. You should think of the universe as the set of regions you tested for possible inclusion in your user sets; or, in other words, it is the restricted background set of regions that were tested, including everything in your regions of interest as well as those that did not get included. We recommend you upload a universe that is specific to the query set, but we also provide a few basic region sets (like tiling regions, or the set of all active DNaseI hypersensitive elements from the ENCODE project). The choice of universe can have a drastic affect on the results of the analysis, so it may also be worth running LOLA few times with different universe sets. For further information, there are more details in the <a href = 'http://code.databio.org/LOLA/articles/choosingUniverse.html' target='blank'>LOLA documentation</a>.<button type='button' id='close' class='close' onclick='$(&quot;#infouniverse&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             placement = "bottom",
+             trigger = "click", 
+             options = NULL)
+
+  # region dbs
+  addPopover(session=session, 
+             id="infodb", 
+             title="Region Databases", 
+             # html for content with JS at the bottom to close popup
+             content="<p>We have provided a few different general-purpose databases. We recommend starting with the Core database, but there are also a few other more specific options if you want to extend your analysis. Further details about what is contained in each database can be found in the <a href = 'http://databio.org/regiondb' target = 'blank'>documentation on LOLA region databases</a>. <button type='button' id='close' class='close' onclick='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             placement = "bottom",
+             trigger = "click", 
+             options = NULL)
+  
+  # collection
+  addPopover(session=session,
+             id="infocollection",
+             title="Collections",
+             # html for content with JS at the bottom to close popup
+             content="<p>LOLA databases are made up of one or more sub-collections of region set. Using this drop-down, you can filter your plots and tables to show only the results from one of these collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             placement = "bottom",
+             trigger = "click",
+             options = NULL)
+  
+  # LOLA results
+  addPopover(session=session,
+             id="infoplot",
+             title="LOLA Results",
+             # html for content with JS at the bottom to close popup
+             content="<p>These barplots show the highest-ranking region sets from the database. The higher scores indicate more overlap with your query set. The results are scored using 3 statistics: Support is the raw number of regions that overlapped between your query set and the database set. LogPVal and LogOdds are the results of a Fisher's exact test scoring the significance of that overlap.</p><p>We rank each region set from the database for each of these 3 scores, and you can see the raw scores and the ranks in the table below. You can also see the maximum and mean ranks across all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             placement = "bottom",
+             trigger = "click",
+             options = NULL)
+  
+  # reactive values
   exampleuserset <- reactiveValues(toggle = TRUE)
   
   # get url parameter for retrieval query key
@@ -220,6 +287,21 @@ server <- function(input, output, session) {
     
   })
   
+  
+  output$loladbs <- renderUI({
+    
+    if(input$refgenome == "mm10") {
+      
+      selectInput("loladb", label = "", choices = c("Core"))
+      
+    } else {
+      
+      selectInput("loladb", label = "", choices = c("Core", "LOLAJaspar", "LOLARoadmap"))
+      
+    }
+    
+  })
+  
   output$universe <- renderUI({
 
     if(input$checkbox) {
@@ -230,9 +312,11 @@ server <- function(input, output, session) {
       } else {
         
         selectInput("defaultuniverse", 
-                    label = "Select Pre-Loaded Universe", 
-                    choices = list.files("universes"))
-        
+                    label = "Select Pre-Loaded Universe",
+                    choices = list.files(paste0("universes/", input$refgenome)))
+                    # choices = list.files("universes"))
+  
+      
       }
       
     })
@@ -288,7 +372,7 @@ server <- function(input, output, session) {
 
       } else {
 
-        datapath <- paste0("universes/", input$defaultuniverse)
+        datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
 
         userUniverse = read.table(file = datapath, header = F)
 
@@ -301,9 +385,7 @@ server <- function(input, output, session) {
       # load region data for each reference genome
       dbPath = paste("reference",
                       input$loladb,
-                      ifelse(input$loladb == "Core",
-                             input$refgenome_core,
-                             input$refgenome_ext),
+                      input$refgenome,
                      sep = "/"
                       )
 
@@ -314,7 +396,7 @@ server <- function(input, output, session) {
       resRedefined = runLOLA(userSetsRedefined,
                              userUniverse,
                              regionDB,
-                             cores=1)
+                             cores=4)
 
       # need to make sure user set is discrete even if coded as number
       resRedefined$userSet = as.character(resRedefined$userSet)
@@ -379,11 +461,15 @@ server <- function(input, output, session) {
     shinyjs::disable("universe")
     shinyjs::disable("loladb")
     shinyjs::disable("button_userset_example")
-    shinyjs::disable("refgenome_core")
-    shinyjs::disable("refgenome_ext")
+    shinyjs::disable("refgenome")
     shinyjs::disable("defaultuniverse")
     shinyjs::disable("useruniverse")
     shinyjs::disable("checkbox")
+    
+    # show help text for results sliders and plots
+    shinyjs::show("infocollection_div")
+    shinyjs::show("infoplot_div")
+    
     
     } else {
     
@@ -442,14 +528,11 @@ server <- function(input, output, session) {
   output$select_collection <- renderUI({
     
     req(rawdat_res$rawdat)
-    
-    list(
-      HTML("<hr>"),
-      selectInput("select_collection_i", 
-                "Select Collection", 
-                choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
-                selected = "All Collections"))
-    
+  
+        selectInput("select_collection_i", 
+                    "", 
+                    choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
+                    selected = "All Collections")
   })  
   
   output$slider_rank <- renderUI({
