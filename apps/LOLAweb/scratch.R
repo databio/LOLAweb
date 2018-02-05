@@ -106,3 +106,6 @@ resRedefined = runLOLA(userSetsRedefined,
                        userUniverse,
                        regionDB,
                        cores=1)
+
+
+shiny::showModal("foo")
