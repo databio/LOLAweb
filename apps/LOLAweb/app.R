@@ -23,7 +23,8 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     # javascript for redirect to results view
     tags$script("Shiny.addCustomMessageHandler('redirect', 
-                function(result_url) {window.location = result_url;});")
+                function(result_url) {window.location = result_url;});"),
+    tags$link(rel="shortcut icon", href="favicon.ico")
 
   ),
   
