@@ -55,8 +55,9 @@ ui <- fluidPage(
                  actionButton("button_userset_upload",
                             "Upload data")
                ),
-               HTML("<br>"),
-               radioButtons("refgenome", label = "Reference Genome", choices = c("hg19", "hg38", "mm10"))
+               tags$div(
+               selectInput("refgenome", label = "Reference Genome", choices = c("hg19", "hg38", "mm10")),
+               style = "margin-top:30px;")
         ),
         column(4,
                tags$div(
