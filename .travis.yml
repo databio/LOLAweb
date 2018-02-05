@@ -1,0 +1,42 @@
+branches:
+  only:
+  - master
+  - staging
+  - dev
+
+language: bash
+
+services:
+  - docker
+
+before_install:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
+install:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    cd docker/
+    docker build --no-cache -t databio/lolaweb:latest . ;
+    docker push databio/lolaweb:latest;
+    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
+    fi
+  - if [ "$TRAVIS_BRANCH" == "staging" ]; then
+    cd docker/staging/
+    docker build --no-cache -t databio/lolaweb:staging . ;
+    docker push databio/lolaweb:staging;
+    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
+    fi
+  - if [ "$TRAVIS_BRANCH" == "dev" ]; then
+    cd docker/dev/ ;
+    docker build --no-cache -t databio/lolaweb:dev . ;
+    docker push databio/lolaweb:dev;
+    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
+    fi
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+    recipients:
+    - nmagee@virginia.edu
