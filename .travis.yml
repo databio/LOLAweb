@@ -16,13 +16,13 @@ before_install:
 
 install:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    cd docker/
+    cd docker/ ;
     docker build --no-cache -t databio/lolaweb:latest . ;
     docker push databio/lolaweb:latest;
     aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
     fi
   - if [ "$TRAVIS_BRANCH" == "staging" ]; then
-    cd docker/staging/
+    cd docker/staging/ ;
     docker build --no-cache -t databio/lolaweb:staging . ;
     docker push databio/lolaweb:staging;
     aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
