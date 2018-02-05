@@ -395,7 +395,7 @@ server <- function(input, output, session) {
       resRedefined = runLOLA(userSetsRedefined,
                              userUniverse,
                              regionDB,
-                             cores=1)
+                             cores=4)
 
       # need to make sure user set is discrete even if coded as number
       resRedefined$userSet = as.character(resRedefined$userSet)
