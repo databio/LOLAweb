@@ -23,7 +23,8 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     # javascript for redirect to results view
     tags$script("Shiny.addCustomMessageHandler('redirect', 
-                function(result_url) {window.location = result_url;});")   
+                function(result_url) {window.location = result_url;});")
+
   ),
   
   titlePanel(title = HTML("<img src='LOLA-logo.png' alt='LOLA logo' width='200'>"),
@@ -85,14 +86,6 @@ ui <- fluidPage(
                ),
                # HTML(disabledbutton),
                uiOutput("loladbs")
-               # conditionalPanel(condition = "input.loladb == 'Core'",
-               #                  selectInput("refgenome_core", 
-               #                              "Reference Genome", 
-               #                              choices = c("hg19","hg38", "mm10"))),
-               # conditionalPanel(condition = "input.loladb == 'Extended'",
-               #                  selectInput("refgenome_ext", 
-               #                              "Reference Genome", 
-               #                              choices = c("hg19","hg38")))
         ),
       class = "headerBox"),
       fluidRow(
@@ -102,13 +95,26 @@ ui <- fluidPage(
                uiOutput("slider_oddsratio"),
                uiOutput("slider_support"),
                uiOutput("slider_pvalue"),
+               shinyjs::hidden(
+                 tags$div(
+                   HTML("<hr>"),
+                   h4("Select Collection",
+                      actionLink("infocollection", "", icon = icon("question-circle-o"))),
+                   id = "infocollection_div")
+                ),
                uiOutput("select_collection"),
                uiOutput("select_sort"),
                uiOutput("select_userset")
           ),
         column(10,
                htmlOutput("messages"),
-               tags$h4(htmlOutput("link"))),
+               tags$h4(htmlOutput("link")),
+               shinyjs::hidden(
+                 tags$div(
+                   h2("LOLA Results",
+                      actionLink("infoplot", "", icon = icon("question-circle-o"))),
+                   id = "infoplot_div")
+               )),
         column(5,
                conditionalPanel(condition = "output.res",
                                 h3("Odds Ratio"),
@@ -170,15 +176,25 @@ server <- function(input, output, session) {
              trigger = "click", 
              options = NULL)
   
-  # addPopover(session=session, 
-  #            id="infocollection", 
-  #            title="collection", 
-  #            # html for content with JS at the bottom to close popup
-  #            content="<p>LOLA databases are made up of one or more sub-collections of region set. Using this drop-down, you can filter your plots and tables to show only the results from one of these collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
-  #            placement = "bottom",
-  #            trigger = "click", 
-  #            options = NULL)
+  # collection
+  addPopover(session=session,
+             id="infocollection",
+             title="Collections",
+             # html for content with JS at the bottom to close popup
+             content="<p>LOLA databases are made up of one or more sub-collections of region set. Using this drop-down, you can filter your plots and tables to show only the results from one of these collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             placement = "bottom",
+             trigger = "click",
+             options = NULL)
   
+  # LOLA results
+  addPopover(session=session,
+             id="infoplot",
+             title="LOLA Results",
+             # html for content with JS at the bottom to close popup
+             content="<p>These barplots show the highest-ranking region sets from the database. The higher scores indicate more overlap with your query set. The results are scored using 3 statistics: Support is the raw number of regions that overlapped between your query set and the database set. LogPVal and LogOdds are the results of a Fisher's exact test scoring the significance of that overlap.</p><p>We rank each region set from the database for each of these 3 scores, and you can see the raw scores and the ranks in the table below. You can also see the maximum and mean ranks across all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             placement = "bottom",
+             trigger = "click",
+             options = NULL)
   
   # reactive values
   exampleuserset <- reactiveValues(toggle = TRUE)
@@ -299,7 +315,7 @@ server <- function(input, output, session) {
                     choices = list.files(paste0("universes/", input$refgenome)))
                     # choices = list.files("universes"))
   
-        
+      
       }
       
     })
@@ -449,6 +465,11 @@ server <- function(input, output, session) {
     shinyjs::disable("useruniverse")
     shinyjs::disable("checkbox")
     
+    # show help text for results sliders and plots
+    shinyjs::show("infocollection_div")
+    shinyjs::show("infoplot_div")
+    
+    
     } else {
     
     rawdat_res$rawdat <- rawdat_nocache()
@@ -506,17 +527,11 @@ server <- function(input, output, session) {
   output$select_collection <- renderUI({
     
     req(rawdat_res$rawdat)
-    
-    list(
-      HTML("<hr>"),
-      # tags$div(
+  
         selectInput("select_collection_i", 
-                    "Select Collection", 
+                    "", 
                     choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
                     selected = "All Collections")
-           # actionLink("infocollection", "", icon = icon("question-circle-o")))
-      # )
-    )
   })  
   
   output$slider_rank <- renderUI({
