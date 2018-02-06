@@ -83,9 +83,6 @@ ui <- fluidPage(
         column(4, 
                tags$div(
                  h3("#3 Select Region Database",
-                    # tags$a(href = "http://databio.org/regiondb", 
-                    #        icon("question-circle-o"), 
-                    #        target = "blank"))
                  actionLink("infodb", "", icon = icon("question-circle-o")))
                ),
                # HTML(disabledbutton),
@@ -95,6 +92,13 @@ ui <- fluidPage(
       fluidRow(
         column(2,
                htmlOutput("gear"),
+               shinyjs::hidden(
+                 tags$div(
+                   h4("Display Options",
+                      actionLink("infodisplay", "", icon = icon("question-circle-o"))),
+                   id = "infodisplay_div"
+                 )
+               ),
                uiOutput("slider_rank"),
                uiOutput("slider_oddsratio"),
                uiOutput("slider_support"),
@@ -198,6 +202,16 @@ server <- function(input, output, session) {
              title="LOLA Results",
              # html for content with JS at the bottom to close popup
              content="<p>These barplots show the highest-ranking region sets from the database. The higher scores indicate more overlap with your query set. The results are scored using 3 statistics: Support is the raw number of regions that overlapped between your query set and the database set. LogPVal and LogOdds are the results of a Fisher's exact test scoring the significance of that overlap.</p><p>We rank each region set from the database for each of these 3 scores, and you can see the raw scores and the ranks in the table below. You can also see the maximum and mean ranks across all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             placement = "bottom",
+             trigger = "click",
+             options = NULL)
+  
+  # display slider options
+  addPopover(session=session,
+             id="infodisplay",
+             title="Display Options",
+             # html for content with JS at the bottom to close popup
+             content="<p>These sliders can be used to adjust the number of results displayed on the plots. You may adjust cutoffs for any of the 3 statistics, as well as for the combined maximum rank, which prioritizes region sets that score well in all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infodisplay&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click",
              options = NULL)
@@ -474,6 +488,7 @@ server <- function(input, output, session) {
     # show help text for results sliders and plots
     shinyjs::show("infocollection_div")
     shinyjs::show("infoplot_div")
+    shinyjs::show("infodisplay_div")
     
     
     } else {
