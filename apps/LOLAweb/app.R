@@ -99,8 +99,10 @@ ui <- fluidPage(
                shinyjs::hidden(
                  tags$div(
                    HTML("<hr>"),
-                   h4("Select Collection",
-                      actionLink("infocollection", "", icon = icon("question-circle-o"))),
+                   tags$label(
+                     HTML("Select Collection"),
+                     actionLink("infocollection", "", icon = icon("question-circle-o"))
+                   ),
                    id = "infocollection_div")
                 ),
                uiOutput("select_collection"),
