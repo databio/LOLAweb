@@ -28,7 +28,7 @@ ui <- fluidPage(
 
   ),
   
-  titlePanel(title = HTML("<img src='LOLAweb-logo.png' alt='LOLA logo' width='200'>"),
+  titlePanel(title = HTML("<img src='LOLAweb-logo.png' alt='LOLA logo' width='280'>"),
              windowTitle = "LOLA"),
   
       fluidRow(
