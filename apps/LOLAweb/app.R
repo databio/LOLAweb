@@ -457,6 +457,23 @@ server <- function(input, output, session) {
     
     cachenames <- tools::file_path_sans_ext(list.files("cache"))
     
+    if(length(query()) != 0 && !query()[[1]] %in% cachenames) {
+      
+      showModal(modalDialog(
+        title = "Bad Request",
+        HTML(paste0("The cache '",
+                     query()[[1]], 
+                    "' does not exist."))
+        )
+      )
+    }
+    
+  })
+  
+  observe({
+    
+    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    
     if(length(query()) != 0 && query()[[1]] %in% cachenames) {
     
     keyphrase <- as.character(query()[[1]])
