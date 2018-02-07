@@ -76,7 +76,7 @@ ui <- fluidPage(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               tags$a(href = "http://lolaweb.databio.org/?key=CD59REQLJU4AFMX", 
+               tags$a(href = "?key=CD59REQLJU4AFMX", 
                       "Sample Results",
                       style="display: block;margin-top: 10px;")
                ),
