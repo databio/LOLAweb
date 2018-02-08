@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y -t unstable \
     rm -rf /var/lib/apt/lists/*
 
 # install R packages
-RUN R -e "install.packages(c('DT', 'ggplot2', 'shinyjs', 'devtools', 'shinyWidgets', 'sodium', 'shinyBS'), repos='http://cran.rstudio.com/')" -e "source('http://bioconductor.org/biocLite.R')" -e "biocLite(c('GenomicRanges', 'LOLA'))" -e "devtools::install_github('databio/simpleCache')"
+RUN R -e "install.packages(c('DT', 'ggplot2', 'shinyjs', 'devtools', 'shinyWidgets', 'sodium', 'shinyBS'), repos='http://cran.rstudio.com/')" -e "source('http://bioconductor.org/biocLite.R')" -e "biocLite(c('GenomicRanges', 'LOLA', 'BSgenome.Hsapiens.UCSC.hg38.masked', 'BSgenome.Hsapiens.UCSC.hg19.masked', 'BSgenome.Hsapiens.UCSC.mm10.masked', 'BSgenome.Mmusculus.UCSC.mm10.masked', 'EnsDb.Hsapiens.v75', 'EnsDb.Hsapiens.v86', 'EnsDb.Mmusculus.v79'))" -e "devtools::install_github('databio/simpleCache')" -e "devtools::install_github('databio/GenomicDistributions')"
 
 # move conf files
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf

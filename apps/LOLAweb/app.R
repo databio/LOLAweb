@@ -12,6 +12,7 @@ library(DT)
 library(simpleCache)
 library(sodium)
 library(shinyBS)
+library(GenomicDistributions)
 
 setCacheDir("cache")
 
@@ -145,7 +146,13 @@ ui <- fluidPage(
                                 downloadButton("pvalue_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
-               plotOutput("pvalue_plot")
+               plotOutput("pvalue_plot"),
+               conditionalPanel(condition = "output.res",
+                                h4("Distribution"),
+                                downloadButton("distrib_plot_dl",
+                                               label = "Download Plot",
+                                               class = "dt-button")),
+               plotOutput("distrib_plot")
         )
         ),
       fluidRow(
@@ -419,19 +426,14 @@ server <- function(input, output, session) {
 
       # need to make sure user set is discrete even if coded as number
       resRedefined$userSet = as.character(resRedefined$userSet)
+      
+      # calculate distribution over chromosomes for plotting
+      genDist = genomicDistribution(userSets, input$refgenome)
+      
+      # create named list of multiple objects for plotting
+      res = list(resRedefined = resRedefined,
+                 genDist = genDist)
 
-      # seeing some missing pvalues need to make sure these are not present
-      # resRedefined = subset(resRedefined,
-      #                       oddsRatio != "" &
-      #                       pValueLog != "" &
-      #                       support != ""
-      #                       )
-
-      # resRedefined = subset(resRedefined,
-      #                       oddsRatio > 0 &
-      #                       pValueLog > 0 &
-      #                       support > 0
-      #                       )
 
       # garbage collection
       # rm(regionDB, userSetsRedefined, userUniverse)
@@ -439,7 +441,8 @@ server <- function(input, output, session) {
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
       key <- hash(charToRaw(keyphrase()))
-      msg <- serialize(resRedefined, connection = NULL)
+      msg <- serialize(res,
+                       connection = NULL)
 
       cipher <- data_encrypt(msg, key)
 
@@ -447,7 +450,8 @@ server <- function(input, output, session) {
                   instruction = { cipher },
                   noload = TRUE)
 
-      return(resRedefined)
+      return(list(resRedefined = resRedefined,
+                  genDist = genDist))
 
   })
 
@@ -489,7 +493,11 @@ server <- function(input, output, session) {
     
     dat <- data_decrypt(cipher, key)
     
-    rawdat_res$rawdat <- unserialize(dat)
+    res <- unserialize(dat)
+    
+    rawdat_res$rawdat <- res$resRedefined
+    
+    rawdat_res$genDist <- res$genDist
     
     # disable all buttons in header when query is good
     shinyjs::disable("run")
@@ -510,8 +518,8 @@ server <- function(input, output, session) {
     
     } else {
     
-    rawdat_res$rawdat <- rawdat_nocache()
-    
+    rawdat_res$rawdat <- rawdat_nocache()$resRedefined
+    rawdat_res$genDist <- rawdat_nocache()$genDist
     }
 
   })
@@ -745,6 +753,36 @@ server <- function(input, output, session) {
     }
   )
   
+  # genomic distribution plot
+  # set up function
+  distrib_plot_input <- function() {
+    
+    genDist <- rawdat_res$genDist
+    
+    plotGenomicDist(GD = genDist)
+    
+  }
+  
+  output$distrib_plot <- renderPlot({
+    
+    req(input$select_sort_i)
+    
+    distrib_plot_input()
+    
+  })
+  
+  # download handler
+  output$distrib_plot_dl <- downloadHandler(
+    filename = function() { paste(gsub(".bed", "", input$userset),
+                                  "_support", 
+                                  ".png", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = distrib_plot_input(), device = "png")
+    }
+  )
+  
+  # data table
   output$res <- DT::renderDataTable({
     
     req(input$select_sort_i)

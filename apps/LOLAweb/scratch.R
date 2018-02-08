@@ -108,4 +108,55 @@ resRedefined = runLOLA(userSetsRedefined,
                        cores=1)
 
 
-shiny::showModal("foo")
+# GenomicDistributions plots
+
+library(GenomicDistributions)
+library(GenomicRanges)
+
+query = read.table(file = "lola_vignette_data/setC_complete.bed", header = F)
+#query = read.table(file = "lola_vignette_data/setB_100.bed", header = F) 
+colnames(query) = c('chr','start','end','id','score','strand')
+query = with(query, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+
+x = genomicDistribution(query, "hg19")
+
+# Then, plot the result:
+plotGenomicDist(x)
+
+
+
+EnsDb = loadEnsDb("hg19")
+featsWide = ensembldb::genes(EnsDb, columns=NULL)
+
+# Now, grab just a single base pair at the TSS
+feats = promoters(featsWide, 1, 1)
+
+# Change from ensembl-style chrom annotation to UCSC_style
+seqlevels(feats) = paste0("chr", seqlevels(feats))
+
+system.time({
+  featureDistance = featureDistribution(query, feats)
+})
+
+# Then plot the result:
+plotFeatureDist(featureDistance)
+
+
+featureDistance2 = featureDistribution(queryList, feats)
+plotFeatureDist(featureDistance2)
+
+
+
+keyphrase <- "486TQ3MHFJPU2D9"
+loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
+
+cipher <- get("cipher", envir = globalenv())
+
+# keyphrase
+key <- hash(charToRaw(keyphrase))
+
+dat <- data_decrypt(cipher, key)
+
+res <- unserialize(dat)
+
+
