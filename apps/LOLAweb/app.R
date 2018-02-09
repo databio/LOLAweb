@@ -39,9 +39,6 @@ ui <- fluidPage(
                shinyjs::hidden(bsButton("renderButton", "Render")),
                tags$div(
                  h3("#1 Select User Set",
-                    # tags$a(href = "http://code.databio.org/LOLA/articles/gettingStarted.html", 
-                    #        icon("question-circle-o"), 
-                    #        target = "blank"))
                     actionLink("infouserset", "", icon = icon("question-circle-o")))
                ),
                shinyjs::hidden(
@@ -65,9 +62,6 @@ ui <- fluidPage(
         column(4,
                tags$div(
                  h3("#2 Select Universe",
-                    # tags$a(href = "http://code.databio.org/LOLA/articles/choosingUniverse.html", 
-                    #        icon("question-circle-o"), 
-                    #        target = "blank"))
                  actionLink("infouniverse", "", icon = icon("question-circle-o")))
                ),
                uiOutput("universe"),
@@ -641,12 +635,11 @@ server <- function(input, output, session) {
   
   # download handler
   output$oddsratio_plot_dl <- downloadHandler(
-    filename = function() { paste(gsub(".bed", "", input$userset),
-                                  "_oddsratio", 
-                                  ".png", 
+    filename = function() { paste("oddsratio", 
+                                  ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = oddsratio_plot_input(), device = "png")
+      ggsave(file, plot = oddsratio_plot_input(), device = "pdf")
     }
   )
   
@@ -687,12 +680,11 @@ server <- function(input, output, session) {
   
   # download handler
   output$support_plot_dl <- downloadHandler(
-    filename = function() { paste(gsub(".bed", "", input$userset),
-                                  "_support", 
-                                  ".png", 
+    filename = function() { paste("support", 
+                                  ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = support_plot_input(), device = "png")
+      ggsave(file, plot = support_plot_input(), device = "pdf")
     }
   )
   
@@ -734,12 +726,11 @@ server <- function(input, output, session) {
   })
   
   output$pvalue_plot_dl <- downloadHandler(
-    filename = function() { paste(gsub(".bed", "", input$userset),
-                                  "_pvalue", 
-                                  ".png", 
+    filename = function() { paste("pvalue",
+                                  ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = pvalue_plot_input(), device = "png")
+      ggsave(file, plot = pvalue_plot_input(), device = "pdf")
     }
   )
   
@@ -763,12 +754,11 @@ server <- function(input, output, session) {
   
   # download handler
   output$distrib_plot_dl <- downloadHandler(
-    filename = function() { paste(gsub(".bed", "", input$userset),
-                                  "_support", 
-                                  ".png", 
+    filename = function() { paste("gendist",
+                                  ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = distrib_plot_input(), device = "png")
+      ggsave(file, plot = distrib_plot_input(), device = "pdf")
     }
   )
   
