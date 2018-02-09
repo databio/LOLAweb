@@ -104,15 +104,6 @@ ui <- fluidPage(
                uiOutput("slider_oddsratio"),
                uiOutput("slider_support"),
                uiOutput("slider_pvalue"),
-               shinyjs::hidden(
-                 tags$div(
-                   HTML("<hr>"),
-                   tags$label(
-                     HTML("Select Collection"),
-                     actionLink("infocollection", "", icon = icon("question-circle-o"))
-                   ),
-                   id = "infocollection_div")
-                ),
                uiOutput("select_collection"),
                uiOutput("select_sort"),
                uiOutput("select_userset")
@@ -218,7 +209,7 @@ server <- function(input, output, session) {
              id="infodisplay",
              title="Display Options",
              # html for content with JS at the bottom to close popup
-             content="<p>These sliders can be used to adjust the number of results displayed on the plots. You may adjust cutoffs for any of the 3 statistics, as well as for the combined maximum rank, which prioritizes region sets that score well in all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infodisplay&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             content="<p>These sliders can be used to adjust the number of results displayed on the plots. You may adjust cutoffs for any of the 3 statistics, as well as for the combined maximum rank, which prioritizes region sets that score well in all 3 categories.</p><p>LOLA databases are made up of one or more sub-collections of region set. Using this drop-down, you can filter your plots and tables to show only the results from one of these collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infodisplay&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click",
              options = NULL)
@@ -511,7 +502,6 @@ server <- function(input, output, session) {
     shinyjs::disable("checkbox")
     
     # show help text for results sliders and plots
-    shinyjs::show("infocollection_div")
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
     
@@ -573,9 +563,9 @@ server <- function(input, output, session) {
   output$select_collection <- renderUI({
     
     req(rawdat_res$rawdat)
-  
+    
         selectInput("select_collection_i", 
-                    "", 
+                    "Select Collection", 
                     choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
                     selected = "All Collections")
   })  
