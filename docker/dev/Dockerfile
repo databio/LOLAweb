@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y -t unstable \
     pandoc-citeproc \
     libsodium-dev \
     libssl-dev \
+    libxml2-dev \
+    libmariadb-dev \
     libcurl4-gnutls-dev \
     libcairo2-dev/unstable \
     git \
