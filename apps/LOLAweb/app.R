@@ -576,9 +576,11 @@ server <- function(input, output, session) {
     
     req(rawdat_res$rawdat)
     
+    sortcols <- c("pValueLog", "oddsRatio", "support", "rnkPV", "rnkLO", "rnkSup", "maxRnk", "meanRnk")
+    
     selectInput("select_sort_i", 
                 "Select Sort Column", 
-                choices = names(rawdat_res$rawdat),
+                choices = sortcols,
                 selected = "meanRnk")
     
   })  
@@ -611,7 +613,23 @@ server <- function(input, output, session) {
   # set up function
   oddsratio_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), oddsRatio, fill = userSet, group = id)) +
+    # conditional for inverting rank sorting
+    
+    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
+      
+      # need to order data frame by sort col if it's a rank
+      dat <- dat()[order(as.data.frame(dat())[,input$select_sort_i]), ]
+      
+      # now construt base layer for plot with reverse on the sort
+      p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = input$select_sort_i)))), oddsRatio, fill = userSet, group = id))
+      
+    } else {
+      
+      p <- ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), oddsRatio, fill = userSet, group = id))
+      
+    }
+    
+    p +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("Odds Ratio") +
@@ -657,7 +675,23 @@ server <- function(input, output, session) {
   # set up function
   support_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), support, fill = userSet, group = id)) +
+    # conditional for inverting rank sorting
+    
+    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
+      
+      # need to order data frame by sort col if it's a rank
+      dat <- dat()[order(as.data.frame(dat())[,input$select_sort_i]), ]
+      
+      # now construt base layer for plot with reverse on the sort
+      p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = input$select_sort_i)))), support, fill = userSet, group = id))
+      
+    } else {
+      
+      p <- ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), support, fill = userSet, group = id))
+      
+    }
+    
+    p +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("Support") +
@@ -705,7 +739,23 @@ server <- function(input, output, session) {
   
   pvalue_plot_input <- function() {
     
-    ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), pValueLog, fill = userSet, group = id)) +
+    # conditional for inverting rank sorting
+    
+    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
+      
+      # need to order data frame by sort col if it's a rank
+      dat <- dat()[order(as.data.frame(dat())[,input$select_sort_i]), ]
+      
+      # now construt base layer for plot with reverse on the sort
+      p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = input$select_sort_i)))), pValueLog, fill = userSet, group = id))
+      
+    } else {
+      
+      p <- ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), pValueLog, fill = userSet, group = id))
+      
+    }
+    
+    p +
       geom_bar(stat = "identity", position = "dodge") +
       xlab("Description") +
       ylab("P Value (log scale)") +
@@ -763,7 +813,15 @@ server <- function(input, output, session) {
     
     req(input$select_sort_i)
     
-    dat <- dat()[order(eval(parse(text = input$select_sort_i)), decreasing = TRUE)]
+    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
+    
+      dat <- dat()[order(eval(parse(text = input$select_sort_i)), decreasing = FALSE)]
+      
+    } else {
+      
+      dat <- dat()[order(eval(parse(text = input$select_sort_i)), decreasing = TRUE)]
+      
+    }
 
     dat$dbSet <- ifelse(dat$collection == "sheffield_dnase",
                         paste0("<a href = 'http://db.databio.org/clusterDetail.php?clusterID=",

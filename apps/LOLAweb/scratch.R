@@ -159,4 +159,30 @@ dat <- data_decrypt(cipher, key)
 
 res <- unserialize(dat)
 
+res$resRedefined$id <- paste(res$resRedefined$description, res$resRedefined$dbSet, sep = "_")
+res$resRedefined$axis_label <- strtrim(res$resRedefined$description, 50)
 
+res$resRedefined %>%
+  filter(maxRnk < 90) %>%
+  arrange(desc(meanRnk)) %>%
+  # ggplot(aes(rev(reorder(rev(axis_label), eval(parse(text = "meanRnk")))), oddsRatio, fill = userSet, group = id)) +
+  ggplot(aes(reorder(axis_label, rev(eval(parse(text = "meanRnk")))), oddsRatio, fill = userSet, group = id)) +
+  # ggplot(aes(reorder(axis_label, eval(parse(text = "meanRnk"))), oddsRatio, fill = userSet, group = id)) +
+  # ggplot(aes(reorder(axis_label, eval(parse(text = "maxRnk"))), oddsRatio, fill = userSet, group = id)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("Description") +
+  ylab("Odds Ratio") +
+  coord_flip() +
+  theme_ns()
+
+tst <-
+  res$resRedefined %>%
+  filter(maxRnk < 90) %>%
+  mutate(invRnk = 1 - (maxRnk / nrow(res$resRedefined)))
+
+
+tst_reordered <- tst[order(tst$meanRnk),]
+
+
+as.character(tst_reorder)
+rev(tst_reorder)
