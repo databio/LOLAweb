@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y -t unstable \
     libsodium-dev \
     libssl-dev \
     libxml2-dev \
-    libmariadb-dev \
+    r-cran-rmysql \
     libcurl4-gnutls-dev \
     libcairo2-dev/unstable \
     git \
