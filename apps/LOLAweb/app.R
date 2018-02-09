@@ -80,7 +80,6 @@ ui <- fluidPage(
                  h3("#3 Select Region Database",
                  actionLink("infodb", "", icon = icon("question-circle-o")))
                ),
-               # HTML(disabledbutton),
                uiOutput("loladbs")
         ),
       class = "headerBox"),
@@ -401,8 +400,9 @@ server <- function(input, output, session) {
                       )
 
       regionDB = loadRegionDB(dbLocation=dbPath)
-
-      # cores = parallel::detectCores()
+      
+      # garbage collection
+      gc()
 
       resRedefined = runLOLA(userSetsRedefined,
                              userUniverse,
@@ -418,11 +418,7 @@ server <- function(input, output, session) {
       # create named list of multiple objects for plotting
       res = list(resRedefined = resRedefined,
                  genDist = genDist)
-
-
-      # garbage collection
-      # rm(regionDB, userSetsRedefined, userUniverse)
-
+      
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
       key <- hash(charToRaw(keyphrase()))
