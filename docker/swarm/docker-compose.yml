@@ -2,35 +2,37 @@ version: "3"
 
 services:
 
-  shinyapp:
-    image: somrc/shiny-lola
+  production:
+    image: databio/lolaweb:latest
     networks:
       - net
     ports:
       - "80"
     volumes:
-      - /data/lola/reference:/srv/shiny-server/shinyLOLA/reference
-      - /data/lola/universes:/srv/shiny-server/shinyLOLA/universes
-      - /data/lola/userSets:/srv/shiny-server/shinyLOLA/userSets
-      - /data/lola/results:/srv/shiny-server/shinyLOLA/results
+      - /data/lola/reference:/srv/shiny-server/LOLAweb/apps/LOLAweb/reference
+      - /data/lola/universes:/srv/shiny-server/LOLAweb/apps/LOLAweb/universes
+      - /data/lola/userSets:/srv/shiny-server/LOLAweb/apps/LOLAweb/userSets
+      - /data/lola/cache:/srv/shiny-server/LOLAweb/apps/LOLAweb/cache
       - /data/lola/shinylog:/var/log/shiny-server
     deploy:
       mode: replicated
-      replicas: 8
+      replicas: 4
       resources:
         limits:
           memory: 12G
       labels:
         - "traefik.docker.network=ssp_net"
         - "traefik.port=80"
-        - "traefik.frontend.rule=PathPrefix:/shinyLOLA;"
+        - "traefik.frontend.rule=PathPrefix:/;"
         - "traefik.backend.loadbalancer.sticky=true"
+        - "traefik.frontend.rule=Host:lolaweb.databio.org;AddPrefix:/LOLAweb/apps/LOLAweb;"
 
   loadbal:
     image: traefik
     command: --docker \
       --docker.swarmmode \
       --docker.watch \
+      --docker.domain=databio.org \
       --web \
       --loglevel=DEBUG
     ports:
@@ -43,7 +45,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: 2G
+          memory: 500M
       placement:
         constraints: [node.role == manager]
     networks:
