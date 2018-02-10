@@ -2,7 +2,7 @@ library(ggplot2)
 
 # set up themes for plotting
 theme_ns = function() {
-  return(theme_classic() + theme(aspect.ratio=1) + theme_blank_facet_label())
+  return(theme_classic() + theme(aspect.ratio=1) + theme_blank_facet_label() + theme(legend.position = "bottom"))
 }
 
 theme_blank_facet_label = function() {

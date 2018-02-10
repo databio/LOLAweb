@@ -108,4 +108,81 @@ resRedefined = runLOLA(userSetsRedefined,
                        cores=1)
 
 
-shiny::showModal("foo")
+# GenomicDistributions plots
+
+library(GenomicDistributions)
+library(GenomicRanges)
+
+query = read.table(file = "lola_vignette_data/setC_complete.bed", header = F)
+#query = read.table(file = "lola_vignette_data/setB_100.bed", header = F) 
+colnames(query) = c('chr','start','end','id','score','strand')
+query = with(query, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+
+x = genomicDistribution(query, "hg19")
+
+# Then, plot the result:
+plotGenomicDist(x)
+
+
+
+EnsDb = loadEnsDb("hg19")
+featsWide = ensembldb::genes(EnsDb, columns=NULL)
+
+# Now, grab just a single base pair at the TSS
+feats = promoters(featsWide, 1, 1)
+
+# Change from ensembl-style chrom annotation to UCSC_style
+seqlevels(feats) = paste0("chr", seqlevels(feats))
+
+system.time({
+  featureDistance = featureDistribution(query, feats)
+})
+
+# Then plot the result:
+plotFeatureDist(featureDistance)
+
+
+featureDistance2 = featureDistribution(queryList, feats)
+plotFeatureDist(featureDistance2)
+
+
+
+keyphrase <- "486TQ3MHFJPU2D9"
+loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
+
+cipher <- get("cipher", envir = globalenv())
+
+# keyphrase
+key <- hash(charToRaw(keyphrase))
+
+dat <- data_decrypt(cipher, key)
+
+res <- unserialize(dat)
+
+res$resRedefined$id <- paste(res$resRedefined$description, res$resRedefined$dbSet, sep = "_")
+res$resRedefined$axis_label <- strtrim(res$resRedefined$description, 50)
+
+res$resRedefined %>%
+  filter(maxRnk < 90) %>%
+  arrange(desc(meanRnk)) %>%
+  # ggplot(aes(rev(reorder(rev(axis_label), eval(parse(text = "meanRnk")))), oddsRatio, fill = userSet, group = id)) +
+  ggplot(aes(reorder(axis_label, rev(eval(parse(text = "meanRnk")))), oddsRatio, fill = userSet, group = id)) +
+  # ggplot(aes(reorder(axis_label, eval(parse(text = "meanRnk"))), oddsRatio, fill = userSet, group = id)) +
+  # ggplot(aes(reorder(axis_label, eval(parse(text = "maxRnk"))), oddsRatio, fill = userSet, group = id)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("Description") +
+  ylab("Odds Ratio") +
+  coord_flip() +
+  theme_ns()
+
+tst <-
+  res$resRedefined %>%
+  filter(maxRnk < 90) %>%
+  mutate(invRnk = 1 - (maxRnk / nrow(res$resRedefined)))
+
+
+tst_reordered <- tst[order(tst$meanRnk),]
+
+
+as.character(tst_reorder)
+rev(tst_reorder)
