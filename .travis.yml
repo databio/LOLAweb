@@ -39,4 +39,4 @@ notifications:
     on_success: change
     on_failure: always
     recipients:
-    - nmagee@virginia.edu
+    - lola@virginia.edu
