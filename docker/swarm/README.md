@@ -25,63 +25,69 @@ The main elements of this stack:
 
 Docker Stack YAML file `docker-compose.yml`:
 
-    version: "3"
-    
-    services:
-     
-      app:
-        image: somrc/shiny-lola
-        networks:
-          - net
-        ports:
-          - "80"
-        volumes:
-          - /home/lola/reference:/srv/shiny-server/shinyLOLA/reference
-          - /home/lola/universes:/srv/shiny-server/shinyLOLA/universes
-          - /home/lola/userSets:/srv/shiny-server/shinyLOLA/userSets
-          - /home/lola/shinylog:/var/log/shiny-server
-        deploy:
-          mode: replicated
-          replicas: 4
-          resources:
-            limits:
-              memory: 12G
-          labels:
-            - "traefik.docker.network=lola_net"
-            - "traefik.port=80"
-            - "traefik.frontend.rule=PathPrefix:/shinyLOLA;"
-            - "traefik.backend.loadbalancer.sticky=true"
-    
-      loadbal:
-        image: traefik
-        command: --docker \
-          --docker.swarmmode \
-          --docker.watch \
-          --web \
-          --loglevel=DEBUG
-        ports:
-            - 80:80
-            - 8080:8080
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        deploy:
-          mode: replicated
-          replicas: 1
-          resources:
-            limits:
-              memory: 10M
-        networks:
-          - net
-    
-    networks:
-      net:
+```
+version: "3"
 
+services:
+
+  production:
+    image: databio/lolaweb:latest
+    networks:
+      - net
+    ports:
+      - "80"
+    volumes:
+      - /data/lola/reference:/srv/shiny-server/LOLAweb/apps/LOLAweb/reference
+      - /data/lola/universes:/srv/shiny-server/LOLAweb/apps/LOLAweb/universes
+      - /data/lola/userSets:/srv/shiny-server/LOLAweb/apps/LOLAweb/userSets
+      - /data/lola/cache:/srv/shiny-server/LOLAweb/apps/LOLAweb/cache
+      - /data/lola/shinylog:/var/log/shiny-server
+    deploy:
+      mode: replicated
+      replicas: 4
+      resources:
+        limits:
+          memory: 12G
+      labels:
+        - "traefik.docker.network=ssp_net"
+        - "traefik.port=80"
+        - "traefik.frontend.rule=PathPrefix:/;"
+        - "traefik.backend.loadbalancer.sticky=true"
+        - "traefik.frontend.rule=Host:lolaweb.databio.org;AddPrefix:/LOLAweb/apps/LOLAweb;"
+
+  loadbal:
+    image: traefik
+    command: --docker \
+      --docker.swarmmode \
+      --docker.watch \
+      --docker.domain=databio.org \
+      --web \
+      --loglevel=DEBUG
+    ports:
+        - 80:80
+        - 8080:8080
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 500M
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - net
+
+networks:
+  net:
+```
 
 Take note of a few important elements of this YAML file:
 
-- The `shiny-lola` containers run on an internal overlay network, via port 80.
+- The `lolaweb` containers run on an internal overlay network, via port 80.
 - Each container mounts four local volumes to read LOLA reference data.
-- The swarm runs 4 replicas of the `shiny-lola` container, each capped at 12GB of memory.
+- The swarm runs 4 replicas of the `lolaweb` container, each capped at 12GB of memory.
 - The Shiny containers are labeled with additional information passed to the Tr&aelig;fik load balancer.
 - Tr&aelig;fik listens on the overlay network port 80, and is published to the host network over port 80. Port 8080 provides a monitoring interface if so desired.
 - One replica of the Tr&aelig;fik load balancer runs in that service, capped at 10MB of memory.
@@ -93,7 +99,7 @@ Hand-built local images will fail to deploy unless you push them to a repository
 
 Pull the LOLAweb and Tr&aelig;fik container images:
 
-    $ docker pull somrc/shiny-lol
+    $ docker pull databio/lolaweb
     $ docker pull traefik
 
 
@@ -147,7 +153,7 @@ First, list the services in your stack:
 
     ID                  NAME                MODE                REPLICAS            IMAGE                     PORTS
     d7lzimlt0ayj        lola_loadbal        replicated          1/1                 traefik:latest            *:80->80/tcp,*:3939->8080/tcp
-    572dn5lstoh0        lola_app            replicated          4/4                 somrc/shiny-lola:latest   *:30003->80/tcp
+    572dn5lstoh0        lola_app            replicated          4/4                 databio/lolaweb:latest    *:30003->80/tcp
 
 
 If necessary, inspect the specific service you want to update (by name):
@@ -157,12 +163,12 @@ If necessary, inspect the specific service you want to update (by name):
 
 Next, pull the newer container image(s):
 
-    $ docker pull somrc/shiny-lola:latest
+    $ docker pull databio/lolaweb:latest
 
 
 Finally, update the service to reference the newest version of the container:
 
-    $ docker service update --image somrc/shiny-lola:latest lola_app
+    $ docker service update --image databio/lolaweb:latest lola_app
 
 
 If you change parameters of the `docker-compose.yml` file, just run the `docker stack deploy` command again to refresh:
