@@ -143,7 +143,7 @@ ui <- fluidPage(
         column(DT::dataTableOutput("res"), width = 12) 
       ),
   # footer text with SOMRC link
-  tags$footer(HTML("<a href = 'https://somrc.virginia.edu'><i class='fa fa-bolt'></i> Powered By SOMRC</a>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"
+  tags$footer(HTML("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a></div>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"
   )
 )
 
