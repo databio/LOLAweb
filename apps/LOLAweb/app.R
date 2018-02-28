@@ -2,7 +2,6 @@ options(shiny.maxRequestSize=100*1024^2)
 
 source("themes.R")
 source("misc.R")
-source("disabler.R")
 
 library(shiny)
 library(LOLA)
