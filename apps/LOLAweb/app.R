@@ -66,20 +66,20 @@ ui <- fluidPage(
                uiOutput("universe"),
                checkboxInput("checkbox", 
                              label = "Check Here to Upload Your Own Universe",
-                             value = FALSE),
-               actionButton("run",
-                            "RUN LOLA", 
-                            class = "runLOLA"),
-               tags$a(href = "?key=VWQN3ZC5HFD92EK", 
-                      "Sample Results",
-                      style="display: block;margin-top: 10px;")
+                             value = FALSE)
                ),
         column(4, 
                tags$div(
                  h3("#3 Select Region Database",
                  actionLink("infodb", "", icon = icon("question-circle-o")))
                ),
-               uiOutput("loladbs")
+               uiOutput("loladbs"),
+               actionButton("run",
+                            "RUN LOLA", 
+                            class = "runLOLA"),
+               tags$a(href = "?key=VWQN3ZC5HFD92EK", 
+                      "Sample Results",
+                      style="display: block;margin-top: 10px;")
         ),
       class = "headerBox"),
       fluidRow(
