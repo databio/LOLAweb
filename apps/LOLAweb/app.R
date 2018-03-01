@@ -15,8 +15,24 @@ library(GenomicDistributions)
 
 setCacheDir("cache")
 
-ui <- fluidPage(
+
+ui <- list( 
   
+  # need empty fluid page at top with height 0 to preserve window title
+  div(
+    fluidPage(
+      list(tags$head(HTML('<link rel="icon", href="LOLAweb-logo.png", 
+                          type="image/png" />'))),
+      div(
+        style="height:0px; padding:0px; width: '100%'",
+        titlePanel(title="", windowTitle="LOLA")
+        )
+      ), 
+    style = "height:0px"),
+  
+  navbarPage(title = div(a(img(src = "LOLAweb-logo-cropped.png", style = "width:150px"), href = "/"), ""),
+  
+  tabPanel("Run",
   shinyjs::useShinyjs(),
   
   tags$head(
@@ -27,10 +43,11 @@ ui <- fluidPage(
     tags$link(rel="shortcut icon", href="favicon.ico")
 
   ),
-  
-  titlePanel(title = HTML("<a href='/'><img src='LOLAweb-logo.png' alt='LOLA logo' width='280'></a>"),
-             windowTitle = "LOLA"),
-  
+      fluidRow(
+        shinyjs::hidden(div(HTML("<div class='alert alert-warning'>
+          All <strong>Run</strong> inputs are disabled while LOLAweb has results loaded.<br>Navigate to <strong>Results</strong> to view current result output.<br>To execute a new run, <a href= '/'>reload</a> LOLAweb.</div>"), id = "noinputmsg"))
+          
+      ),
       fluidRow(
         column(4,
                # need the bootstrap button invocation for popovers to work
@@ -76,15 +93,21 @@ ui <- fluidPage(
                uiOutput("loladbs"),
                actionButton("run",
                             "RUN LOLA", 
-                            class = "runLOLA"),
-               tags$a(href = "?key=VWQN3ZC5HFD92EK", 
-                      "Sample Results",
-                      style="display: block;margin-top: 10px;")
+                            class = "runLOLA")
         ),
       class = "headerBox"),
-      fluidRow(
+  fluidRow(
+    column(2,
+           htmlOutput("gear")),
+    column(10,
+           htmlOutput("messages"))
+  )),
+  tabPanel("Results",
+        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=VWQN3ZC5HFD92EK'>sample results</a>.</div>"), id = "noresultsmsg")
+             ),
+        fluidRow(
         column(2,
-               htmlOutput("gear"),
+               # htmlOutput("gear"),
                shinyjs::hidden(
                  tags$div(
                    h4("Display Options",
@@ -101,7 +124,7 @@ ui <- fluidPage(
                uiOutput("select_userset")
           ),
         column(10,
-               htmlOutput("messages"),
+               # htmlOutput("messages"),
                tags$h4(htmlOutput("link")),
                shinyjs::hidden(
                  tags$div(
@@ -140,10 +163,14 @@ ui <- fluidPage(
         ),
       fluidRow(
         column(DT::dataTableOutput("res"), width = 12) 
-      ),
-  # footer text with SOMRC link
-  tags$footer(HTML("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a></div>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"
-  )
+      )
+  ),
+  tabPanel("About",
+    includeHTML("about.html")
+  ),
+  footer = div(HTML("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a></div>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
+  id = "mainmenu"
+)
 )
 
 server <- function(input, output, session) {
@@ -486,9 +513,19 @@ server <- function(input, output, session) {
     shinyjs::disable("useruniverse")
     shinyjs::disable("checkbox")
     
+    # show results message on run tab
+    shinyjs::show("noinputmsg")
+    
+    # hide no results message
+    shinyjs::hide("noresultsmsg")
+    
+    updateNavbarPage(session, "mainmenu",
+                      selected = "Results")
+                      
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
+    
     
     
     } else {
