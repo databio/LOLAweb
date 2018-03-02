@@ -18,16 +18,16 @@ setCacheDir("cache")
 
 ui <- list( 
   
-  # need empty fluid page at top with height 0 to preserve window title
+  # # need empty fluid page at top with height 0 to preserve window title
   div(
     fluidPage(
-      list(tags$head(HTML('<link rel="icon", href="LOLAweb-logo.png", 
+      list(tags$head(HTML('<link rel="icon", href="LOLAweb-logo.png",
                           type="image/png" />'))),
       div(
         style="height:0px; padding:0px; width: '100%'",
         titlePanel(title="", windowTitle="LOLA")
         )
-      ), 
+      ),
     style = "height:0px"),
   
   navbarPage(title = div(a(img(src = "LOLAweb-logo-cropped.png", style = "width:150px"), href = "/"), ""),
