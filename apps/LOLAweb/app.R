@@ -2,7 +2,6 @@ options(shiny.maxRequestSize=100*1024^2)
 
 source("themes.R")
 source("misc.R")
-source("disabler.R")
 
 library(shiny)
 library(LOLA)
@@ -16,8 +15,24 @@ library(GenomicDistributions)
 
 setCacheDir("cache")
 
-ui <- fluidPage(
+
+ui <- list( 
   
+  # # need empty fluid page at top with height 0 to preserve window title
+  div(
+    fluidPage(
+      list(tags$head(HTML('<link rel="icon", href="LOLAweb-logo.png",
+                          type="image/png" />'))),
+      div(
+        style="height:0px; padding:0px; width: '100%'",
+        titlePanel(title="", windowTitle="LOLA")
+        )
+      ),
+    style = "height:0px"),
+  
+  navbarPage(title = div(a(img(src = "LOLAweb-logo-cropped.png", style = "width:150px"), href = "/"), ""),
+  
+  tabPanel("Run",
   shinyjs::useShinyjs(),
   
   tags$head(
@@ -28,10 +43,11 @@ ui <- fluidPage(
     tags$link(rel="shortcut icon", href="favicon.ico")
 
   ),
-  
-  titlePanel(title = HTML("<a href='/'><img src='LOLAweb-logo.png' alt='LOLA logo' width='280'></a>"),
-             windowTitle = "LOLA"),
-  
+      fluidRow(
+        shinyjs::hidden(div(HTML("<div class='alert alert-warning'>
+          All <strong>Run</strong> inputs are disabled while LOLAweb has results loaded.<br>Navigate to <strong>Results</strong> to view current result output.<br>To execute a new run, <a href= '/'>reload</a> LOLAweb.</div>"), id = "noinputmsg"))
+          
+      ),
       fluidRow(
         column(4,
                # need the bootstrap button invocation for popovers to work
@@ -67,25 +83,31 @@ ui <- fluidPage(
                uiOutput("universe"),
                checkboxInput("checkbox", 
                              label = "Check Here to Upload Your Own Universe",
-                             value = FALSE),
-               actionButton("run",
-                            "RUN LOLA", 
-                            class = "runLOLA"),
-               tags$a(href = "?key=VWQN3ZC5HFD92EK", 
-                      "Sample Results",
-                      style="display: block;margin-top: 10px;")
+                             value = FALSE)
                ),
         column(4, 
                tags$div(
                  h3("#3 Select Region Database",
                  actionLink("infodb", "", icon = icon("question-circle-o")))
                ),
-               uiOutput("loladbs")
+               uiOutput("loladbs"),
+               actionButton("run",
+                            "RUN LOLA", 
+                            class = "runLOLA")
         ),
       class = "headerBox"),
-      fluidRow(
+  fluidRow(
+    column(2,
+           htmlOutput("gear")),
+    column(10,
+           htmlOutput("messages"))
+  )),
+  tabPanel("Results",
+        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=VWQN3ZC5HFD92EK'>sample results</a>.</div>"), id = "noresultsmsg")
+             ),
+        fluidRow(
         column(2,
-               htmlOutput("gear"),
+               # htmlOutput("gear"),
                shinyjs::hidden(
                  tags$div(
                    h4("Display Options",
@@ -102,7 +124,7 @@ ui <- fluidPage(
                uiOutput("select_userset")
           ),
         column(10,
-               htmlOutput("messages"),
+               # htmlOutput("messages"),
                tags$h4(htmlOutput("link")),
                shinyjs::hidden(
                  tags$div(
@@ -141,10 +163,14 @@ ui <- fluidPage(
         ),
       fluidRow(
         column(DT::dataTableOutput("res"), width = 12) 
-      ),
-  # footer text with SOMRC link
-  tags$footer(HTML("<a href = 'https://somrc.virginia.edu'><i class='fa fa-bolt'></i> Powered By SOMRC</a>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"
-  )
+      )
+  ),
+  tabPanel("About",
+    includeHTML("about.html")
+  ),
+  footer = div(HTML("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a></div>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
+  id = "mainmenu"
+)
 )
 
 server <- function(input, output, session) {
@@ -285,7 +311,6 @@ server <- function(input, output, session) {
   
     result_url <- paste0("<a href = '", link, "' target = 'blank'>", link, "</a>")
     
-    # paste0("http://", baseurl, ":", port, pathname, "?key=", keyphrase())
     list(link = link,
          result_url = result_url)
     
@@ -324,8 +349,6 @@ server <- function(input, output, session) {
         selectInput("defaultuniverse", 
                     label = "Select Pre-Loaded Universe",
                     choices = list.files(paste0("universes/", input$refgenome)))
-                    # choices = list.files("universes"))
-  
       
       }
       
@@ -342,7 +365,6 @@ server <- function(input, output, session) {
       message("Calculating region set enrichments ...")
       userSets <- list()
 
-      # if(!input$switch_userset) {
       if(!exampleuserset$toggle) {
 
 
@@ -491,15 +513,26 @@ server <- function(input, output, session) {
     shinyjs::disable("useruniverse")
     shinyjs::disable("checkbox")
     
+    # show results message on run tab
+    shinyjs::show("noinputmsg")
+    
+    # hide no results message
+    shinyjs::hide("noresultsmsg")
+    
+    updateNavbarPage(session, "mainmenu",
+                      selected = "Results")
+                      
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
+    
     
     
     } else {
     
     rawdat_res$rawdat <- rawdat_nocache()$resRedefined
     rawdat_res$genDist <- rawdat_nocache()$genDist
+    
     }
 
   })
@@ -513,8 +546,6 @@ server <- function(input, output, session) {
                       support >= input$slider_support_i &
                       pValueLog >= input$slider_pvalue_i)
       
-      # dat <- subset(dat, maxRnk >= input$slider_rank_i)
-    
       if (input$select_collection_i != "All Collections") {
         
          dat <- subset(dat, collection == input$select_collection_i)
@@ -610,40 +641,12 @@ server <- function(input, output, session) {
                 value = round(min(rawdat_res$rawdat$oddsRatio), 3))
     })
   
-  # set up function
-  oddsratio_plot_input <- function() {
-    
-    # conditional for inverting rank sorting
-    
-    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
-      
-      # need to order data frame by sort col if it's a rank
-      dat <- dat()[order(as.data.frame(dat())[,input$select_sort_i]), ]
-      
-      # now construt base layer for plot with reverse on the sort
-      p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = input$select_sort_i)))), oddsRatio, fill = userSet, group = id))
-      
-    } else {
-      
-      p <- ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), oddsRatio, fill = userSet, group = id))
-      
-    }
-    
-    p +
-      geom_bar(stat = "identity", position = "dodge") +
-      xlab("Description") +
-      ylab("Odds Ratio") +
-      coord_flip() +
-      theme_ns()
-    
-  }
-  
   # call plot
   output$oddsratio_plot <- renderPlot({
     
     req(input$select_sort_i)
     
-    oddsratio_plot_input()
+    plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
 
   })
   
@@ -653,7 +656,8 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = oddsratio_plot_input(), device = "pdf")
+      ggsave(file, plot = plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+, device = "pdf")
     }
   )
   
@@ -672,39 +676,11 @@ server <- function(input, output, session) {
     
   })  
   
-  # set up function
-  support_plot_input <- function() {
-    
-    # conditional for inverting rank sorting
-    
-    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
-      
-      # need to order data frame by sort col if it's a rank
-      dat <- dat()[order(as.data.frame(dat())[,input$select_sort_i]), ]
-      
-      # now construt base layer for plot with reverse on the sort
-      p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = input$select_sort_i)))), support, fill = userSet, group = id))
-      
-    } else {
-      
-      p <- ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), support, fill = userSet, group = id))
-      
-    }
-    
-    p +
-      geom_bar(stat = "identity", position = "dodge") +
-      xlab("Description") +
-      ylab("Support") +
-      coord_flip() +
-      theme_ns()
-    
-  }
-  
   output$support_plot <- renderPlot({
     
     req(input$select_sort_i)
     
-    support_plot_input()
+    plot_input(dat(), "support", "Support", input$select_sort_i)
     
   })
   
@@ -714,7 +690,8 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = support_plot_input(), device = "pdf")
+      ggsave(file, plot = plot_input(dat(), "support", "Support", input$select_sort_i)
+, device = "pdf")
     }
   )
   
@@ -735,39 +712,12 @@ server <- function(input, output, session) {
     
   })  
   
-  # set up function
-  
-  pvalue_plot_input <- function() {
-    
-    # conditional for inverting rank sorting
-    
-    if(grepl("rnk", input$select_sort_i, ignore.case = TRUE)) {
-      
-      # need to order data frame by sort col if it's a rank
-      dat <- dat()[order(as.data.frame(dat())[,input$select_sort_i]), ]
-      
-      # now construt base layer for plot with reverse on the sort
-      p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = input$select_sort_i)))), pValueLog, fill = userSet, group = id))
-      
-    } else {
-      
-      p <- ggplot(dat(), aes(reorder(axis_label, eval(parse(text = input$select_sort_i))), pValueLog, fill = userSet, group = id))
-      
-    }
-    
-    p +
-      geom_bar(stat = "identity", position = "dodge") +
-      xlab("Description") +
-      ylab("P Value (log scale)") +
-      coord_flip() +
-      theme_ns()
-    
-  }
   output$pvalue_plot <- renderPlot({
     
     req(input$select_sort_i)
     
-    pvalue_plot_input()
+    plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+    
     
   })
   
@@ -776,7 +726,8 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = pvalue_plot_input(), device = "pdf")
+      ggsave(file, plot = plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+, device = "pdf")
     }
   )
   

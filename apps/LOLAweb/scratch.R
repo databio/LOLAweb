@@ -186,3 +186,43 @@ tst_reordered <- tst[order(tst$meanRnk),]
 
 as.character(tst_reorder)
 rev(tst_reorder)
+
+
+
+
+
+plot_input <- function(res, metric, ylabel, sortcol) {
+  
+  # conditional for inverting rank sorting
+  
+  if(grepl("rnk", sortcol, ignore.case = TRUE)) {
+    
+    # need to order data frame by sort col if it's a rank
+    dat <- res[order(as.data.frame(res)[,sortcol]), ]
+    
+    # now construt base layer for plot with reverse on the sort
+    p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = sortcol)))), eval(parse(text = metric)), fill = userSet, group = id))
+    
+  } else {
+    
+    p <- ggplot(res, aes(reorder(axis_label, eval(parse(text = sortcol))), eval(parse(text = metric)), fill = userSet, group = id))
+    
+  }
+  
+  p +
+    geom_bar(stat = "identity", position = "dodge") +
+    xlab("Description") +
+    ylab(ylabel) +
+    coord_flip() +
+    theme_ns()
+  
+}
+
+library(ggplot2)
+
+y <- "mpg"
+
+ggplot(data = mtcars, aes(wt,eval(parse(text = y)))) +
+  geom_point()
+
+  
