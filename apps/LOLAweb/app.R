@@ -435,11 +435,15 @@ server <- function(input, output, session) {
       resRedefined$userSet = as.character(resRedefined$userSet)
       
       # calculate distribution over chromosomes for plotting
-      genDist = genomicDistribution(userSets, input$refgenome)
-      
+      genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+
+      # calculate distances to TSSs
+      TSSDist = TSSDistance(query, input$refgenome)
+
       # create named list of multiple objects for plotting
       res = list(resRedefined = resRedefined,
-                 genDist = genDist)
+                 genDist = genDist,
+                 TSSDist = TSSDist)
       
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
@@ -454,7 +458,8 @@ server <- function(input, output, session) {
                   noload = TRUE)
 
       return(list(resRedefined = resRedefined,
-                  genDist = genDist))
+                  genDist = genDist,
+                  TSSDist = TSSDist))
 
   })
 
@@ -501,7 +506,8 @@ server <- function(input, output, session) {
     rawdat_res$rawdat <- res$resRedefined
     
     rawdat_res$genDist <- res$genDist
-    
+
+    rawdat_res$TSSDist <- res$TSSDist
     # disable all buttons in header when query is good
     shinyjs::disable("run")
     shinyjs::disable("userset")
