@@ -749,7 +749,7 @@ server <- function(input, output, session) {
     
     genDist <- rawdat_res$genDist
     
-    plotGenomicDist(GD = genDist)
+    plotGenomeAggregate(GD = genDist)
     
   }
   
