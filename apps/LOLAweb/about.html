@@ -12,22 +12,28 @@
 
     <a name="what"> </a>
     <h3>What is LOLAweb?</h3>
-    <p>LOLAweb tests for enrichment of overlap between a query region set (a bed file) and a database of region sets. It provides an interactive result explorer to visualize the highest ranked enrichments from the database. LOLAweb is a web interface to the <a href="http://bioconductor.org/packages/release/bioc/html/LOLA.html" target="_new">LOLA R package</a>.</p>
+    <p>LOLAweb is a web server and interactive results viewer for enrichment of overlap between a query region set (a bed file) and a database of region sets. It provides an interactive result explorer to visualize the highest ranked enrichments from the database. LOLAweb is a web interface to the <a href="http://bioconductor.org/packages/release/bioc/html/LOLA.html" target="_new">LOLA R package</a>.</p>
     
     <hr>
 
     <a name="how"> </a>
     <h3>How do I use LOLAweb?</h3>    
-    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+    <p>Using LOLAweb is as easy as 1-2-3. First, all you really need is a bed file (with at least 3 columns: chromosome, start, and end) identifying regions of interest. These could be the result of a differential ChIP-seq or ATAC-seq experiment, or anything, really. Upload that file by dragging it into the first query box. You'll need to indicate which reference assembly your file subscribes to.</p>
 
-        <img alt="LOLAweb worfklow" title="LOLAweb workflow" src="LOLAweb-workflow.png" style="height:auto; width:50%">
+    <p>Second, choose a universe. If you have a set of background regions, upload them here; otherwise, choose one of our built-in universe sets.</p>
+
+    <p>Finally, choose a database. We offer a few options; just start with the default Core database at first, but feel free to look around. If you want, you can always use a custom database by running either LOLAweb or LOLA locally.</p>
+
+    <p>Hit "Run LOLA" and watch the magic happen! The results will be displayed as an interactive interface letting you sort and filter the top hits. The schematic below demonstrates the whole process:</p> 
+
+    <img alt="LOLAweb worfklow" title="LOLAweb workflow" src="LOLAweb-workflow.png" style="height:auto; width:50%">
     
     <hr>
   
     <a name="share"> </a>
     <h3>Can I share my LOLAweb results with others?</h3>    
     <p>Yes! Once you run your region sets through LOLAweb, you are redirected to specific web page unique to your data. It will look something like this:</p>
-        <div style="margin-left:20px;padding:10px;"><code>http://dev.lolaweb.uvasomrc.io/?key=VWQN3ZC5HFD92EK</code></div>
+        <div style="margin-left:20px;padding:10px;"><code>http://dev.lolaweb.databio.org/?key=VWQN3ZC5HFD92EK</code></div>
     <p>This link can be sent to other users to share your findings.</p>
 
     <hr>
