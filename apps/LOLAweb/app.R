@@ -158,7 +158,13 @@ ui <- list(
                                 downloadButton("distrib_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
-               plotOutput("distrib_plot")
+               plotOutput("distrib_plot"),
+               conditionalPanel(condition = "output.res",
+                                h4("Distribution"),
+                                downloadButton("dist_plot_dl",
+                                               label = "Download Plot",
+                                               class = "dt-button")),
+               plotOutput("dist_plot")
         )
         ),
       fluidRow(
@@ -755,6 +761,23 @@ server <- function(input, output, session) {
     
   })
   
+  # feature distance plot
+  dist_plot_input <- function() {
+    
+    TSSDist <- rawdat_res$TSSDist
+    
+    plotFeatureDist(TSSDist, featureName="TSS")
+    
+  }
+  
+  output$dist_plot <- renderPlot({
+    
+    req(input$select_sort_i)
+    
+    dist_plot_input()
+    
+  })
+
   # download handler
   output$distrib_plot_dl <- downloadHandler(
     filename = function() { paste("gendist",
@@ -765,6 +788,17 @@ server <- function(input, output, session) {
     }
   )
   
+  output$dist_plot_dl <- downloadHandler(
+    filename = function() { paste("tssdist",
+                                  ".pdf", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = dist_plot_input(), device = "pdf")
+    }
+  )
+  
+
+
   # data table
   output$res <- DT::renderDataTable({
     
