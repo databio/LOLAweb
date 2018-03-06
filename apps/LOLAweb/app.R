@@ -492,11 +492,11 @@ server <- function(input, output, session) {
     
     keyphrase <- as.character(query()[[1]])
     
-    #env <- new.env()
+    env <- new.env()
     
-    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = env, cacheDir = "cache")
+    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = environment(), cacheDir = "cache")
     
-    #cipher <- get("cipher", envir = env)
+    cipher <- get("cipher", envir = env)
     
     # keyphrase
     key <- hash(charToRaw(keyphrase))
