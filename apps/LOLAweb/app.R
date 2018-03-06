@@ -54,40 +54,36 @@ ui <- list(
                # but we don't actually want to show it
                shinyjs::hidden(bsButton("renderButton", "Render")),
                tags$div(
-                 h3("#1 Select User Set",
+                h3("#1 Upload regions of interest",
                     actionLink("infouserset", "", icon = icon("question-circle-o")))
                ),
-               shinyjs::hidden(
-                 selectInput("defaultuserset", 
-                                           label = "Select Pre-Loaded User Set",
-                                           choices = list.files("userSets"))
-                 ),
-               fileInput("userset", "Upload User Set(s)",
+               selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
+               shinyjs::hidden(selectInput("defaultuserset", 
+                                           label = "Select pre-loaded region set",
+                                           choices = list.files("userSets"))),
+               fileInput("userset", "Choose BED file(s)",
                          multiple = TRUE,
                          accept = c(".bed")),
-               actionButton("button_userset_example",
-                            "Load example data"),
+                tags$div(actionButton("button_userset_example",
+                            "Load example data"), style="margin-top:-25px"),
                shinyjs::hidden(
                  actionButton("button_userset_upload",
-                            "Upload data")
-               ),
-               tags$div(
-               selectInput("refgenome", label = "Reference Genome", choices = c("hg19", "hg38", "mm10")),
-               style = "margin-top:30px;")
+                            "Browse for data to upload")
+               )
         ),
         column(4,
                tags$div(
-                 h3("#2 Select Universe",
+                 h3("#2 Select background universe",
                  actionLink("infouniverse", "", icon = icon("question-circle-o")))
                ),
                uiOutput("universe"),
                checkboxInput("checkbox", 
-                             label = "Check Here to Upload Your Own Universe",
+                             label = "Check here to upload your own universe",
                              value = FALSE)
                ),
         column(4, 
                tags$div(
-                 h3("#3 Select Region Database",
+                 h3("#3 Select region database",
                  actionLink("infodb", "", icon = icon("question-circle-o")))
                ),
                uiOutput("loladbs"),
@@ -154,13 +150,13 @@ ui <- list(
                                                class = "dt-button")),
                plotOutput("pvalue_plot"),
                conditionalPanel(condition = "output.res",
-                                h4("Distribution"),
+                                h4("Distribution over genome"),
                                 downloadButton("distrib_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
                plotOutput("distrib_plot"),
                conditionalPanel(condition = "output.res",
-                                h4("Distribution"),
+                                h4("Distance to TSS"),
                                 downloadButton("dist_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
@@ -347,13 +343,13 @@ server <- function(input, output, session) {
 
     if(input$checkbox) {
         
-      fileInput("useruniverse", "Upload Universe",
+      fileInput("useruniverse", "Choose universe file",
                 accept = c(".bed"))
       
       } else {
         
         selectInput("defaultuniverse", 
-                    label = "Select Pre-Loaded Universe",
+                    label = "Select pre-loaded universe",
                     choices = list.files(paste0("universes/", input$refgenome)))
       
       }
@@ -496,11 +492,11 @@ server <- function(input, output, session) {
     
     keyphrase <- as.character(query()[[1]])
     
-    env <- new.env()
+    #env <- new.env()
     
-    loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = env, cacheDir = "cache")
+    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = env, cacheDir = "cache")
     
-    cipher <- get("cipher", envir = env)
+    #cipher <- get("cipher", envir = env)
     
     # keyphrase
     key <- hash(charToRaw(keyphrase))
