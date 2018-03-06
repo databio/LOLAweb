@@ -444,7 +444,7 @@ server <- function(input, output, session) {
       genDist = aggregateOverGenomeBins(userSets, input$refgenome)
 
       # calculate distances to TSSs
-      TSSDist = TSSDistance(query, input$refgenome)
+      TSSDist = TSSDistance(userSets, input$refgenome)
 
       # create named list of multiple objects for plotting
       res = list(resRedefined = resRedefined,
