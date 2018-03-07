@@ -110,7 +110,6 @@ ui <- list(
                    id = "infodisplay_div"
                  )
                ),
-               shinyjs::hidden(htmlOutput("gear2")),
                uiOutput("slider_rank"),
                uiOutput("slider_oddsratio"),
                uiOutput("slider_support"),
@@ -126,7 +125,7 @@ ui <- list(
                    h2("LOLA Results",
                       actionLink("infoplot", "", icon = icon("question-circle-o"))),
                    id = "infoplot_div")),
-               shinyjs::hidden(htmlOutput("messages2"))
+               shinyjs::hidden(htmlOutput("gear2"))
                ),
         column(5,
                conditionalPanel(condition = "output.res",
@@ -533,8 +532,7 @@ server <- function(input, output, session) {
                       selected = "Results")
     
     shinyjs::show("gear2")
-    shinyjs::show("messages2")
-    
+
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
@@ -553,13 +551,11 @@ server <- function(input, output, session) {
     if(!plot_render$state) {
       
       shinyjs::html(id = "gear2", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
-      shinyjs::html(id ="messages2", html = "Rendering plots ...", add = FALSE)
-      
+
     } else {
       
       shinyjs::hide("gear2")
-      shinyjs::hide("messages2")
-      
+
     }
     
   })
