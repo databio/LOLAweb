@@ -65,7 +65,7 @@ ui <- list(
                          multiple = TRUE,
                          accept = c(".bed")),
                 tags$div(actionButton("button_userset_example",
-                            "Load example data"), style="margin-top:-25px"),
+                            "Load example data"), style="margin-top:-15px"),
                shinyjs::hidden(
                  actionButton("button_userset_upload",
                             "Browse for data to upload")
