@@ -99,7 +99,7 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=VWQN3ZC5HFD92EK'>sample results</a>.</div>"), id = "noresultsmsg")
+        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=CSD6HEAN2RJUOVK'>sample results</a>.</div>"), id = "noresultsmsg")
              ),
         fluidRow(
         column(2,
