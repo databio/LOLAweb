@@ -17,7 +17,7 @@
 
 ## Reference Data
 
-See the [shinyLOLA documentation](https://github.com/databio/LOLAweb) for retrieving reference data.
+See the [LOLAweb documentation](https://github.com/databio/LOLAweb/tree/master/apps/LOLAweb) for retrieving reference data.
 
 
 ## `run` the LOLAweb container locally with reference data:
