@@ -620,8 +620,8 @@ server <- function(input, output, session) {
     
     sliderInput("slider_rank_i", 
                 "Max Rank Cutoff", 
-                min = min(rawdat_res$rawdat$maxRnk),
-                max = max(rawdat_res$rawdat$maxRnk),
+                min = min(rawdat_res$rawdat$maxRnk, na.rm = TRUE),
+                max = max(rawdat_res$rawdat$maxRnk, na.rm = TRUE),
                 value = quantile(rawdat_res$rawdat$maxRnk, probs = 20/nrow(rawdat_res$rawdat)))
     
   })  
@@ -659,9 +659,9 @@ server <- function(input, output, session) {
     
     sliderInput("slider_oddsratio_i",
                 "Odds Ratio Cutoff",
-                min = round(min(rawdat_res$rawdat$oddsRatio), 3),
-                max = round(max(rawdat_res$rawdat$oddsRatio), 3),
-                value = round(min(rawdat_res$rawdat$oddsRatio), 3))
+                min = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
+                max = round(max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
+                value = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3))
     })
   
   # call plot
@@ -695,9 +695,9 @@ server <- function(input, output, session) {
     
     sliderInput("slider_support_i",
                 "Support Cutoff",
-                min = round(min(rawdat_res$rawdat$support), 3),
-                max = round(max(rawdat_res$rawdat$support), 3),
-                value = round(min(rawdat_res$rawdat$support), 3))
+                min = round(min(rawdat_res$rawdat$support, na.rm=TRUE), 3),
+                max = round(max(rawdat_res$rawdat$support, na.rm=TRUE), 3),
+                value = round(min(rawdat_res$rawdat$support, na.rm=TRUE), 3))
     
   })  
   
@@ -730,9 +730,9 @@ server <- function(input, output, session) {
     
     sliderInput("slider_pvalue_i", 
                 "P Value Cutoff", 
-                min = round(min(rawdat_res$rawdat$pValueLog), 3), 
-                max = round(max(rawdat_res$rawdat$pValueLog), 3),
-                value = round(min(rawdat_res$rawdat$pValueLog), 3))
+                min = round(min(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3), 
+                max = round(max(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3),
+                value = round(min(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3))
     
     
   })  
@@ -841,6 +841,7 @@ server <- function(input, output, session) {
                 extensions = c("Responsive", "Buttons"),
                 options = list(dom = "Bfrtip",
                                buttons = list(list(
+                                 title = paste0("LOLAweb_", query()[[1]], ".csv"),
                                  extend = "csv",
                                  text = '<i class="fa fa-download"></i> Download CSV')),
                                paging = FALSE)) %>%
