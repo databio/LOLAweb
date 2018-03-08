@@ -19,6 +19,7 @@ The app requires R to be installed, as well as several packages. From within R r
 ```
 install.packages(c("ggplot2", "shiny", "DT", "shinyWidgets", "shinyjs", "sodium", "devtools", "shinyBS"))
 devtools::install_github("databio/simpleCache")
+devtools::install_github("databio/GenomicDistributions")
 
 source("https://bioconductor.org/biocLite.R")
 biocLite(c("LOLA", "GenomicRanges"))
