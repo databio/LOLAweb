@@ -125,7 +125,8 @@ ui <- list(
                    h2("LOLA Results",
                       actionLink("infoplot", "", icon = icon("question-circle-o"))),
                    id = "infoplot_div")),
-               shinyjs::hidden(htmlOutput("gear2"))
+               shinyjs::hidden(htmlOutput("gear2")),
+               shinyjs::hidden(tableOutput("run_sum"))
                ),
         column(5,
                conditionalPanel(condition = "output.res",
@@ -364,103 +365,126 @@ server <- function(input, output, session) {
     rawdat_nocache <- eventReactive(input$run, {
     
       message("Calculating region set enrichments ...")
-      userSets <- list()
-
-      if(!exampleuserset$toggle) {
-
-
-        for (i in 1:length(input$userset[,1])) {
-
-          userSet <- read.table(input$userset[[i, 'datapath']], header = F)
+      
+      start_time <- Sys.time()
+      
+      run_time <- system.time({
+          
+        userSets <- list()
+  
+        if(!exampleuserset$toggle) {
+  
+  
+          for (i in 1:length(input$userset[,1])) {
+  
+            userSet <- read.table(input$userset[[i, 'datapath']], header = F)
+            colnames(userSet) <- c('chr','start','end','id','score','strand')
+            userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+  
+            userSets[[i]] <- userSet
+  
+          }
+  
+          userSets = GRangesList(userSets)
+  
+          names(userSets) = input$userset[,"name"]
+  
+        } else {
+  
+          datapath <- paste0("userSets/", input$defaultuserset)
+  
+          userSet = read.table(file = datapath, header = F)
           colnames(userSet) <- c('chr','start','end','id','score','strand')
           userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-
-          userSets[[i]] <- userSet
-
+  
+          userSets[[1]] <- userSet
+  
+          userSets = GRangesList(userSets)
+  
+          names(userSets) = input$defaultuserset
+  
         }
-
-        userSets = GRangesList(userSets)
-
-        names(userSets) = input$userset[,"name"]
-
-      } else {
-
-        datapath <- paste0("userSets/", input$defaultuserset)
-
-        userSet = read.table(file = datapath, header = F)
-        colnames(userSet) <- c('chr','start','end','id','score','strand')
-        userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-
-        userSets[[1]] <- userSet
-
-        userSets = GRangesList(userSets)
-
-        names(userSets) = input$defaultuserset
-
-      }
-
-      if(input$checkbox) {
-
-        userUniverse = read.table(file = input$useruniverse$datapath, header = F)
-
-      } else {
-
-        datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
-
-        userUniverse = read.table(file = datapath, header = F)
-
-      }
-      colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-      userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-
-      userSetsRedefined =	redefineUserSets(userSets, userUniverse)
-
-      # load region data for each reference genome
-      dbPath = paste("reference",
-                      input$loladb,
-                      input$refgenome,
-                     sep = "/"
-                      )
-
-      regionDB = loadRegionDB(dbLocation=dbPath)
+  
+        if(input$checkbox) {
+  
+          userUniverse = read.table(file = input$useruniverse$datapath, header = F)
+          
+          universename <- input$useruniverse$datapath
+  
+        } else {
+  
+          datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
+  
+          userUniverse = read.table(file = datapath, header = F)
+  
+          universename <- input$defaultuniverse
+          
+        }
+        colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+        userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+  
+        userSetsRedefined =	redefineUserSets(userSets, userUniverse)
+  
+        # load region data for each reference genome
+        dbPath = paste("reference",
+                        input$loladb,
+                        input$refgenome,
+                       sep = "/"
+                        )
+  
+        regionDB = loadRegionDB(dbLocation=dbPath)
+        
+        # garbage collection
+        gc()
+  
+        resRedefined = runLOLA(userSetsRedefined,
+                               userUniverse,
+                               regionDB,
+                               cores=4)
+  
+        # need to make sure user set is discrete even if coded as number
+        resRedefined$userSet = as.character(resRedefined$userSet)
+        
+        # calculate distribution over chromosomes for plotting
+        genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+  
+        # calculate distances to TSSs
+        TSSDist = TSSDistance(userSets, input$refgenome)
+        
+        
+      })
       
-      # garbage collection
-      gc()
-
-      resRedefined = runLOLA(userSetsRedefined,
-                             userUniverse,
-                             regionDB,
-                             cores=4)
-
-      # need to make sure user set is discrete even if coded as number
-      resRedefined$userSet = as.character(resRedefined$userSet)
-      
-      # calculate distribution over chromosomes for plotting
-      genDist = aggregateOverGenomeBins(userSets, input$refgenome)
-
-      # calculate distances to TSSs
-      TSSDist = TSSDistance(userSets, input$refgenome)
-
-      # create named list of multiple objects for plotting
+      run_sum <- 
+        data.frame(
+          start_time = as.character(start_time),
+          end_time = as.character(Sys.time()),
+          run_time = paste0(round(run_time[3]), " seconds"),
+          cache_name = keyphrase(),
+          query_set = paste(unique(resRedefined$userSet), collapse = ","),
+          genome = input$refgenome,
+          universe = universename,
+          region_db = input$loladb
+          )
+  
+        # create named list of multiple objects for plotting
       res = list(resRedefined = resRedefined,
                  genDist = genDist,
-                 TSSDist = TSSDist)
+                 TSSDist = TSSDist,
+                 run_sum = run_sum)
       
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
       key <- hash(charToRaw(keyphrase()))
-      msg <- serialize(res,
-                       connection = NULL)
-
+      msg <- serialize(res,connection = NULL)
+  
       cipher <- data_encrypt(msg, key)
-
+  
       simpleCache(cacheName = keyphrase(), 
                   instruction = { cipher },
                   noload = TRUE)
-
-      return(list(resRedefined = resRedefined,
-                  genDist = genDist,
-                  TSSDist = TSSDist))
+      
+      return(res)
+      
 
   })
 
@@ -511,6 +535,9 @@ server <- function(input, output, session) {
     rawdat_res$genDist <- res$genDist
 
     rawdat_res$TSSDist <- res$TSSDist
+    
+    rawdat_res$run_sum <- res$run_sum
+    
     # disable all buttons in header when query is good
     shinyjs::disable("run")
     shinyjs::disable("userset")
@@ -536,11 +563,14 @@ server <- function(input, output, session) {
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
-    
+    shinyjs::show("run_sum")
+  
     } else {
     
     rawdat_res$rawdat <- rawdat_nocache()$resRedefined
     rawdat_res$genDist <- rawdat_nocache()$genDist
+    rawdat_res$TSSDist <- rawdat_nocache()$TSSDist
+    rawdat_res$run_sum <- rawdat_nocache()$run_sum
     
     }
 
@@ -663,6 +693,15 @@ server <- function(input, output, session) {
                 max = round(max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
                 value = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3))
     })
+  
+  
+  output$run_sum <- renderTable({
+    
+    req(input$select_sort_i)
+    
+    rawdat_res$run_sum
+    
+  })
   
   # call plot
   output$oddsratio_plot <- renderPlot({
