@@ -463,9 +463,9 @@ server <- function(input, output, session) {
           end_time = as.character(Sys.time()),
           run_time = paste0(round(run_time[3])+1, " seconds"),
           cache_name = keyphrase(),
-          query_set = paste(unique(resRedefined$userSet), collapse = "\n"),
+          query_set = paste(gsub(".bed","",unique(resRedefined$userSet)), collapse = "\n"),
           genome = input$refgenome,
-          universe = universename,
+          universe = gsub(".bed", "", universename),
           region_db = input$loladb
           )
   
