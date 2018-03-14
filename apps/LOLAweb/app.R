@@ -120,7 +120,7 @@ ui <- list(
                uiOutput("select_userset"),
                conditionalPanel(condition = "output.res",
                                 h4("Run Summary"),
-                                verbatimTextOutput("run_sum"))
+                                tableOutput("run_sum"))
           ),
         column(10,
                tags$h4(htmlOutput("link")),
@@ -698,22 +698,34 @@ server <- function(input, output, session) {
     })
   
   
-  output$run_sum <- renderText({
+  output$run_sum <- renderTable({
+    
 
     req(input$select_sort_i)
     
-    # rawdat_res$run_sum
-    paste0("Start: ", rawdat_res$run_sum$start_time, "\n",
-           "End: ", rawdat_res$run_sum$end_time, "\n",
-           "Elapsed: ", rawdat_res$run_sum$run_time, "\n",
-           "Cache: ", rawdat_res$run_sum$cache_name, "\n",
-           "Regions: ", rawdat_res$run_sum$query_set, "\n",
-           "Genome: ", rawdat_res$run_sum$genome, "\n",
-           "Universe: ", rawdat_res$run_sum$universe, "\n",
-           "Database: ", rawdat_res$run_sum$region_db, "\n"
-    )
-    
-  })
+    data.frame(
+      x = 
+        c("Start ", 
+        "End ", 
+        "Elapsed", 
+        "Cache ", 
+        "Regions ",
+        "Genome ",
+        "Universe ",
+        "Database "),
+      y = 
+        c(as.character(rawdat_res$run_sum$start_time),
+          as.character(rawdat_res$run_sum$end_time),
+          as.character(rawdat_res$run_sum$run_time),
+          as.character(rawdat_res$run_sum$cache_name),
+          as.character(rawdat_res$run_sum$query_set),
+          as.character(rawdat_res$run_sum$genome),
+          as.character(rawdat_res$run_sum$universe),
+          as.character(rawdat_res$run_sum$region_db)
+        )
+    , stringsAsFactors = FALSE)
+
+  }, spacing = "s", colnames = FALSE, align = "l")
   
   # call plot
   output$oddsratio_plot <- renderPlot({
