@@ -117,7 +117,10 @@ ui <- list(
                uiOutput("slider_pvalue"),
                uiOutput("select_collection"),
                uiOutput("select_sort"),
-               uiOutput("select_userset")
+               uiOutput("select_userset"),
+               conditionalPanel(condition = "output.res",
+                                h4("Run Summary"),
+                                verbatimTextOutput("run_sum"))
           ),
         column(10,
                tags$h4(htmlOutput("link")),
@@ -126,8 +129,7 @@ ui <- list(
                    h2("LOLA Results",
                       actionLink("infoplot", "", icon = icon("question-circle-o"))),
                    id = "infoplot_div")),
-               shinyjs::hidden(htmlOutput("gear2")),
-               shinyjs::hidden(tableOutput("run_sum"))
+               shinyjs::hidden(htmlOutput("gear2"))
                ),
         column(5,
                conditionalPanel(condition = "output.res",
@@ -459,9 +461,9 @@ server <- function(input, output, session) {
         data.frame(
           start_time = as.character(start_time),
           end_time = as.character(Sys.time()),
-          run_time = paste0(round(run_time[3]), " seconds"),
+          run_time = paste0(round(run_time[3])+1, " seconds"),
           cache_name = keyphrase(),
-          query_set = paste(unique(resRedefined$userSet), collapse = ","),
+          query_set = paste(unique(resRedefined$userSet), collapse = "\n"),
           genome = input$refgenome,
           universe = universename,
           region_db = input$loladb
@@ -696,11 +698,20 @@ server <- function(input, output, session) {
     })
   
   
-  output$run_sum <- renderTable({
-    
+  output$run_sum <- renderText({
+
     req(input$select_sort_i)
     
-    rawdat_res$run_sum
+    # rawdat_res$run_sum
+    paste0("Start: ", rawdat_res$run_sum$start_time, "\n",
+           "End: ", rawdat_res$run_sum$end_time, "\n",
+           "Elapsed: ", rawdat_res$run_sum$run_time, "\n",
+           "Cache: ", rawdat_res$run_sum$cache_name, "\n",
+           "Regions: ", rawdat_res$run_sum$query_set, "\n",
+           "Genome: ", rawdat_res$run_sum$genome, "\n",
+           "Universe: ", rawdat_res$run_sum$universe, "\n",
+           "Database: ", rawdat_res$run_sum$region_db, "\n"
+    )
     
   })
   
