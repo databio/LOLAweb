@@ -120,7 +120,7 @@ ui <- list(
                uiOutput("select_userset"),
                conditionalPanel(condition = "output.res",
                                 h4("Run Summary"),
-                                tableOutput("run_sum"))
+                                tableOutput("run_sum"), style = "font-size:10px;")
           ),
         column(10,
                tags$h4(htmlOutput("link")),
