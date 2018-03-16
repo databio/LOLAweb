@@ -15,6 +15,8 @@ library(GenomicDistributions)
 
 setCacheDir("cache")
 
+# get lolaweb version
+lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
 
 ui <- list( 
   
@@ -173,7 +175,11 @@ ui <- list(
   tabPanel("About",
     includeHTML("about.html")
   ),
-  footer = div(HTML("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a></div>"), align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
+  footer = div(HTML(
+    paste0("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a>", 
+           "<br>Commit <a href ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version, "</a></div>")
+    ), 
+    align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
   id = "mainmenu"
 )
 )
@@ -472,7 +478,8 @@ server <- function(input, output, session) {
           query_set = paste(gsub(".bed","",unique(resRedefined$userSet)), collapse = "\n"),
           genome = input$refgenome,
           universe = gsub(".bed", "", universename),
-          region_db = input$loladb
+          region_db = input$loladb,
+          commit = lw_version
           )
   
         # create named list of multiple objects for plotting
@@ -718,7 +725,8 @@ server <- function(input, output, session) {
         "Regions ",
         "Genome ",
         "Universe ",
-        "Database "),
+        "Database ",
+        "Commit "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
@@ -727,7 +735,8 @@ server <- function(input, output, session) {
           as.character(rawdat_res$run_sum$query_set),
           as.character(rawdat_res$run_sum$genome),
           as.character(rawdat_res$run_sum$universe),
-          as.character(rawdat_res$run_sum$region_db)
+          as.character(rawdat_res$run_sum$region_db),
+          as.character(rawdat_res$run_sum$commit)
         )
     , stringsAsFactors = FALSE)
 
