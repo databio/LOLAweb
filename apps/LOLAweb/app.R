@@ -239,7 +239,7 @@ server <- function(input, output, session) {
              options = NULL)
   
   # reactive values
-  exampleuserset <- reactiveValues(toggle = TRUE)
+  exampleuserset <- reactiveValues(toggle = FALSE)
   
   # get url parameter for retrieval query key
   query <- reactive({
@@ -254,7 +254,8 @@ server <- function(input, output, session) {
          shinyjs::hide("button_userset_upload"),
          shinyjs::hide("defaultuserset"),
          shinyjs::show("userset"),
-         exampleuserset$toggle <- FALSE)
+         exampleuserset$toggle <- FALSE,
+         message(exampleuserset$toggle))
     
   })
   
@@ -264,7 +265,8 @@ server <- function(input, output, session) {
          shinyjs::hide("button_userset_example"),
          shinyjs::show("defaultuserset"),
          shinyjs::hide("userset"),
-         exampleuserset$toggle <- TRUE)
+         exampleuserset$toggle <- TRUE,
+         message(exampleuserset$toggle))
     
   })
   
@@ -374,9 +376,10 @@ server <- function(input, output, session) {
       run_time <- system.time({
           
         userSets <- list()
-  
+
         if(!exampleuserset$toggle) {
-  
+
+          message("Loading uploaded data")
   
           for (i in 1:length(input$userset[,1])) {
   
@@ -393,7 +396,9 @@ server <- function(input, output, session) {
           names(userSets) = input$userset[,"name"]
   
         } else {
-  
+
+          message("Loading example data")
+
           datapath <- paste0("userSets/", input$defaultuserset)
   
           userSet = read.table(file = datapath, header = F)
