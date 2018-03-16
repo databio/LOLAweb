@@ -89,7 +89,8 @@ ui <- list(
                uiOutput("loladbs"),
                actionButton("run",
                             "RUN LOLA", 
-                            class = "runLOLA")
+                            class = "runLOLA"),
+               HTML("<div style='padding-top:15px; padding-left:5px;'><a href = '?key=UDYOXT3MC1E2VF7'>Sample Results</a></div>")
         ),
       class = "headerBox"),
   fluidRow(
@@ -99,7 +100,7 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=CSD6HEAN2RJUOVK'>sample results</a>.</div>"), id = "noresultsmsg")
+        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=UDYOXT3MC1E2VF7'>sample results</a>.</div>"), id = "noresultsmsg")
              ),
         fluidRow(
         column(2,
@@ -116,7 +117,10 @@ ui <- list(
                uiOutput("slider_pvalue"),
                uiOutput("select_collection"),
                uiOutput("select_sort"),
-               uiOutput("select_userset")
+               uiOutput("select_userset"),
+               conditionalPanel(condition = "output.res",
+                                h4("Run Summary"),
+                                tableOutput("run_sum"))
           ),
         column(10,
                tags$h4(htmlOutput("link")),
@@ -235,7 +239,7 @@ server <- function(input, output, session) {
              options = NULL)
   
   # reactive values
-  exampleuserset <- reactiveValues(toggle = TRUE)
+  exampleuserset <- reactiveValues(toggle = FALSE)
   
   # get url parameter for retrieval query key
   query <- reactive({
@@ -250,7 +254,8 @@ server <- function(input, output, session) {
          shinyjs::hide("button_userset_upload"),
          shinyjs::hide("defaultuserset"),
          shinyjs::show("userset"),
-         exampleuserset$toggle <- FALSE)
+         exampleuserset$toggle <- FALSE,
+         message(exampleuserset$toggle))
     
   })
   
@@ -260,7 +265,8 @@ server <- function(input, output, session) {
          shinyjs::hide("button_userset_example"),
          shinyjs::show("defaultuserset"),
          shinyjs::hide("userset"),
-         exampleuserset$toggle <- TRUE)
+         exampleuserset$toggle <- TRUE,
+         message(exampleuserset$toggle))
     
   })
   
@@ -364,103 +370,130 @@ server <- function(input, output, session) {
     rawdat_nocache <- eventReactive(input$run, {
     
       message("Calculating region set enrichments ...")
-      userSets <- list()
+      
+      start_time <- Sys.time()
+      
+      run_time <- system.time({
+          
+        userSets <- list()
 
-      if(!exampleuserset$toggle) {
+        if(!exampleuserset$toggle) {
 
+          message("Loading uploaded data")
+  
+          for (i in 1:length(input$userset[,1])) {
+  
+            # userSet <- read.table(input$userset[[i, 'datapath']], header = F)
+            # colnames(userSet) <- c('chr','start','end','id','score','strand')
+            # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+            userSet = readBed(input$userset[[i, 'datapath']])
+            userSets[[i]] <- userSet
+  
+          }
+  
+          userSets = GRangesList(userSets)
+  
+          names(userSets) = input$userset[,"name"]
+  
+        } else {
 
-        for (i in 1:length(input$userset[,1])) {
+          message("Loading example data")
 
-          userSet <- read.table(input$userset[[i, 'datapath']], header = F)
-          colnames(userSet) <- c('chr','start','end','id','score','strand')
-          userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-
-          userSets[[i]] <- userSet
-
+          datapath <- paste0("userSets/", input$defaultuserset)
+  
+          # userSet = read.table(file = datapath, header = F)
+          # colnames(userSet) <- c('chr','start','end','id','score','strand')
+          # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+  
+          userSet = readBed(datapath)
+          userSets[[1]] <- userSet
+  
+          userSets = GRangesList(userSets)
+  
+          names(userSets) = input$defaultuserset
+  
         }
-
-        userSets = GRangesList(userSets)
-
-        names(userSets) = input$userset[,"name"]
-
-      } else {
-
-        datapath <- paste0("userSets/", input$defaultuserset)
-
-        userSet = read.table(file = datapath, header = F)
-        colnames(userSet) <- c('chr','start','end','id','score','strand')
-        userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-
-        userSets[[1]] <- userSet
-
-        userSets = GRangesList(userSets)
-
-        names(userSets) = input$defaultuserset
-
-      }
-
-      if(input$checkbox) {
-
-        userUniverse = read.table(file = input$useruniverse$datapath, header = F)
-
-      } else {
-
-        datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
-
-        userUniverse = read.table(file = datapath, header = F)
-
-      }
-      colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-      userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-
-      userSetsRedefined =	redefineUserSets(userSets, userUniverse)
-
-      # load region data for each reference genome
-      dbPath = paste("reference",
-                      input$loladb,
-                      input$refgenome,
-                     sep = "/"
-                      )
-
-      regionDB = loadRegionDB(dbLocation=dbPath)
+  
+        if(input$checkbox) {
+  
+          userUniverse = read.table(file = input$useruniverse$datapath, header = F)
+          
+          universename <- input$useruniverse$datapath
+  
+        } else {
+  
+          datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
+  
+          userUniverse = read.table(file = datapath, header = F)
+  
+          universename <- input$defaultuniverse
+          
+        }
+        colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+        userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+  
+        userSetsRedefined =	redefineUserSets(userSets, userUniverse)
+  
+        # load region data for each reference genome
+        dbPath = paste("reference",
+                        input$loladb,
+                        input$refgenome,
+                       sep = "/"
+                        )
+  
+        regionDB = loadRegionDB(dbLocation=dbPath)
+        
+        # garbage collection
+        gc()
+  
+        resRedefined = runLOLA(userSetsRedefined,
+                               userUniverse,
+                               regionDB,
+                               cores=4)
+  
+        # need to make sure user set is discrete even if coded as number
+        resRedefined$userSet = as.character(resRedefined$userSet)
+        
+        # calculate distribution over chromosomes for plotting
+        genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+  
+        # calculate distances to TSSs
+        TSSDist = TSSDistance(userSets, input$refgenome)
+        
+        
+      })
       
-      # garbage collection
-      gc()
-
-      resRedefined = runLOLA(userSetsRedefined,
-                             userUniverse,
-                             regionDB,
-                             cores=4)
-
-      # need to make sure user set is discrete even if coded as number
-      resRedefined$userSet = as.character(resRedefined$userSet)
-      
-      # calculate distribution over chromosomes for plotting
-      genDist = aggregateOverGenomeBins(userSets, input$refgenome)
-
-      # calculate distances to TSSs
-      TSSDist = TSSDistance(userSets, input$refgenome)
-
-      # create named list of multiple objects for plotting
+      run_sum <- 
+        data.frame(
+          start_time = as.character(start_time),
+          end_time = as.character(Sys.time()),
+          run_time = paste0(round(run_time[3])+1, " seconds"),
+          cache_name = keyphrase(),
+          query_set = paste(gsub(".bed","",unique(resRedefined$userSet)), collapse = "\n"),
+          genome = input$refgenome,
+          universe = gsub(".bed", "", universename),
+          region_db = input$loladb
+          )
+  
+        # create named list of multiple objects for plotting
       res = list(resRedefined = resRedefined,
                  genDist = genDist,
-                 TSSDist = TSSDist)
+                 TSSDist = TSSDist,
+                 run_sum = run_sum)
       
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
       key <- hash(charToRaw(keyphrase()))
-      msg <- serialize(res,
-                       connection = NULL)
-
+      msg <- serialize(res,connection = NULL)
+  
       cipher <- data_encrypt(msg, key)
-
+  
       simpleCache(cacheName = keyphrase(), 
                   instruction = { cipher },
                   noload = TRUE)
-
-      return(list(resRedefined = resRedefined,
-                  genDist = genDist,
-                  TSSDist = TSSDist))
+      
+      return(res)
+      
 
   })
 
@@ -511,6 +544,9 @@ server <- function(input, output, session) {
     rawdat_res$genDist <- res$genDist
 
     rawdat_res$TSSDist <- res$TSSDist
+    
+    rawdat_res$run_sum <- res$run_sum
+    
     # disable all buttons in header when query is good
     shinyjs::disable("run")
     shinyjs::disable("userset")
@@ -536,11 +572,14 @@ server <- function(input, output, session) {
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
-    
+    shinyjs::show("run_sum")
+  
     } else {
     
     rawdat_res$rawdat <- rawdat_nocache()$resRedefined
     rawdat_res$genDist <- rawdat_nocache()$genDist
+    rawdat_res$TSSDist <- rawdat_nocache()$TSSDist
+    rawdat_res$run_sum <- rawdat_nocache()$run_sum
     
     }
 
@@ -663,6 +702,36 @@ server <- function(input, output, session) {
                 max = round(max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
                 value = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3))
     })
+  
+  
+  output$run_sum <- renderTable({
+    
+
+    req(input$select_sort_i)
+    
+    data.frame(
+      x = 
+        c("Start ", 
+        "End ", 
+        "Elapsed", 
+        "Cache ", 
+        "Regions ",
+        "Genome ",
+        "Universe ",
+        "Database "),
+      y = 
+        c(as.character(rawdat_res$run_sum$start_time),
+          as.character(rawdat_res$run_sum$end_time),
+          as.character(rawdat_res$run_sum$run_time),
+          as.character(rawdat_res$run_sum$cache_name),
+          as.character(rawdat_res$run_sum$query_set),
+          as.character(rawdat_res$run_sum$genome),
+          as.character(rawdat_res$run_sum$universe),
+          as.character(rawdat_res$run_sum$region_db)
+        )
+    , stringsAsFactors = FALSE)
+
+  }, spacing = "s", colnames = FALSE, align = "l")
   
   # call plot
   output$oddsratio_plot <- renderPlot({
