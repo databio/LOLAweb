@@ -8,9 +8,12 @@ source("themes.R")
 dbPath = system.file("extdata", "hg19", package="LOLA")
 regionDB = loadRegionDB(dbLocation=dbPath)
 data("sample_universe", package="LOLA")
-data("sample_input", package="LOLA")
+# data("sample_input", package="LOLA")
 
-userSetsRedefined =	redefineUserSets(userSets, userUniverse)
+userSet = read.table(file = "lola_vignette_data/setB_complete.bed", header = F) 
+colnames(userSet) <- c('chr','start','end','id','score','strand')
+userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+userSetsRedefined =	redefineUserSets(userSet, userUniverse)
 
 resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
 
@@ -20,8 +23,12 @@ resRedefined = subset(as.data.frame(resRedefined),
                       support > 2
 )
 
+summary(resRedefined$pValueLog)
+
 hist(resRedefined$pValueLog)
 
+View(resRedefined)
+View(resRedefined$pValueLog)
 resRedefined[order(pValueLog)]$pValueLog[5]
 resRedefined
 dplyr::arrange(resRedefined, userSet)
@@ -188,6 +195,19 @@ as.character(tst_reorder)
 rev(tst_reorder)
 
 
+keyphrase <- "GN2ZKFXCHW7TRPA"
+env <- new.env()
+
+simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = environment(), cacheDir = "cache")
+
+cipher <- get("cipher", envir = env)
+
+# keyphrase
+key <- hash(charToRaw(keyphrase))
+
+dat <- data_decrypt(cipher, key)
+
+res <- unserialize(dat)
 
 
 
@@ -224,5 +244,24 @@ y <- "mpg"
 
 ggplot(data = mtcars, aes(wt,eval(parse(text = y)))) +
   geom_point()
+
+
+simpleCache()
+
+dbPath = system.file("extdata", "hg19", package="LOLA")
+
+LOLARoadmap_hg38 = loadRegionDB(dbLocation="reference/LOLARoadmap/hg38")
+
+Core_hg19 = loadRegionDB(dbLocation="reference/Core/hg19")
+object.size(Core_hg19)
+
+LOLARoadmap_hg19 = loadRegionDB(dbLocation="reference/LOLARoadmap/hg19")
+object.size(LOLARoadmap_hg19)
+
+
+x <- system.time({
+  
+  rnorm(1000000)
+})
 
   
