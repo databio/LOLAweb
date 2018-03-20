@@ -422,7 +422,9 @@ server <- function(input, output, session) {
   
         if(input$checkbox) {
   
-          userUniverse = read.table(file = input$useruniverse$datapath, header = F)
+          # userUniverse = read.table(file = input$useruniverse$datapath, header = F)
+          userUniverse = readBed(file = input$useruniverse$datapath)
+          
           
           universename <- input$useruniverse$datapath
   
@@ -430,14 +432,16 @@ server <- function(input, output, session) {
   
           datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
   
-          userUniverse = read.table(file = datapath, header = F)
+          # userUniverse = read.table(file = datapath, header = F)
+          userUniverse = readBed(file = datapath)
+          
   
           universename <- input$defaultuniverse
           
         }
-        colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-        userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
-  
+        # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+        # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+        
         userSetsRedefined =	redefineUserSets(userSets, userUniverse)
   
         # load region data for each reference genome
