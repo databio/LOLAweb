@@ -5,7 +5,7 @@ This repository contains two components: 1) the shiny [app source code](apps/LOL
 
 ## Shiny app
 
-LOLAweb is implemented as an interactive shiny app. You can run this app locally by following the [instructions in the appfolder](apps/LOLAweb/).
+LOLAweb is implemented as an interactive Shiny app. You can run this app locally by following the [instructions in the appfolder](apps/LOLAweb/).
 
 ## Dockerfile
 
