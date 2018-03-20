@@ -177,7 +177,7 @@ ui <- list(
   ),
   footer = div(HTML(
     paste0("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a>", 
-           "<br>Commit <a href ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version, "</a></div>")
+           "<br>LOLAweb commit <a href ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version, "</a></div>")
     ), 
     align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
   id = "mainmenu"
