@@ -29,8 +29,8 @@ install:
     fi
   - if [ "$TRAVIS_BRANCH" == "dev" ]; then
     cd docker/dev/ ;
-    docker build --no-cache -t databio/lolaweb:dev . ;
-    docker push databio/lolaweb:dev;
+    docker build --no-cache -t databio/lolaweb:dev . || exit 1;
+    docker push databio/lolaweb:dev || exit 1;
     aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
     fi
 
