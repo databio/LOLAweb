@@ -17,21 +17,21 @@ before_install:
 install:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     cd docker/ ;
-    docker build --no-cache -t databio/lolaweb:latest . ;
-    docker push databio/lolaweb:latest;
-    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
+    docker build --no-cache -t databio/lolaweb:latest . || exit 1;
+    docker push databio/lolaweb:latest || exit 1;
+    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH || exit 1;
     fi
   - if [ "$TRAVIS_BRANCH" == "staging" ]; then
     cd docker/staging/ ;
-    docker build --no-cache -t databio/lolaweb:staging . ;
-    docker push databio/lolaweb:staging;
-    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
+    docker build --no-cache -t databio/lolaweb:staging . || exit 1;
+    docker push databio/lolaweb:staging || exit 1;
+    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH || exit 1;
     fi
   - if [ "$TRAVIS_BRANCH" == "dev" ]; then
     cd docker/dev/ ;
     docker build --no-cache -t databio/lolaweb:dev . || exit 1;
     docker push databio/lolaweb:dev || exit 1;
-    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH;
+    aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/lola-updates' --message-body $TRAVIS_BRANCH || exit 1;
     fi
 
 notifications:
