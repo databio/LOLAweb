@@ -7,10 +7,11 @@ source("themes.R")
 
 dbPath = system.file("extdata", "hg19", package="LOLA")
 regionDB = loadRegionDB(dbLocation=dbPath)
+
 data("sample_universe", package="LOLA")
 # data("sample_input", package="LOLA")
 
-userSet = read.table(file = "lola_vignette_data/setB_complete.bed", header = F) 
+userSet = read.table(file = "lola_vignette_data/setB_100.bed", header = F) 
 colnames(userSet) <- c('chr','start','end','id','score','strand')
 userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
 userSetsRedefined =	redefineUserSets(userSet, userUniverse)
@@ -264,4 +265,18 @@ x <- system.time({
   rnorm(1000000)
 })
 
+
+userSet = readBed(file = "lola_vignette_data/setB_100.bed") 
+dbPath = "reference/Core/hg38/"
+regionDB = loadRegionDB(dbLocation=dbPath)
+
+userUniverse = readBed("universes/hg38/tiles.hg38.5000.bed")
+userUniverse = read.table(file = "universes/hg38/tiles.hg38.5000.bed", header = F) 
+colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+
+userSetsRedefined =	redefineUserSets(userSet, userUniverse)
+
+
+resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
   
