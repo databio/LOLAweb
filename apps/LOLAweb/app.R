@@ -92,9 +92,11 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div style='padding-top:15px; padding-left:5px;'><a href = '?key=C5SQHB6RAM12EZF'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=C5SQHB6RAM12EZF'>Sample Results</a></div>")
         ),
-      class = "headerBox"),
+      # class = "headerBox", id = "runInputs"),
+  id = "runInputs"),
+  
   fluidRow(
     column(2,
            htmlOutput("gear")),
@@ -279,18 +281,7 @@ server <- function(input, output, session) {
   observeEvent(input$run, {
     
     # disable runLOLA button while processing
-    shinyjs::disable("run")
-    shinyjs::disable("userset")
-    shinyjs::disable("universe")
-    shinyjs::disable("loladb")
-    shinyjs::disable("button_userset_example")
-    shinyjs::disable("refgenome")
-    shinyjs::disable("defaultuniverse")
-    shinyjs::disable("useruniverse")
-    shinyjs::disable("checkbox")
-    shinyjs::disable("button_userset_upload")
-    shinyjs::disable("defaultuserset")
-    
+    shinyjs::runjs("$('#runInputs').addClass('disabledinputs');")
     
     withCallingHandlers({
       shinyjs::html(id = "messages", html = "")
@@ -517,19 +508,6 @@ server <- function(input, output, session) {
                   instruction = { cipher },
                   noload = TRUE)
       
-      # re-enable runLOLA button while processing
-      shinyjs::enable("run")
-      shinyjs::enable("userset")
-      shinyjs::enable("universe")
-      shinyjs::enable("loladb")
-      shinyjs::enable("button_userset_example")
-      shinyjs::enable("refgenome")
-      shinyjs::enable("defaultuniverse")
-      shinyjs::enable("useruniverse")
-      shinyjs::enable("checkbox")
-      shinyjs::enable("button_userset_upload")
-      shinyjs::enable("defaultuserset")
-      
       return(res)
       
 
@@ -586,18 +564,8 @@ server <- function(input, output, session) {
     rawdat_res$run_sum <- res$run_sum
     
     # disable all buttons in header when query is good
-    shinyjs::disable("run")
-    shinyjs::disable("userset")
-    shinyjs::disable("universe")
-    shinyjs::disable("loladb")
-    shinyjs::disable("button_userset_example")
-    shinyjs::disable("refgenome")
-    shinyjs::disable("defaultuniverse")
-    shinyjs::disable("useruniverse")
-    shinyjs::disable("checkbox")
-    shinyjs::disable("button_userset_upload")
-    shinyjs::disable("defaultuserset")
-
+    shinyjs::runjs("$('#runInputs').addClass('disabledinputs');")
+    
     # show results message on run tab
     shinyjs::show("noinputmsg")
     
