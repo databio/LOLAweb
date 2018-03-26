@@ -595,7 +595,9 @@ server <- function(input, output, session) {
     shinyjs::disable("defaultuniverse")
     shinyjs::disable("useruniverse")
     shinyjs::disable("checkbox")
-    
+    shinyjs::disable("button_userset_upload")
+    shinyjs::disable("defaultuserset")
+
     # show results message on run tab
     shinyjs::show("noinputmsg")
     
