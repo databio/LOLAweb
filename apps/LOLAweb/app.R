@@ -277,7 +277,21 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$run, {
-      
+    
+    # disable runLOLA button while processing
+    shinyjs::disable("run")
+    shinyjs::disable("userset")
+    shinyjs::disable("universe")
+    shinyjs::disable("loladb")
+    shinyjs::disable("button_userset_example")
+    shinyjs::disable("refgenome")
+    shinyjs::disable("defaultuniverse")
+    shinyjs::disable("useruniverse")
+    shinyjs::disable("checkbox")
+    shinyjs::disable("button_userset_upload")
+    shinyjs::disable("defaultuserset")
+    
+    
     withCallingHandlers({
       shinyjs::html(id = "messages", html = "")
       shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
@@ -502,6 +516,19 @@ server <- function(input, output, session) {
       simpleCache(cacheName = keyphrase(), 
                   instruction = { cipher },
                   noload = TRUE)
+      
+      # re-enable runLOLA button while processing
+      shinyjs::enable("run")
+      shinyjs::enable("userset")
+      shinyjs::enable("universe")
+      shinyjs::enable("loladb")
+      shinyjs::enable("button_userset_example")
+      shinyjs::enable("refgenome")
+      shinyjs::enable("defaultuniverse")
+      shinyjs::enable("useruniverse")
+      shinyjs::enable("checkbox")
+      shinyjs::enable("button_userset_upload")
+      shinyjs::enable("defaultuserset")
       
       return(res)
       
