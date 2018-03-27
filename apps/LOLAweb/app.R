@@ -343,15 +343,13 @@ server <- function(input, output, session) {
   
   output$loladbs <- renderUI({
     
-    if(input$refgenome == "mm10") {
-      
-      selectInput("loladb", label = "", choices = c("Core"))
-      
-    } else {
-      
-      selectInput("loladb", label = "", choices = c("Core", "LOLAJaspar", "LOLARoadmap"))
-      
-    }
+    fl <- grep(input$refgenome, 
+               list.files("reference", recursive = TRUE), 
+               value = TRUE)
+    
+    dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
+
+    selectInput("loladb", label = "", choices = dbs)
     
   })
   
