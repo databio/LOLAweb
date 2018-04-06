@@ -12,6 +12,7 @@ library(simpleCache)
 library(sodium)
 library(shinyBS)
 library(GenomicDistributions)
+library(plotly)
 
 setCacheDir("cache")
 
@@ -104,37 +105,35 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=C5SQHB6RAM12EZF'>sample results</a>.</div>"), id = "noresultsmsg")
-             ),
+           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=C5SQHB6RAM12EZF'>sample results</a>.</div>"), id = "noresultsmsg")
+           ),
+           fluidRow(
+             column(10,
+                    tags$h4(htmlOutput("link")),
+                    shinyjs::hidden(htmlOutput("gear2"))
+             )
+           ),
+           fluidRow(column(2,
+                    shinyjs::hidden(
+                      tags$div(
+                        h4("Display Options",
+                           actionLink("infodisplay", "", icon = icon("question-circle-o"))),
+                        id = "infodisplay_div"
+                             )),
+                    uiOutput("slider_rank"),
+                    uiOutput("slider_oddsratio"),
+                    uiOutput("slider_support"),
+                    uiOutput("slider_pvalue"),
+                    uiOutput("select_collection"),
+                    uiOutput("select_sort"),
+                    uiOutput("select_userset")),
+                    column(10,
+                           # shinyjs::hidden(
+                             tabsetPanel(type = "tabs",
+                                       tabPanel("Scatterplot",
+                                                plotlyOutput("scatter")),
+                                       tabPanel("Histograms",
         fluidRow(
-        column(2,
-               shinyjs::hidden(
-                 tags$div(
-                   h4("Display Options",
-                      actionLink("infodisplay", "", icon = icon("question-circle-o"))),
-                   id = "infodisplay_div"
-                 )
-               ),
-               uiOutput("slider_rank"),
-               uiOutput("slider_oddsratio"),
-               uiOutput("slider_support"),
-               uiOutput("slider_pvalue"),
-               uiOutput("select_collection"),
-               uiOutput("select_sort"),
-               uiOutput("select_userset"),
-               conditionalPanel(condition = "output.res",
-                                h4("Run Summary"),
-                                tableOutput("run_sum"), style = "font-size:10px;")
-          ),
-        column(10,
-               tags$h4(htmlOutput("link")),
-               shinyjs::hidden(
-                 tags$div(
-                   h2("LOLA Results",
-                      actionLink("infoplot", "", icon = icon("question-circle-o"))),
-                   id = "infoplot_div")),
-               shinyjs::hidden(htmlOutput("gear2"))
-               ),
         column(5,
                conditionalPanel(condition = "output.res",
                                 h4("Odds Ratio"),
@@ -155,7 +154,11 @@ ui <- list(
                                 downloadButton("pvalue_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
-               plotOutput("pvalue_plot"),
+               plotOutput("pvalue_plot")
+        )
+        )
+           ),
+      tabPanel("Distribution",
                conditionalPanel(condition = "output.res",
                                 h4("Distribution over genome"),
                                 downloadButton("distrib_plot_dl",
@@ -167,12 +170,19 @@ ui <- list(
                                 downloadButton("dist_plot_dl",
                                                label = "Download Plot",
                                                class = "dt-button")),
-               plotOutput("dist_plot")
-        )
-        ),
-      fluidRow(
-        column(DT::dataTableOutput("res"), width = 12) 
-      )
+               plotOutput("dist_plot")),
+      tabPanel("Run Summary",
+               conditionalPanel(condition = "output.res",
+                                h4("Run Summary"),
+                                tableOutput("run_sum"), style = "font-size:18px;")
+               ),
+           id = "result-tabs")
+      # )
+                    )
+  ),
+  fluidRow(
+    column(DT::dataTableOutput("res"), width = 12) 
+  )
   ),
   tabPanel("About",
     includeHTML("about.html")
@@ -600,6 +610,7 @@ server <- function(input, output, session) {
     } else {
       
       shinyjs::hide("gear2")
+      # shinyjs::show("result-tabs")
 
     }
     
@@ -717,15 +728,15 @@ server <- function(input, output, session) {
     
     data.frame(
       x = 
-        c("Start ", 
-        "End ", 
-        "Elapsed", 
-        "Cache ", 
+        c("Start Time ", 
+        "End Time ", 
+        "Elapsed Time ", 
+        "Cache ID ", 
         "Regions ",
         "Genome ",
         "Universe ",
         "Database ",
-        "Commit "),
+        "LOLAweb Commit Used "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
@@ -740,6 +751,27 @@ server <- function(input, output, session) {
     , stringsAsFactors = FALSE)
 
   }, spacing = "s", colnames = FALSE, align = "l")
+  
+  output$scatter <- renderPlotly({
+    
+    req(input$select_collection_i)
+    
+    q <- 
+      ggplot(dat(), aes(pValueLog, oddsRatio, size = log(support), 
+                 text = paste0("Collection: ", 
+                               collection, 
+                               "\n",
+                               "Description: ",
+                               axis_label))) +
+      geom_point() +
+      xlab("P Value Log") +
+      ylab("Odds Ratio") +
+      geom_blank(aes(text = collection)) +
+      theme_ns() 
+    
+    ggplotly(q)
+    
+  })
   
   # call plot
   output$oddsratio_plot <- renderPlot({
