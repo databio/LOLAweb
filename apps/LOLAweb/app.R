@@ -135,11 +135,10 @@ ui <- list(
                                        tabPanel("Histograms",
         fluidRow(
         column(5,
-               conditionalPanel(condition = "output.res",
                                 h4("Odds Ratio"),
                                 downloadButton("oddsratio_plot_dl",
                                                label = "Download Plot",
-                                               class = "dt-button")),
+                                               class = "dt-button"),
                plotOutput("oddsratio_plot"),
                conditionalPanel(condition = "output.res",
                                 h4("Support"),
@@ -149,39 +148,35 @@ ui <- list(
                plotOutput("support_plot")
         ),
         column(5,
-               conditionalPanel(condition = "output.res",
                                 h4("P Value"),
                                 downloadButton("pvalue_plot_dl",
                                                label = "Download Plot",
-                                               class = "dt-button")),
+                                               class = "dt-button"),
                plotOutput("pvalue_plot")
         )
         )
            ),
       tabPanel("Distribution",
-               conditionalPanel(condition = "output.res",
                                 h4("Distribution over genome"),
                                 downloadButton("distrib_plot_dl",
                                                label = "Download Plot",
-                                               class = "dt-button")),
+                                               class = "dt-button"),
                plotOutput("distrib_plot"),
-               conditionalPanel(condition = "output.res",
                                 h4("Distance to TSS"),
                                 downloadButton("dist_plot_dl",
                                                label = "Download Plot",
-                                               class = "dt-button")),
+                                               class = "dt-button"),
                plotOutput("dist_plot")),
+      tabPanel("Table",
+               column(DT::dataTableOutput("res"), width = 12)
+               ),
       tabPanel("Run Summary",
                conditionalPanel(condition = "output.res",
                                 h4("Run Summary"),
                                 tableOutput("run_sum"), style = "font-size:18px;")
                ),
            id = "result-tabs")
-      # )
                     )
-  ),
-  fluidRow(
-    column(DT::dataTableOutput("res"), width = 12) 
   )
   ),
   tabPanel("About",

@@ -336,6 +336,9 @@ q <-
   # coord_flip() +
   geom_blank(aes(text = collection)) +
   theme_ns() +
-  theme(legend.position = "right")
+  theme(legend.position = "bottom")
 
 ggplotly(q, tooltip = c("x", "y", "size", "text"))
+
+ggplotly(q, tooltip = c("x", "y", "size")) %>%
+  layout(showlegend = TRUE, legendgroup = "size")
