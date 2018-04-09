@@ -397,9 +397,6 @@ server <- function(input, output, session) {
   
           for (i in 1:length(input$userset[,1])) {
   
-            # userSet <- read.table(input$userset[[i, 'datapath']], header = F)
-            # colnames(userSet) <- c('chr','start','end','id','score','strand')
-            # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
             userSet = readBed(input$userset[[i, 'datapath']])
             userSets[[i]] <- userSet
   
@@ -414,10 +411,6 @@ server <- function(input, output, session) {
           message("Loading example data")
 
           datapath <- paste0("userSets/", input$defaultuserset)
-  
-          # userSet = read.table(file = datapath, header = F)
-          # colnames(userSet) <- c('chr','start','end','id','score','strand')
-          # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
   
           userSet = readBed(datapath)
           userSets[[1]] <- userSet
@@ -440,15 +433,12 @@ server <- function(input, output, session) {
   
           datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
   
-          # userUniverse = read.table(file = datapath, header = F)
           userUniverse = readBed(file = datapath)
           
   
           universename <- input$defaultuniverse
           
         }
-        # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-        # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
         
         userSetsRedefined =	redefineUserSets(userSets, userUniverse)
   
