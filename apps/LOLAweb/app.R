@@ -136,24 +136,25 @@ ui <- list(
                                        tabPanel("Histograms",
         fluidRow(
         column(5,
-                                h4("Odds Ratio"),
-                                downloadButton("oddsratio_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button"),
-               plotOutput("oddsratio_plot"),
-               conditionalPanel(condition = "output.res",
-                                h4("Support"),
-                                downloadButton("support_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("support_plot")
+                                # h4("Odds Ratio"),
+                                # downloadButton("oddsratio_plot_dl",
+                                #                label = "Download Plot",
+                                #                class = "dt-button"),
+               # plotOutput("oddsratio_plot"),
+               plotlyOutput("oddsratio_plot"),
+               # conditionalPanel(condition = "output.res",
+                                # h4("Support"),
+                                # downloadButton("support_plot_dl",
+                                #                label = "Download Plot",
+                                #                class = "dt-button")),
+               plotlyOutput("support_plot")
         ),
         column(5,
-                                h4("P Value"),
-                                downloadButton("pvalue_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button"),
-               plotOutput("pvalue_plot")
+                                # h4("P Value"),
+                                # downloadButton("pvalue_plot_dl",
+                                #                label = "Download Plot",
+                                #                class = "dt-button"),
+               plotlyOutput("pvalue_plot")
         )
         )
            ),
@@ -764,14 +765,27 @@ server <- function(input, output, session) {
     
   })
   
+  # # call plot
+  # output$oddsratio_plot <- renderPlot({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+  # 
+  # })
+  
   # call plot
-  output$oddsratio_plot <- renderPlot({
+  output$oddsratio_plot <- renderPlotly({
     
     req(input$select_sort_i)
     
-    plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
-
+    p <- plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+    
+    ggplotly(p) %>%
+      layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
+    
   })
+  
   
   # download handler
   output$oddsratio_plot_dl <- downloadHandler(
@@ -799,11 +813,22 @@ server <- function(input, output, session) {
     
   })  
   
-  output$support_plot <- renderPlot({
+  # output$support_plot <- renderPlot({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   plot_input(dat(), "support", "Support", input$select_sort_i)
+  #   
+  # })
+  
+  output$support_plot <- renderPlotly({
     
     req(input$select_sort_i)
     
-    plot_input(dat(), "support", "Support", input$select_sort_i)
+    p <- plot_input(dat(), "support", "Support", input$select_sort_i)
+    
+    ggplotly(p) %>%
+      layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
     
   })
   
@@ -835,11 +860,23 @@ server <- function(input, output, session) {
     
   })  
   
-  output$pvalue_plot <- renderPlot({
+  # output$pvalue_plot <- renderPlot({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+  #   
+  #   
+  # })
+  
+  output$pvalue_plot <- renderPlotly({
     
     req(input$select_sort_i)
     
     plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+    
+    ggplotly(p) %>%
+      layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
     
     
   })
@@ -865,12 +902,13 @@ server <- function(input, output, session) {
   }
   
   output$distrib_plot <- renderPlot({
-    
+
     req(input$select_sort_i)
-    
+
     distrib_plot_input()
-    
+
   })
+  
   
   # feature distance plot
   dist_plot_input <- function() {
