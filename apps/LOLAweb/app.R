@@ -128,7 +128,8 @@ ui <- list(
                     uiOutput("select_sort"),
                     uiOutput("select_userset")),
                     column(10,
-                           # shinyjs::hidden(
+                           shinyjs::hidden(
+                             div(
                              tabsetPanel(type = "tabs",
                                        tabPanel("Scatterplot",
                                                 plotlyOutput("scatter")),
@@ -174,9 +175,9 @@ ui <- list(
                conditionalPanel(condition = "output.res",
                                 h4("Run Summary"),
                                 tableOutput("run_sum"), style = "font-size:18px;")
-               ),
-           id = "result-tabs")
-                    )
+               )
+           ),
+      id = "result-tabs")))
   )
   ),
   tabPanel("About",
@@ -569,11 +570,15 @@ server <- function(input, output, session) {
                       selected = "Results")
     
     shinyjs::show("gear2")
-
+    shinyjs::show("result-tabs")
+    
+    
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
     shinyjs::show("run_sum")
+    
+    
   
     } else {
     
@@ -595,8 +600,7 @@ server <- function(input, output, session) {
     } else {
       
       shinyjs::hide("gear2")
-      # shinyjs::show("result-tabs")
-
+    
     }
     
   })
@@ -754,6 +758,8 @@ server <- function(input, output, session) {
       geom_blank(aes(text = collection)) +
       theme_ns() 
     
+    plot_render$state <- TRUE
+  
     ggplotly(q)
     
   })
@@ -762,8 +768,6 @@ server <- function(input, output, session) {
   output$oddsratio_plot <- renderPlot({
     
     req(input$select_sort_i)
-    
-    plot_render$state <- TRUE
     
     plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
 
