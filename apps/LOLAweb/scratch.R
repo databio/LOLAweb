@@ -126,11 +126,26 @@ query = read.table(file = "lola_vignette_data/setC_complete.bed", header = F)
 colnames(query) = c('chr','start','end','id','score','strand')
 query = with(query, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
 
-x = genomicDistribution(query, "hg19")
+query = readBed("lola_vignette_data/setC_complete.bed")
+
+x = aggregateOverGenomeBins(query, "hg19")
 
 # Then, plot the result:
-plotGenomicDist(x)
+p <- 
+  plotGenomeAggregate(x)
 
+ggplotly(p)
+
+y <-
+  TSSDistance(query, "hg19")
+
+q <-
+  plotFeatureDist(y)
+
+ggplotly(q)
+
+gp = genomicPartitions(query, "hg19")
+plotPartitions(gp)
 
 
 EnsDb = loadEnsDb("hg19")
@@ -342,3 +357,6 @@ ggplotly(q, tooltip = c("x", "y", "size", "text"))
 
 ggplotly(q, tooltip = c("x", "y", "size")) %>%
   layout(showlegend = TRUE, legendgroup = "size")
+
+
+

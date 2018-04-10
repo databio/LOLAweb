@@ -134,8 +134,8 @@ ui <- list(
                                        tabPanel("Scatterplot",
                                                 plotlyOutput("scatter")),
                                        tabPanel("Histograms",
-        fluidRow(
-        column(5,
+        # fluidRow(
+        # column(10,
                                 # h4("Odds Ratio"),
                                 # downloadButton("oddsratio_plot_dl",
                                 #                label = "Download Plot",
@@ -147,28 +147,41 @@ ui <- list(
                                 # downloadButton("support_plot_dl",
                                 #                label = "Download Plot",
                                 #                class = "dt-button")),
-               plotlyOutput("support_plot")
-        ),
-        column(5,
+               plotlyOutput("support_plot"),
+        # ),
+        # column(5,
                                 # h4("P Value"),
                                 # downloadButton("pvalue_plot_dl",
                                 #                label = "Download Plot",
                                 #                class = "dt-button"),
                plotlyOutput("pvalue_plot")
-        )
-        )
+        # )
+        # )
            ),
       tabPanel("Distribution",
-                                h4("Distribution over genome"),
-                                downloadButton("distrib_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button"),
-               plotOutput("distrib_plot"),
-                                h4("Distance to TSS"),
-                                downloadButton("dist_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button"),
-               plotOutput("dist_plot")),
+               fluidRow(
+                 column(10,
+                        h4("Distribution over genome"),
+                        downloadButton("distrib_plot_dl",
+                                       label = "Download Plot",
+                                       class = "dt-button"),
+                        plotOutput("distrib_plot"))
+               ),
+               fluidRow(
+                 column(5,
+                        h4("Distance to TSS"),
+                        downloadButton("dist_plot_dl",
+                                       label = "Download Plot",
+                                       class = "dt-button"),
+                        plotOutput("dist_plot")),
+                 column(5,
+                        h4("Genomic Partitions"),
+                        downloadButton("part_plot_dl",
+                                       label = "Download Plot",
+                                       class = "dt-button"),
+                        plotOutput("part_plot"))
+               )
+               ),
       tabPanel("Table",
                column(DT::dataTableOutput("res"), width = 12)
                ),
@@ -470,6 +483,8 @@ server <- function(input, output, session) {
         # calculate distances to TSSs
         TSSDist = TSSDistance(userSets, input$refgenome)
         
+        # distribution of overlaps for a query set to genomic partitions
+        gp = genomicPartitions(userSets, input$refgenome)
         
       })
       
@@ -490,7 +505,8 @@ server <- function(input, output, session) {
       res = list(resRedefined = resRedefined,
                  genDist = genDist,
                  TSSDist = TSSDist,
-                 run_sum = run_sum)
+                 run_sum = run_sum,
+                 gp = gp)
       
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
@@ -556,6 +572,8 @@ server <- function(input, output, session) {
 
     rawdat_res$TSSDist <- res$TSSDist
     
+    rawdat_res$gp  <- res$gp
+    
     rawdat_res$run_sum <- res$run_sum
     
     # disable all buttons in header when query is good
@@ -586,6 +604,7 @@ server <- function(input, output, session) {
     rawdat_res$rawdat <- rawdat_nocache()$resRedefined
     rawdat_res$genDist <- rawdat_nocache()$genDist
     rawdat_res$TSSDist <- rawdat_nocache()$TSSDist
+    rawdat_res$gp <- rawdat_nocache()$gp
     rawdat_res$run_sum <- rawdat_nocache()$run_sum
     
     }
@@ -873,7 +892,7 @@ server <- function(input, output, session) {
     
     req(input$select_sort_i)
     
-    plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+    p <- plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
     
     ggplotly(p) %>%
       layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
@@ -926,6 +945,32 @@ server <- function(input, output, session) {
     dist_plot_input()
     
   })
+  
+  # partitions plot
+  part_plot_input <- function() {
+    
+    gp <- rawdat_res$gp
+    
+    if(is.null(gp)) {
+      
+      NULL
+      
+    } else {
+      
+      plotPartitions(gp)
+      
+    }
+  
+    
+  }
+  
+  output$part_plot <- renderPlot({
+    
+    req(input$select_sort_i)
+    
+    part_plot_input()
+    
+  })
 
   # download handler
   output$distrib_plot_dl <- downloadHandler(
@@ -943,6 +988,15 @@ server <- function(input, output, session) {
                                   sep="") },
     content = function(file) {
       ggsave(file, plot = dist_plot_input(), device = "pdf")
+    }
+  )
+  
+  output$part_plot_dl <- downloadHandler(
+    filename = function() { paste("paritions",
+                                  ".pdf", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = part_plot_input(), device = "pdf")
     }
   )
   
