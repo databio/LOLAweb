@@ -93,7 +93,7 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=C5SQHB6RAM12EZF'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=F1NJU8KSWI59H4E'>Sample Results</a></div>")
         ),
       # class = "headerBox", id = "runInputs"),
   id = "runInputs"),
@@ -105,7 +105,7 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=C5SQHB6RAM12EZF'>sample results</a>.</div>"), id = "noresultsmsg")
+           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=F1NJU8KSWI59H4E'>sample results</a>.</div>"), id = "noresultsmsg")
            ),
            fluidRow(
              column(10,
