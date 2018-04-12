@@ -10,13 +10,13 @@ round_top <- function(x,n) {
 
 plot_input <- function(res, metric, ylabel, sortcol) {
   
-  # conditional for inverting rank sorting
-  
+  # limit to 50 results for histograms so they don't get too dense
   if(nrow(res) > 50) {
     
     res <- head(res,50)
   }
   
+  # conditional for inverting rank sorting
   if(grepl("rnk", sortcol, ignore.case = TRUE)) {
     
     # need to order data frame by sort col if it's a rank
