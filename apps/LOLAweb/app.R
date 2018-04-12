@@ -205,10 +205,17 @@ ui <- list(
     includeHTML("about.html")
   ),
   footer = div(HTML(
-    paste0("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a>", 
-           "<br>LOLAweb commit <a href ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version, "</a></div>")
+    paste0("<div>
+      Built by the <a href ='http://databio.org/'
+    target = 'blank'>Sheffield Computational Biology Lab</a> and <a href = 'https://somrc.virginia.edu'
+    target='blank'>SOMRC</a> at UVA. <br>View source code on <a href
+    ='https://github.com/databio/LOLAweb' target = 'blank'>GitHub</a> or run it locally with <a
+    href='https://github.com/databio/LOLAweb/blob/master/docker/README.md'
+    target = 'blank'>Docker</a>", "<br>LOLAweb version: <a href
+    ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version,
+    "</a></div>")
     ), 
-    align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
+    align = "center", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
   id = "mainmenu"
 )
 )
@@ -220,7 +227,13 @@ server <- function(input, output, session) {
   addPopover(session=session, 
              id="infouserset", 
              title="User Sets", 
-             content="<p>The User Set is your set of genomic regions that you want to test for overlap with the database. Upload a file in <a href = 'https://genome.ucsc.edu/FAQ/FAQformat.html' target 'blank'>BED format</a> (really, it just needs the first 3 columns: chr, start, and end). You can also drag and drop multiple files and they will be analyzed simultaneously!<button type='button' id='close' class='close' onclick='$(&quot;#infouserset&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             content="<p>The User Set is your set of genomic regions that you
+             want to test for overlap with the database. Upload a file in <a
+             href = 'https://genome.ucsc.edu/FAQ/FAQformat.html' target
+             'blank'>BED format</a> (really, it just needs the first 3 columns:
+             chr, start, and end). You can also drag and drop multiple files and
+             they will be analyzed simultaneously!
+             <button type='button' id='close' class='close' onclick='$(&quot;#infouserset&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -228,7 +241,17 @@ server <- function(input, output, session) {
   addPopover(session=session, 
              id="infouniverse", 
              title="Universes", 
-             content="<p>The universe is your background set of regions. You should think of the universe as the set of regions you tested for possible inclusion in your user sets; or, in other words, it is the restricted background set of regions that were tested, including everything in your regions of interest as well as those that did not get included. We recommend you upload a universe that is specific to the query set, but we also provide a few basic region sets (like tiling regions, or the set of all active DNaseI hypersensitive elements from the ENCODE project). The choice of universe can have a drastic affect on the results of the analysis, so it may also be worth running LOLA few times with different universe sets. For further information, there are more details in the <a href = 'http://code.databio.org/LOLA/articles/choosingUniverse.html' target='blank'>LOLA documentation</a>.<button type='button' id='close' class='close' onclick='$(&quot;#infouniverse&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             content="<p>The universe is your background set of regions. You
+             should think of the universe as the set of regions you tested for
+             possible inclusion in your user sets. We recommend you upload a
+             universe that is specific to the query set, but we also provide a
+             few basic region sets (like tiling regions, or the set of all
+             active DNaseI hypersensitive elements from the ENCODE project). The
+             choice of universe can have a drastic affect on the results of the
+             analysis, so it may also be worth running LOLA few times with
+             different universe sets. For further information, there are more
+             details on the <b>About tab</b>.
+             <button type='button' id='close' class='close' onclick='$(&quot;#infouniverse&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -238,7 +261,14 @@ server <- function(input, output, session) {
              id="infodb", 
              title="Region Databases", 
              # html for content with JS at the bottom to close popup
-             content="<p>We have provided a few different general-purpose databases. We recommend starting with the Core database, but there are also a few other more specific options if you want to extend your analysis. Further details about what is contained in each database can be found in the <a href = 'http://databio.org/regiondb' target = 'blank'>documentation on LOLA region databases</a>. <button type='button' id='close' class='close' onclick='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             content="<p>We have provided a few different general-purpose
+             databases. We recommend starting with the Core database, but there
+             are also a few other more specific options if you want to extend
+             your analysis. Further details about what is contained in each
+             database can be found in the <a href =
+             'http://databio.org/regiondb' target = 'blank'>documentation on
+             LOLA region databases</a>.
+             <button type='button' id='close' class='close' onclick='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)

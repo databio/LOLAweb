@@ -14,6 +14,8 @@
 
 ```docker pull databio/lolaweb```
 
+The image itself is hosted at dockerhub: https://hub.docker.com/r/databio/lolaweb/
+
 
 ## Reference Data
 

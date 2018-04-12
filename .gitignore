@@ -7,6 +7,9 @@ inst/doc
 apps/LOLAweb/cache/*
 *.bed
 apps/LOLAweb/lola_vignette_data/*.bed
-apps/LOLAweb/universes/*
-apps/LOLAweb/reference/
-apps/LOLAwebuserSets/*
+apps/LOLAweb/universes
+apps/LOLAweb/reference
+apps/LOLAweb/cache
+apps/LOLAweb/shinylog
+apps/LOLAweb/results
+apps/LOLAweb/userSets
