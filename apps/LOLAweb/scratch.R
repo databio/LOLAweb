@@ -284,19 +284,24 @@ x <- system.time({
 
 ##### ggplotly
 
-# userSet = readBed(file = "lola_vignette_data/setB_100.bed") 
-# dbPath = "reference/Core/hg19/"
-# regionDB = loadRegionDB(dbLocation=dbPath)
+userSet = readBed(file = "lola_vignette_data/setB_100.bed")
+userSet2 = readBed(file = "lola_vignette_data/setC_100.bed")
+
+restrictedUniverse <- buildRestrictedUniverse(GRangesList(userSet, userSet2))
+data("sample_input", package="LOLA") # load userSets
+
+dbPath = "reference/Core/hg19/"
+regionDB = loadRegionDB(dbLocation=dbPath)
 # 
 # userUniverse = readBed("universes/hg19/tiles1000.hg19.bed")
 # # userUniverse = read.table(file = "universes/hg38/tiles.hg38.5000.bed", header = F) 
 # # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
 # # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
 # 
-# userSetsRedefined =	redefineUserSets(userSet, userUniverse)
+userSetsRedefined =	redefineUserSets(GRangesList(userSet, userSet2), restrictedUniverse)
 # 
 # 
-# resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
+resRedefined = runLOLA(userSetsRedefined, restrictedUniverse, regionDB, cores=1)
 
 library(sodium)
 

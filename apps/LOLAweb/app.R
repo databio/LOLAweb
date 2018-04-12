@@ -73,17 +73,19 @@ ui <- list(
                shinyjs::hidden(
                  actionButton("button_userset_upload",
                             "Browse for data to upload")
-               )
+               ),
+               textOutput("testn")
         ),
         column(4,
                tags$div(
                  h3("#2 Select background universe",
                  actionLink("infouniverse", "", icon = icon("question-circle-o")))
                ),
-               uiOutput("universe"),
-               checkboxInput("checkbox", 
-                             label = "Check here to upload your own universe",
-                             value = FALSE)
+               uiOutput("universe_opts"),
+               uiOutput("universe")
+               # checkboxInput("checkbox", 
+               #               label = "Check here to upload your own universe",
+               #               value = FALSE)
                ),
         column(4, 
                tags$div(
@@ -145,7 +147,6 @@ ui <- list(
                                 style ="display:inline-block;"),
                plotOutput("oddsratio_plot"),
                # plotlyOutput("oddsratio_plot"),
-               # conditionalPanel(condition = "output.res",
                                 h4("Support"),
                                 downloadButton("support_plot_dl",
                                                label = "PDF",
@@ -377,8 +378,8 @@ server <- function(input, output, session) {
       selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10"))
       
     }
+    
   })
-  
   
   output$loladbs <- renderUI({
     
@@ -392,14 +393,34 @@ server <- function(input, output, session) {
     
   })
   
+  output$universe_opts <- renderUI({
+    
+    if(nfiles$n > 1) {
+      
+      radioButtons("universe_opts", "Universe", 
+                   choiceValues = c("default", "user", "build"), 
+                   choiceNames = c("Use default universe", "Upload universe", "Build universe with user sets"))
+      
+    } else {
+      
+      radioButtons("universe_opts", "Universe", 
+                   choiceValues = c("default", "user"),
+                   choiceNames = c("Use default universe", "Upload universe"))
+      
+    }
+    
+  })
+  
   output$universe <- renderUI({
+    
+    req(input$universe_opts)
 
-    if(input$checkbox) {
+    if(input$universe_opts == "user") {
         
       fileInput("useruniverse", "Choose universe file",
                 accept = c(".bed"))
       
-      } else {
+      } else if (input$universe_opts == "default") {
         
         selectInput("defaultuniverse", 
                     label = "Select pre-loaded universe",
@@ -423,6 +444,7 @@ server <- function(input, output, session) {
       
       run_time <- system.time({
           
+        # user set(s)
         userSets <- list()
 
         if(!exampleuserset$toggle) {
@@ -454,34 +476,59 @@ server <- function(input, output, session) {
           names(userSets) = input$defaultuserset
   
         }
-  
-        if(input$checkbox) {
-  
-          userUniverse = readBed(file = input$useruniverse$datapath)
+        
+        # universe
+        
+        # if(input$checkbox) {
+        # 
+        #   userUniverse = readBed(file = input$useruniverse$datapath)
+        #   
+        #   
+        #   universename <- input$useruniverse$datapath
+        # 
+        # } else {
+        # 
+        #   datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
+        # 
+        #   userUniverse = readBed(file = datapath)
+        #   
+        # 
+        #   universename <- input$defaultuniverse
+        #   
+        # }
+        
+        if(input$universe_opts == "user") {
           
+          userUniverse <- readBed(file = input$useruniverse$datapath)
           
           universename <- input$useruniverse$datapath
-  
-        } else {
-  
-          datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
-  
-          userUniverse = readBed(file = datapath)
           
-  
+        } else if (input$universe_opts == "default") {
+          
+          datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
+          
+          userUniverse <- readBed(file = datapath)
+        
           universename <- input$defaultuniverse
+          
+        } else if (input$universe_opts == "build") {
+          
+          userUniverse <- buildRestrictedUniverse(userSets)
+          
+          universename <- paste0(c(names(userSets), "universe"), collapse = "_")
           
         }
         
         userSetsRedefined =	redefineUserSets(userSets, userUniverse)
   
-        # load region data for each reference genome
+        # set up path to databases for given reference genome
         dbPath = paste("reference",
                         input$loladb,
                         input$refgenome,
                        sep = "/"
                         )
-  
+        
+        # load region data for the given reference genome
         regionDB = loadRegionDB(dbLocation=dbPath)
         
         # garbage collection
@@ -558,6 +605,16 @@ server <- function(input, output, session) {
         )
       )
     }
+    
+  })
+  
+  # capture the number of user sets that are being uploaded
+  # use this to toggle radio buttons for building a universe 
+  nfiles <- reactiveValues(n = 0)
+  
+  observe({
+    
+    nfiles$n <- length(input$userset[,1])
     
   })
   
