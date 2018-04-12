@@ -12,6 +12,11 @@ plot_input <- function(res, metric, ylabel, sortcol) {
   
   # conditional for inverting rank sorting
   
+  if(nrow(res) > 50) {
+    
+    res <- head(res,50)
+  }
+  
   if(grepl("rnk", sortcol, ignore.case = TRUE)) {
     
     # need to order data frame by sort col if it's a rank
