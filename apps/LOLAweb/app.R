@@ -12,6 +12,7 @@ library(simpleCache)
 library(sodium)
 library(shinyBS)
 library(GenomicDistributions)
+library(plotly)
 
 setCacheDir("cache")
 
@@ -92,9 +93,11 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div style='padding-top:15px; padding-left:5px;'><a href = '?key=C5SQHB6RAM12EZF'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=F1NJU8KSWI59H4E'>Sample Results</a></div>")
         ),
-      class = "headerBox"),
+      # class = "headerBox", id = "runInputs"),
+  id = "runInputs"),
+  
   fluidRow(
     column(2,
            htmlOutput("gear")),
@@ -102,75 +105,94 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=C5SQHB6RAM12EZF'>sample results</a>.</div>"), id = "noresultsmsg")
-             ),
-        fluidRow(
-        column(2,
-               shinyjs::hidden(
-                 tags$div(
-                   h4("Display Options",
-                      actionLink("infodisplay", "", icon = icon("question-circle-o"))),
-                   id = "infodisplay_div"
-                 )
+           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=F1NJU8KSWI59H4E'>sample results</a>.</div>"), id = "noresultsmsg")
+           ),
+           fluidRow(
+             column(10,
+                    tags$h4(htmlOutput("link")),
+                    shinyjs::hidden(htmlOutput("gear2"))
+             )
+           ),
+           fluidRow(column(2,
+                    shinyjs::hidden(
+                      tags$div(
+                        h4("Display Options",
+                           actionLink("infodisplay", "", icon = icon("question-circle-o"))),
+                        id = "infodisplay_div"
+                             )),
+                    uiOutput("slider_rank"),
+                    uiOutput("slider_oddsratio"),
+                    uiOutput("slider_support"),
+                    uiOutput("slider_pvalue"),
+                    uiOutput("select_collection"),
+                    uiOutput("select_sort"),
+                    uiOutput("select_userset")),
+                    column(10,
+                           shinyjs::hidden(
+                             div(
+                             tabsetPanel(type = "tabs",
+                                       tabPanel("Scatterplot",
+                                                plotlyOutput("scatter")),
+                                       tabPanel("Histograms",
+        # fluidRow(
+        # column(10,
+                                # h4("Odds Ratio"),
+                                # downloadButton("oddsratio_plot_dl",
+                                #                label = "Download Plot",
+                                #                class = "dt-button"),
+               # plotOutput("oddsratio_plot"),
+               plotlyOutput("oddsratio_plot"),
+               # conditionalPanel(condition = "output.res",
+                                # h4("Support"),
+                                # downloadButton("support_plot_dl",
+                                #                label = "Download Plot",
+                                #                class = "dt-button")),
+               plotlyOutput("support_plot"),
+        # ),
+        # column(5,
+                                # h4("P Value"),
+                                # downloadButton("pvalue_plot_dl",
+                                #                label = "Download Plot",
+                                #                class = "dt-button"),
+               plotlyOutput("pvalue_plot")
+        # )
+        # )
+           ),
+      tabPanel("Distribution",
+               fluidRow(
+                 column(10,
+                        h4("Distribution over genome"),
+                        downloadButton("distrib_plot_dl",
+                                       label = "Download Plot",
+                                       class = "dt-button"),
+                        plotOutput("distrib_plot"))
                ),
-               uiOutput("slider_rank"),
-               uiOutput("slider_oddsratio"),
-               uiOutput("slider_support"),
-               uiOutput("slider_pvalue"),
-               uiOutput("select_collection"),
-               uiOutput("select_sort"),
-               uiOutput("select_userset"),
+               fluidRow(
+                 column(5,
+                        h4("Distance to TSS"),
+                        downloadButton("dist_plot_dl",
+                                       label = "Download Plot",
+                                       class = "dt-button"),
+                        plotOutput("dist_plot")),
+                 column(5,
+                        h4("Genomic Partitions"),
+                        downloadButton("part_plot_dl",
+                                       label = "Download Plot",
+                                       class = "dt-button"),
+                        plotOutput("part_plot"))
+               )
+               ),
+      tabPanel("Table",
+               column(DT::dataTableOutput("res"), width = 12)
+               ),
+      tabPanel("Run Summary",
                conditionalPanel(condition = "output.res",
                                 h4("Run Summary"),
-                                tableOutput("run_sum"), style = "font-size:10px;")
-          ),
-        column(10,
-               tags$h4(htmlOutput("link")),
-               shinyjs::hidden(
-                 tags$div(
-                   h2("LOLA Results",
-                      actionLink("infoplot", "", icon = icon("question-circle-o"))),
-                   id = "infoplot_div")),
-               shinyjs::hidden(htmlOutput("gear2"))
-               ),
-        column(5,
-               conditionalPanel(condition = "output.res",
-                                h4("Odds Ratio"),
-                                downloadButton("oddsratio_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("oddsratio_plot"),
-               conditionalPanel(condition = "output.res",
-                                h4("Support"),
-                                downloadButton("support_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("support_plot")
-        ),
-        column(5,
-               conditionalPanel(condition = "output.res",
-                                h4("P Value"),
-                                downloadButton("pvalue_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("pvalue_plot"),
-               conditionalPanel(condition = "output.res",
-                                h4("Distribution over genome"),
-                                downloadButton("distrib_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("distrib_plot"),
-               conditionalPanel(condition = "output.res",
-                                h4("Distance to TSS"),
-                                downloadButton("dist_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("dist_plot")
-        )
-        ),
-      fluidRow(
-        column(DT::dataTableOutput("res"), width = 12) 
-      )
+                                tableOutput("run_sum"), style = "font-size:18px;")
+               )
+           ),
+      id = "result-tabs")))
+  )
   ),
   tabPanel("About",
     includeHTML("about.html")
@@ -277,7 +299,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$run, {
-      
+    
+    # disable runLOLA button while processing
+    shinyjs::runjs("$('#runInputs').addClass('disabledinputs');")
+    
     withCallingHandlers({
       shinyjs::html(id = "messages", html = "")
       shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
@@ -338,15 +363,13 @@ server <- function(input, output, session) {
   
   output$loladbs <- renderUI({
     
-    if(input$refgenome == "mm10") {
-      
-      selectInput("loladb", label = "", choices = c("Core"))
-      
-    } else {
-      
-      selectInput("loladb", label = "", choices = c("Core", "LOLAJaspar", "LOLARoadmap"))
-      
-    }
+    fl <- grep(input$refgenome, 
+               list.files("reference", recursive = TRUE), 
+               value = TRUE)
+    
+    dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
+
+    selectInput("loladb", label = "", choices = dbs)
     
   })
   
@@ -389,9 +412,6 @@ server <- function(input, output, session) {
   
           for (i in 1:length(input$userset[,1])) {
   
-            # userSet <- read.table(input$userset[[i, 'datapath']], header = F)
-            # colnames(userSet) <- c('chr','start','end','id','score','strand')
-            # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
             userSet = readBed(input$userset[[i, 'datapath']])
             userSets[[i]] <- userSet
   
@@ -406,10 +426,6 @@ server <- function(input, output, session) {
           message("Loading example data")
 
           datapath <- paste0("userSets/", input$defaultuserset)
-  
-          # userSet = read.table(file = datapath, header = F)
-          # colnames(userSet) <- c('chr','start','end','id','score','strand')
-          # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
   
           userSet = readBed(datapath)
           userSets[[1]] <- userSet
@@ -432,15 +448,12 @@ server <- function(input, output, session) {
   
           datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
   
-          # userUniverse = read.table(file = datapath, header = F)
           userUniverse = readBed(file = datapath)
           
   
           universename <- input$defaultuniverse
           
         }
-        # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-        # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
         
         userSetsRedefined =	redefineUserSets(userSets, userUniverse)
   
@@ -470,6 +483,8 @@ server <- function(input, output, session) {
         # calculate distances to TSSs
         TSSDist = TSSDistance(userSets, input$refgenome)
         
+        # distribution of overlaps for a query set to genomic partitions
+        gp = genomicPartitions(userSets, input$refgenome)
         
       })
       
@@ -490,7 +505,8 @@ server <- function(input, output, session) {
       res = list(resRedefined = resRedefined,
                  genDist = genDist,
                  TSSDist = TSSDist,
-                 run_sum = run_sum)
+                 run_sum = run_sum,
+                 gp = gp)
       
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
@@ -556,18 +572,12 @@ server <- function(input, output, session) {
 
     rawdat_res$TSSDist <- res$TSSDist
     
+    rawdat_res$gp  <- res$gp
+    
     rawdat_res$run_sum <- res$run_sum
     
     # disable all buttons in header when query is good
-    shinyjs::disable("run")
-    shinyjs::disable("userset")
-    shinyjs::disable("universe")
-    shinyjs::disable("loladb")
-    shinyjs::disable("button_userset_example")
-    shinyjs::disable("refgenome")
-    shinyjs::disable("defaultuniverse")
-    shinyjs::disable("useruniverse")
-    shinyjs::disable("checkbox")
+    shinyjs::runjs("$('#runInputs').addClass('disabledinputs');")
     
     # show results message on run tab
     shinyjs::show("noinputmsg")
@@ -579,17 +589,22 @@ server <- function(input, output, session) {
                       selected = "Results")
     
     shinyjs::show("gear2")
-
+    shinyjs::show("result-tabs")
+    
+    
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
     shinyjs::show("run_sum")
+    
+    
   
     } else {
     
     rawdat_res$rawdat <- rawdat_nocache()$resRedefined
     rawdat_res$genDist <- rawdat_nocache()$genDist
     rawdat_res$TSSDist <- rawdat_nocache()$TSSDist
+    rawdat_res$gp <- rawdat_nocache()$gp
     rawdat_res$run_sum <- rawdat_nocache()$run_sum
     
     }
@@ -605,7 +620,7 @@ server <- function(input, output, session) {
     } else {
       
       shinyjs::hide("gear2")
-
+    
     }
     
   })
@@ -722,15 +737,15 @@ server <- function(input, output, session) {
     
     data.frame(
       x = 
-        c("Start ", 
-        "End ", 
-        "Elapsed", 
-        "Cache ", 
+        c("Start Time ", 
+        "End Time ", 
+        "Elapsed Time ", 
+        "Cache ID ", 
         "Regions ",
         "Genome ",
         "Universe ",
         "Database ",
-        "Commit "),
+        "LOLAweb Commit Used "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
@@ -746,16 +761,50 @@ server <- function(input, output, session) {
 
   }, spacing = "s", colnames = FALSE, align = "l")
   
+  output$scatter <- renderPlotly({
+    
+    req(input$select_collection_i)
+    
+    q <- 
+      ggplot(dat(), aes(pValueLog, oddsRatio, size = log(support), 
+                 text = paste0("Collection: ", 
+                               collection, 
+                               "\n",
+                               "Description: ",
+                               axis_label))) +
+      geom_point() +
+      xlab("P Value Log") +
+      ylab("Odds Ratio") +
+      geom_blank(aes(text = collection)) +
+      theme_ns() 
+    
+    plot_render$state <- TRUE
+  
+    ggplotly(q)
+    
+  })
+  
+  # # call plot
+  # output$oddsratio_plot <- renderPlot({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+  # 
+  # })
+  
   # call plot
-  output$oddsratio_plot <- renderPlot({
+  output$oddsratio_plot <- renderPlotly({
     
     req(input$select_sort_i)
     
-    plot_render$state <- TRUE
+    p <- plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
     
-    plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
-
+    ggplotly(p) %>%
+      layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
+    
   })
+  
   
   # download handler
   output$oddsratio_plot_dl <- downloadHandler(
@@ -783,11 +832,22 @@ server <- function(input, output, session) {
     
   })  
   
-  output$support_plot <- renderPlot({
+  # output$support_plot <- renderPlot({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   plot_input(dat(), "support", "Support", input$select_sort_i)
+  #   
+  # })
+  
+  output$support_plot <- renderPlotly({
     
     req(input$select_sort_i)
     
-    plot_input(dat(), "support", "Support", input$select_sort_i)
+    p <- plot_input(dat(), "support", "Support", input$select_sort_i)
+    
+    ggplotly(p) %>%
+      layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
     
   })
   
@@ -819,11 +879,23 @@ server <- function(input, output, session) {
     
   })  
   
-  output$pvalue_plot <- renderPlot({
+  # output$pvalue_plot <- renderPlot({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+  #   
+  #   
+  # })
+  
+  output$pvalue_plot <- renderPlotly({
     
     req(input$select_sort_i)
     
-    plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+    p <- plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+    
+    ggplotly(p) %>%
+      layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
     
     
   })
@@ -849,12 +921,13 @@ server <- function(input, output, session) {
   }
   
   output$distrib_plot <- renderPlot({
-    
+
     req(input$select_sort_i)
-    
+
     distrib_plot_input()
-    
+
   })
+  
   
   # feature distance plot
   dist_plot_input <- function() {
@@ -870,6 +943,32 @@ server <- function(input, output, session) {
     req(input$select_sort_i)
     
     dist_plot_input()
+    
+  })
+  
+  # partitions plot
+  part_plot_input <- function() {
+    
+    gp <- rawdat_res$gp
+    
+    if(is.null(gp)) {
+      
+      NULL
+      
+    } else {
+      
+      plotPartitions(gp)
+      
+    }
+  
+    
+  }
+  
+  output$part_plot <- renderPlot({
+    
+    req(input$select_sort_i)
+    
+    part_plot_input()
     
   })
 
@@ -889,6 +988,15 @@ server <- function(input, output, session) {
                                   sep="") },
     content = function(file) {
       ggsave(file, plot = dist_plot_input(), device = "pdf")
+    }
+  )
+  
+  output$part_plot_dl <- downloadHandler(
+    filename = function() { paste("paritions",
+                                  ".pdf", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = part_plot_input(), device = "pdf")
     }
   )
   

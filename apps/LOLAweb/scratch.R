@@ -126,11 +126,26 @@ query = read.table(file = "lola_vignette_data/setC_complete.bed", header = F)
 colnames(query) = c('chr','start','end','id','score','strand')
 query = with(query, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
 
-x = genomicDistribution(query, "hg19")
+query = readBed("lola_vignette_data/setC_complete.bed")
+
+x = aggregateOverGenomeBins(query, "hg19")
 
 # Then, plot the result:
-plotGenomicDist(x)
+p <- 
+  plotGenomeAggregate(x)
 
+ggplotly(p)
+
+y <-
+  TSSDistance(query, "hg19")
+
+q <-
+  plotFeatureDist(y)
+
+ggplotly(q)
+
+gp = genomicPartitions(query, "hg19")
+plotPartitions(gp)
 
 
 EnsDb = loadEnsDb("hg19")
@@ -266,17 +281,82 @@ x <- system.time({
 })
 
 
-userSet = readBed(file = "lola_vignette_data/setB_100.bed") 
-dbPath = "reference/Core/hg38/"
-regionDB = loadRegionDB(dbLocation=dbPath)
 
-userUniverse = readBed("universes/hg38/tiles.hg38.5000.bed")
-userUniverse = read.table(file = "universes/hg38/tiles.hg38.5000.bed", header = F) 
-colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+##### ggplotly
 
-userSetsRedefined =	redefineUserSets(userSet, userUniverse)
+# userSet = readBed(file = "lola_vignette_data/setB_100.bed") 
+# dbPath = "reference/Core/hg19/"
+# regionDB = loadRegionDB(dbLocation=dbPath)
+# 
+# userUniverse = readBed("universes/hg19/tiles1000.hg19.bed")
+# # userUniverse = read.table(file = "universes/hg38/tiles.hg38.5000.bed", header = F) 
+# # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+# # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+# 
+# userSetsRedefined =	redefineUserSets(userSet, userUniverse)
+# 
+# 
+# resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
 
+library(sodium)
 
-resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
+keyphrase <- "486TQ3MHFJPU2D9"
+loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
+
+cipher <- get("cipher", envir = globalenv())
+
+# keyphrase
+key <- hash(charToRaw(keyphrase))
+
+dat <- data_decrypt(cipher, key)
+
+res <- unserialize(dat)
+
+res$resRedefined$id <- paste(res$resRedefined$description, res$resRedefined$dbSet, sep = "_")
+res$resRedefined$axis_label <- strtrim(res$resRedefined$description, 50)
+
+library(magrittr)
+
+p <-
+  res$resRedefined %>%
+  filter(maxRnk < 90) %>%
+  arrange(desc(meanRnk)) %>%
+  # ggplot(aes(description, eval(parse(text = "meanRnk")), oddsRatio, fill = userSet, group = id)) +
+  ggplot(aes(reorder(axis_label, eval(parse(text = "meanRnk"))), rev(oddsRatio), fill = userSet, group = id)) +
+  # ggplot(aes(reorder(axis_label, eval(parse(text = "maxRnk"))), oddsRatio, fill = userSet, group = id)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("Description") +
+  ylab("Odds Ratio") +
+  coord_flip() +
+  theme_ns()
+
+library(plotly)
   
+ggplotly(p)
+
+
+q <- 
+  res$resRedefined %>%
+  filter(maxRnk < 100) %>%
+  arrange(desc(meanRnk)) %>%
+  ggplot(aes(pValueLog, oddsRatio, size = log(support), 
+             text = paste0("Collection: ", 
+                           collection, 
+                           "\n",
+                           "Description: ",
+                           axis_label))) +
+  geom_point() +
+  xlab("P Value Log") +
+  ylab("Odds Ratio") +
+  # coord_flip() +
+  geom_blank(aes(text = collection)) +
+  theme_ns() +
+  theme(legend.position = "bottom")
+
+ggplotly(q, tooltip = c("x", "y", "size", "text"))
+
+ggplotly(q, tooltip = c("x", "y", "size")) %>%
+  layout(showlegend = TRUE, legendgroup = "size")
+
+
+

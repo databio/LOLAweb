@@ -17,7 +17,7 @@
 
 ## Reference Data
 
-See the [LOLAweb documentation](https://github.com/databio/LOLAweb/tree/master/apps/LOLAweb) for retrieving reference data.
+See the [LOLAweb documentation](https://github.com/databio/LOLAweb/tree/master/apps/LOLAweb) for downloading reference data.
 
 
 ## `run` the LOLAweb container locally with reference data:

@@ -9,7 +9,7 @@
 }
 
 
-.headerBox {
+#runInputs {
 	min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
@@ -29,4 +29,9 @@
 
 #button_userset_upload {
   margin-top: 20px;
+}
+
+.disabledinputs {
+    pointer-events: none;
+    opacity: 0.4;
 }
