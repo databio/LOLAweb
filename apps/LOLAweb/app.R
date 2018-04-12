@@ -784,8 +784,9 @@ server <- function(input, output, session) {
     
     plot_render$state <- TRUE
   
-    ggplotly(q)
-    
+    ggplotly(q) %>%
+      config(displayModeBar = F)
+      # config(collaborate = FALSE, displaylogo=FALSE)
   })
   
   # call plot
