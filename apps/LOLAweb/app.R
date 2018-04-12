@@ -60,7 +60,8 @@ ui <- list(
                 h3("#1 Upload regions of interest",
                     actionLink("infouserset", "", icon = icon("question-circle-o")))
                ),
-               selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
+               # selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
+               uiOutput("refgenome"),
                shinyjs::hidden(selectInput("defaultuserset", 
                                            label = "Select pre-loaded region set",
                                            choices = list.files("userSets"))),
@@ -363,6 +364,19 @@ server <- function(input, output, session) {
     
     result_url()$result_url
     
+  })
+  
+  output$refgenome <- renderUI({
+    
+    if(input$defaultuserset == "setB_100.bed" & exampleuserset$toggle) {
+      
+      selectInput("refgenome", label = "Reference genome", choices = "hg19")
+      
+    } else {
+      
+      selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10"))
+      
+    }
   })
   
   
