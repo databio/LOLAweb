@@ -135,6 +135,14 @@ ui <- list(
                              div(
                              tabsetPanel(type = "tabs",
                                        tabPanel("Scatterplot",
+                                                shinyjs::hidden(
+                                                  div(
+                                                    h4("Scatter Plot"),
+                                                    downloadButton("scatterplot_dl",
+                                                                   label = "PDF",
+                                                                   class = "dt-button"),
+                                                    id = "scatterhead"
+                                                )),
                                                 plotlyOutput("scatter")),
                                        tabPanel("Histograms",
         # fluidRow(
@@ -725,6 +733,7 @@ server <- function(input, output, session) {
     } else {
       
       shinyjs::hide("gear2")
+      shinyjs::show("scatterhead")
     
     }
     
@@ -866,29 +875,46 @@ server <- function(input, output, session) {
 
   }, spacing = "s", colnames = FALSE, align = "l")
   
+  
+  scatterplot_input <- function() {
+    
+    ggplot(dat(), aes(pValueLog, oddsRatio, size = log(support), 
+                        text = paste0("Collection: ", 
+                                      collection, 
+                                      "\n",
+                                      "Description: ",
+                                      axis_label))) +
+      geom_point(aes(col = userSet)) +
+      xlab("P Value Log") +
+      ylab("Odds Ratio") +
+      scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio), max(rawdat_res$rawdat$oddsRatio))) +
+      scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), max(rawdat_res$rawdat$pValueLog))) +
+      geom_blank(aes(text = collection)) +
+      theme_ns() 
+    
+  }
+  
   output$scatter <- renderPlotly({
     
     req(input$select_collection_i)
     
-    q <- 
-      ggplot(dat(), aes(pValueLog, oddsRatio, size = log(support), 
-                 text = paste0("Collection: ", 
-                               collection, 
-                               "\n",
-                               "Description: ",
-                               axis_label))) +
-      geom_point() +
-      xlab("P Value Log") +
-      ylab("Odds Ratio") +
-      geom_blank(aes(text = collection)) +
-      theme_ns() 
-    
     plot_render$state <- TRUE
   
-    ggplotly(q) %>%
-      config(displayModeBar = F)
-      # config(collaborate = FALSE, displaylogo=FALSE)
+    ggplotly(scatterplot_input()) %>%
+      config(displayModeBar = FALSE)
+    
   })
+  
+  # download handler
+  output$scatterplot_dl <- downloadHandler(
+    filename = function() { paste("scatter", 
+                                  ".pdf", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = scatterplot_input()
+             , device = "pdf")
+    }
+  )
   
   # call plot
   output$oddsratio_plot <- renderPlot({
