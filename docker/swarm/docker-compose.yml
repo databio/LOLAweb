@@ -9,10 +9,8 @@ services:
     ports:
       - "80"
     volumes:
-      - /data/lola/reference:/srv/shiny-server/LOLAweb/apps/LOLAweb/reference
-      - /data/lola/universes:/srv/shiny-server/LOLAweb/apps/LOLAweb/universes
-      - /data/lola/userSets:/srv/shiny-server/LOLAweb/apps/LOLAweb/userSets
-      - /data/lola/cache:/srv/shiny-server/LOLAweb/apps/LOLAweb/cache
+      - /data/lola:/data/lola
+      - /mnt/q/shefflab/LOLAweb:/mnt/q/shefflab/LOLAweb
       - /data/lola/shinylog:/var/log/shiny-server
     deploy:
       mode: replicated
