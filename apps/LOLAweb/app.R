@@ -48,7 +48,10 @@ ui <- list(
   ),
       fluidRow(
         shinyjs::hidden(div(HTML("<div class='alert alert-warning'>
-          All <strong>Run</strong> inputs are disabled while LOLAweb has results loaded.<br>Navigate to <strong>Results</strong> to view current result output.<br>To execute a new run, <a href= '/'>reload</a> LOLAweb.</div>"), id = "noinputmsg"))
+          All <strong>Run</strong> inputs are disabled while LOLAweb has results
+          loaded.<br>Navigate to <strong>Results</strong> to view current result
+          output.<br>To execute a new run, <a href= '/'>reload</a>
+          LOLAweb.</div>"), id = "noinputmsg"))
           
       ),
       fluidRow(
@@ -286,7 +289,10 @@ server <- function(input, output, session) {
              id="infocollection",
              title="Collections",
              # html for content with JS at the bottom to close popup
-             content="<p>LOLA databases are made up of one or more sub-collections of region set. Using this drop-down, you can filter your plots and tables to show only the results from one of these collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             content="<p>LOLA databases are made up of one or more sub-
+             collections of region set. Using this drop-down, you can filter
+             your plots and tables to show only the results from one of these
+             collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click",
              options = NULL)
@@ -296,7 +302,17 @@ server <- function(input, output, session) {
              id="infoplot",
              title="LOLA Results",
              # html for content with JS at the bottom to close popup
-             content="<p>These barplots show the highest-ranking region sets from the database. The higher scores indicate more overlap with your query set. The results are scored using 3 statistics: Support is the raw number of regions that overlapped between your query set and the database set. LogPVal and LogOdds are the results of a Fisher's exact test scoring the significance of that overlap.</p><p>We rank each region set from the database for each of these 3 scores, and you can see the raw scores and the ranks in the table below. You can also see the maximum and mean ranks across all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             content="<p>These barplots show the highest-ranking region sets
+             from the database. The higher scores indicate more overlap with
+             your query set. The results are scored using 3 statistics: Support
+             is the raw number of regions that overlapped between your query set
+             and the database set. LogPVal and LogOdds are the results of a
+             Fisher's exact test scoring the significance of that
+             overlap.</p><p>We rank each region set from the database for each
+             of these 3 scores, and you can see the raw scores and the ranks in
+             the table below. You can also see the maximum and mean ranks across
+             all 3 categories.
+             <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click",
              options = NULL)
