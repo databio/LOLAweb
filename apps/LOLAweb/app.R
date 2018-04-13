@@ -12,9 +12,9 @@ library(simpleCache)
 library(sodium)
 library(shinyBS)
 library(GenomicDistributions)
+library(plotly)
 
-setCacheDir("cache")
-
+setCacheDir(cacheDir)
 # get lolaweb version
 lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
 
@@ -47,7 +47,10 @@ ui <- list(
   ),
       fluidRow(
         shinyjs::hidden(div(HTML("<div class='alert alert-warning'>
-          All <strong>Run</strong> inputs are disabled while LOLAweb has results loaded.<br>Navigate to <strong>Results</strong> to view current result output.<br>To execute a new run, <a href= '/'>reload</a> LOLAweb.</div>"), id = "noinputmsg"))
+          All <strong>Run</strong> inputs are disabled while LOLAweb has results
+          loaded.<br>Navigate to <strong>Results</strong> to view current result
+          output.<br>To execute a new run, <a href= '/'>reload</a>
+          LOLAweb.</div>"), id = "noinputmsg"))
           
       ),
       fluidRow(
@@ -59,10 +62,11 @@ ui <- list(
                 h3("#1 Upload regions of interest",
                     actionLink("infouserset", "", icon = icon("question-circle-o")))
                ),
-               selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
+               # selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
+               uiOutput("refgenome"),
                shinyjs::hidden(selectInput("defaultuserset", 
                                            label = "Select pre-loaded region set",
-                                           choices = list.files("userSets"))),
+                                           choices = list.files(exampleDir))),
                fileInput("userset", "Choose BED file(s)",
                          multiple = TRUE,
                          accept = c(".bed")),
@@ -71,17 +75,19 @@ ui <- list(
                shinyjs::hidden(
                  actionButton("button_userset_upload",
                             "Browse for data to upload")
-               )
+               ),
+               textOutput("testn")
         ),
         column(4,
                tags$div(
                  h3("#2 Select background universe",
                  actionLink("infouniverse", "", icon = icon("question-circle-o")))
                ),
-               uiOutput("universe"),
-               checkboxInput("checkbox", 
-                             label = "Check here to upload your own universe",
-                             value = FALSE)
+               uiOutput("universe_opts"),
+               uiOutput("universe")
+               # checkboxInput("checkbox", 
+               #               label = "Check here to upload your own universe",
+               #               value = FALSE)
                ),
         column(4, 
                tags$div(
@@ -92,9 +98,11 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div style='padding-top:15px; padding-left:5px;'><a href = '?key=C5SQHB6RAM12EZF'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=F1NJU8KSWI59H4E'>Sample Results</a></div>")
         ),
-      class = "headerBox"),
+      # class = "headerBox", id = "runInputs"),
+  id = "runInputs"),
+  
   fluidRow(
     column(2,
            htmlOutput("gear")),
@@ -102,84 +110,122 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-        fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=C5SQHB6RAM12EZF'>sample results</a>.</div>"), id = "noresultsmsg")
-             ),
-        fluidRow(
-        column(2,
-               shinyjs::hidden(
-                 tags$div(
-                   h4("Display Options",
-                      actionLink("infodisplay", "", icon = icon("question-circle-o"))),
-                   id = "infodisplay_div"
-                 )
-               ),
-               uiOutput("slider_rank"),
-               uiOutput("slider_oddsratio"),
-               uiOutput("slider_support"),
-               uiOutput("slider_pvalue"),
-               uiOutput("select_collection"),
-               uiOutput("select_sort"),
-               uiOutput("select_userset"),
-               conditionalPanel(condition = "output.res",
-                                h4("Run Summary"),
-                                tableOutput("run_sum"), style = "font-size:10px;")
-          ),
-        column(10,
-               tags$h4(htmlOutput("link")),
-               shinyjs::hidden(
-                 tags$div(
-                   h2("LOLA Results",
-                      actionLink("infoplot", "", icon = icon("question-circle-o"))),
-                   id = "infoplot_div")),
-               shinyjs::hidden(htmlOutput("gear2"))
-               ),
+           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=F1NJU8KSWI59H4E'>sample results</a>.</div>"), id = "noresultsmsg")
+           ),
+           fluidRow(
+             column(10,
+                    tags$h4(htmlOutput("link")),
+                    shinyjs::hidden(htmlOutput("gear2"))
+             )
+           ),
+           fluidRow(column(2,
+                    shinyjs::hidden(
+                      tags$div(
+                        h4("Display Options",
+                           actionLink("infodisplay", "", icon = icon("question-circle-o"))),
+                        id = "infodisplay_div"
+                             )),
+                    uiOutput("slider_rank"),
+                    uiOutput("slider_oddsratio"),
+                    uiOutput("slider_support"),
+                    uiOutput("slider_pvalue"),
+                    uiOutput("select_collection"),
+                    uiOutput("select_sort"),
+                    uiOutput("select_userset")),
+                    column(10,
+                           shinyjs::hidden(
+                             div(
+                             tabsetPanel(type = "tabs",
+                                       tabPanel("Scatterplot",
+                                                shinyjs::hidden(
+                                                  div(
+                                                    h4("Scatter Plot"),
+                                                    downloadButton("scatterplot_dl",
+                                                                   label = "PDF",
+                                                                   class = "dt-button"),
+                                                    id = "scatterhead"
+                                                )),
+                                                plotlyOutput("scatter")),
+                                       tabPanel("Histograms",
+        # fluidRow(
         column(5,
-               conditionalPanel(condition = "output.res",
-                                h4("Odds Ratio"),
+                                div(
+                                  h4("Odds Ratio"),
                                 downloadButton("oddsratio_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
+                                               label = "PDF",
+                                               class = "dt-button"),
+                                style ="display:inline-block;"),
                plotOutput("oddsratio_plot"),
-               conditionalPanel(condition = "output.res",
+               # plotlyOutput("oddsratio_plot"),
                                 h4("Support"),
                                 downloadButton("support_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
+                                               label = "PDF",
+                                               class = "dt-button"),
+               # plotlyOutput("support_plot"),
                plotOutput("support_plot")
+        
         ),
         column(5,
-               conditionalPanel(condition = "output.res",
                                 h4("P Value"),
                                 downloadButton("pvalue_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("pvalue_plot"),
-               conditionalPanel(condition = "output.res",
-                                h4("Distribution over genome"),
-                                downloadButton("distrib_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("distrib_plot"),
-               conditionalPanel(condition = "output.res",
-                                h4("Distance to TSS"),
-                                downloadButton("dist_plot_dl",
-                                               label = "Download Plot",
-                                               class = "dt-button")),
-               plotOutput("dist_plot")
+                                               label = "PDF",
+                                               class = "dt-button"),
+               # plotlyOutput("pvalue_plot")
+               plotOutput("pvalue_plot")
         )
-        ),
-      fluidRow(
-        column(DT::dataTableOutput("res"), width = 12) 
-      )
+        # )
+           ),
+      tabPanel("Distribution",
+               fluidRow(
+                 column(10,
+                        h4("Distribution over genome"),
+                        downloadButton("distrib_plot_dl",
+                                       label = "PDF",
+                                       class = "dt-button"),
+                        plotOutput("distrib_plot"))
+               ),
+               fluidRow(
+                 column(5,
+                        h4("Distance to TSS"),
+                        downloadButton("dist_plot_dl",
+                                       label ="PDF",
+                                       class = "dt-button"),
+                        plotOutput("dist_plot")),
+                 column(5,
+                        h4("Genomic Partitions"),
+                        downloadButton("part_plot_dl",
+                                       label = "PDF",
+                                       class = "dt-button"),
+                        plotOutput("part_plot"))
+               )
+               ),
+      tabPanel("Table",
+               column(DT::dataTableOutput("res"), width = 12)
+               ),
+      tabPanel("Run Summary",
+               conditionalPanel(condition = "output.res",
+                                h4("Run Summary"),
+                                tableOutput("run_sum"), style = "font-size:18px;")
+               )
+           ),
+      id = "result-tabs")))
+  )
   ),
   tabPanel("About",
     includeHTML("about.html")
   ),
   footer = div(HTML(
-    paste0("<div>Powered by <a href = 'https://somrc.virginia.edu' target ='blank'>SOMRC</a><br>A Project of the <a href ='http://databio.org/' target = 'blank'>Sheffield Lab</a><br>Source code on <a href ='https://github.com/databio/LOLAweb' target = 'blank'>Github</a><br>Try it yourself with <a href='https://github.com/databio/LOLAweb/blob/master/docker/README.md' target = 'blank'>Docker</a>", 
-           "<br>LOLAweb commit <a href ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version, "</a></div>")
+    paste0("<div>
+      Built by the <a href ='http://databio.org/'
+    target = 'blank'>Sheffield Computational Biology Lab</a> and <a href = 'https://somrc.virginia.edu'
+    target='blank'>SOMRC</a> at UVA. <br>View source code on <a href
+    ='https://github.com/databio/LOLAweb' target = 'blank'>GitHub</a> or run it locally with <a
+    href='https://github.com/databio/LOLAweb/blob/master/docker/README.md'
+    target = 'blank'>Docker</a>", "<br>LOLAweb version: <a href
+    ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version,
+    "</a></div>")
     ), 
-    align = "right", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
+    align = "center", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
   id = "mainmenu"
 )
 )
@@ -191,7 +237,13 @@ server <- function(input, output, session) {
   addPopover(session=session, 
              id="infouserset", 
              title="User Sets", 
-             content="<p>The User Set is your set of genomic regions that you want to test for overlap with the database. Upload a file in <a href = 'https://genome.ucsc.edu/FAQ/FAQformat.html' target 'blank'>BED format</a> (really, it just needs the first 3 columns: chr, start, and end). You can also drag and drop multiple files and they will be analyzed simultaneously!<button type='button' id='close' class='close' onclick='$(&quot;#infouserset&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             content="<p>The User Set is your set of genomic regions that you
+             want to test for overlap with the database. Upload a file in <a
+             href = 'https://genome.ucsc.edu/FAQ/FAQformat.html' target
+             'blank'>BED format</a> (really, it just needs the first 3 columns:
+             chr, start, and end). You can also drag and drop multiple files and
+             they will be analyzed simultaneously!
+             <button type='button' id='close' class='close' onclick='$(&quot;#infouserset&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -199,7 +251,17 @@ server <- function(input, output, session) {
   addPopover(session=session, 
              id="infouniverse", 
              title="Universes", 
-             content="<p>The universe is your background set of regions. You should think of the universe as the set of regions you tested for possible inclusion in your user sets; or, in other words, it is the restricted background set of regions that were tested, including everything in your regions of interest as well as those that did not get included. We recommend you upload a universe that is specific to the query set, but we also provide a few basic region sets (like tiling regions, or the set of all active DNaseI hypersensitive elements from the ENCODE project). The choice of universe can have a drastic affect on the results of the analysis, so it may also be worth running LOLA few times with different universe sets. For further information, there are more details in the <a href = 'http://code.databio.org/LOLA/articles/choosingUniverse.html' target='blank'>LOLA documentation</a>.<button type='button' id='close' class='close' onclick='$(&quot;#infouniverse&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             content="<p>The universe is your background set of regions. You
+             should think of the universe as the set of regions you tested for
+             possible inclusion in your user sets. We recommend you upload a
+             universe that is specific to the query set, but we also provide a
+             few basic region sets (like tiling regions, or the set of all
+             active DNaseI hypersensitive elements from the ENCODE project). The
+             choice of universe can have a drastic affect on the results of the
+             analysis, so it may also be worth running LOLA few times with
+             different universe sets. For further information, there are more
+             details on the <b>About tab</b>.
+             <button type='button' id='close' class='close' onclick='$(&quot;#infouniverse&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -209,7 +271,14 @@ server <- function(input, output, session) {
              id="infodb", 
              title="Region Databases", 
              # html for content with JS at the bottom to close popup
-             content="<p>We have provided a few different general-purpose databases. We recommend starting with the Core database, but there are also a few other more specific options if you want to extend your analysis. Further details about what is contained in each database can be found in the <a href = 'http://databio.org/regiondb' target = 'blank'>documentation on LOLA region databases</a>. <button type='button' id='close' class='close' onclick='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</button></p>", 
+             content="<p>We have provided a few different general-purpose
+             databases. We recommend starting with the Core database, but there
+             are also a few other more specific options if you want to extend
+             your analysis. Further details about what is contained in each
+             database can be found in the <a href =
+             'http://databio.org/regiondb' target = 'blank'>documentation on
+             LOLA region databases</a>.
+             <button type='button' id='close' class='close' onclick='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -219,7 +288,10 @@ server <- function(input, output, session) {
              id="infocollection",
              title="Collections",
              # html for content with JS at the bottom to close popup
-             content="<p>LOLA databases are made up of one or more sub-collections of region set. Using this drop-down, you can filter your plots and tables to show only the results from one of these collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             content="<p>LOLA databases are made up of one or more sub-
+             collections of region set. Using this drop-down, you can filter
+             your plots and tables to show only the results from one of these
+             collections at a time. <button type='button' id='close' class='close' onclick='$(&quot;#infocollection&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click",
              options = NULL)
@@ -229,7 +301,17 @@ server <- function(input, output, session) {
              id="infoplot",
              title="LOLA Results",
              # html for content with JS at the bottom to close popup
-             content="<p>These barplots show the highest-ranking region sets from the database. The higher scores indicate more overlap with your query set. The results are scored using 3 statistics: Support is the raw number of regions that overlapped between your query set and the database set. LogPVal and LogOdds are the results of a Fisher's exact test scoring the significance of that overlap.</p><p>We rank each region set from the database for each of these 3 scores, and you can see the raw scores and the ranks in the table below. You can also see the maximum and mean ranks across all 3 categories. <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             content="<p>These barplots show the highest-ranking region sets
+             from the database. The higher scores indicate more overlap with
+             your query set. The results are scored using 3 statistics: Support
+             is the raw number of regions that overlapped between your query set
+             and the database set. LogPVal and LogOdds are the results of a
+             Fisher's exact test scoring the significance of that
+             overlap.</p><p>We rank each region set from the database for each
+             of these 3 scores, and you can see the raw scores and the ranks in
+             the table below. You can also see the maximum and mean ranks across
+             all 3 categories.
+             <button type='button' id='close' class='close' onclick='$(&quot;#infoplot&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click",
              options = NULL)
@@ -277,7 +359,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$run, {
-      
+    
+    # disable runLOLA button while processing
+    shinyjs::runjs("$('#runInputs').addClass('disabledinputs');")
+    
     withCallingHandlers({
       shinyjs::html(id = "messages", html = "")
       shinyjs::html(id = "gear", html = "<i class='fa fa-4x fa-spin fa-cog'></i>", add = FALSE)
@@ -335,33 +420,64 @@ server <- function(input, output, session) {
     
   })
   
-  
-  output$loladbs <- renderUI({
+  output$refgenome <- renderUI({
     
-    if(input$refgenome == "mm10") {
+    if(input$defaultuserset == "setB_100.bed" & exampleuserset$toggle) {
       
-      selectInput("loladb", label = "", choices = c("Core"))
+      selectInput("refgenome", label = "Reference genome", choices = "hg19")
       
     } else {
       
-      selectInput("loladb", label = "", choices = c("Core", "LOLAJaspar", "LOLARoadmap"))
+      selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10"))
+      
+    }
+    
+  })
+  
+  output$loladbs <- renderUI({
+    
+    fl <- grep(input$refgenome, 
+               list.files(dbDir, recursive = TRUE), 
+               value = TRUE)
+    
+    dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
+
+    selectInput("loladb", label = "", choices = dbs)
+    
+  })
+  
+  output$universe_opts <- renderUI({
+    
+    if(nfiles$n > 1) {
+      
+      radioButtons("universe_opts", "Universe", 
+                   choiceValues = c("default", "user", "build"), 
+                   choiceNames = c("Use default universe", "Upload universe", "Build universe with user sets"))
+      
+    } else {
+      
+      radioButtons("universe_opts", "Universe", 
+                   choiceValues = c("default", "user"),
+                   choiceNames = c("Use default universe", "Upload universe"))
       
     }
     
   })
   
   output$universe <- renderUI({
+    
+    req(input$universe_opts)
 
-    if(input$checkbox) {
+    if(input$universe_opts == "user") {
         
       fileInput("useruniverse", "Choose universe file",
                 accept = c(".bed"))
       
-      } else {
+      } else if (input$universe_opts == "default") {
         
         selectInput("defaultuniverse", 
                     label = "Select pre-loaded universe",
-                    choices = list.files(paste0("universes/", input$refgenome)))
+                    choices = list.files(paste0(universeDir, input$refgenome)))
       
       }
       
@@ -381,6 +497,7 @@ server <- function(input, output, session) {
       
       run_time <- system.time({
           
+        # user set(s)
         userSets <- list()
 
         if(!exampleuserset$toggle) {
@@ -389,9 +506,6 @@ server <- function(input, output, session) {
   
           for (i in 1:length(input$userset[,1])) {
   
-            # userSet <- read.table(input$userset[[i, 'datapath']], header = F)
-            # colnames(userSet) <- c('chr','start','end','id','score','strand')
-            # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
             userSet = readBed(input$userset[[i, 'datapath']])
             userSets[[i]] <- userSet
   
@@ -405,11 +519,7 @@ server <- function(input, output, session) {
 
           message("Loading example data")
 
-          datapath <- paste0("userSets/", input$defaultuserset)
-  
-          # userSet = read.table(file = datapath, header = F)
-          # colnames(userSet) <- c('chr','start','end','id','score','strand')
-          # userSet <- with(userSet, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+          datapath <- paste0(exampleDir, input$defaultuserset)
   
           userSet = readBed(datapath)
           userSets[[1]] <- userSet
@@ -419,38 +529,59 @@ server <- function(input, output, session) {
           names(userSets) = input$defaultuserset
   
         }
-  
-        if(input$checkbox) {
-  
-          # userUniverse = read.table(file = input$useruniverse$datapath, header = F)
-          userUniverse = readBed(file = input$useruniverse$datapath)
+        
+        # universe
+        
+        # if(input$checkbox) {
+        # 
+        #   userUniverse = readBed(file = input$useruniverse$datapath)
+        #   
+        #   
+        #   universename <- input$useruniverse$datapath
+        # 
+        # } else {
+        # 
+        #   datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
+        # 
+        #   userUniverse = readBed(file = datapath)
+        #   
+        # 
+        #   universename <- input$defaultuniverse
+        #   
+        # }
+        
+        if(input$universe_opts == "user") {
           
+          userUniverse <- readBed(file = input$useruniverse$datapath)
           
           universename <- input$useruniverse$datapath
-  
-        } else {
-  
-          datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
-  
-          # userUniverse = read.table(file = datapath, header = F)
-          userUniverse = readBed(file = datapath)
           
-  
+        } else if (input$universe_opts == "default") {
+          
+          datapath <- paste0(universeDir, input$refgenome, "/", input$defaultuniverse)
+          
+          userUniverse <- readBed(file = datapath)
+        
           universename <- input$defaultuniverse
           
+        } else if (input$universe_opts == "build") {
+          
+          userUniverse <- buildRestrictedUniverse(userSets)
+          
+          universename <- paste0(c(names(userSets), "universe"), collapse = "_")
+          
         }
-        # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-        # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
         
         userSetsRedefined =	redefineUserSets(userSets, userUniverse)
   
-        # load region data for each reference genome
-        dbPath = paste("reference",
+        # set up path to databases for given reference genome
+        dbPath = paste(dbDir,
                         input$loladb,
                         input$refgenome,
                        sep = "/"
                         )
-  
+        
+        # load region data for the given reference genome
         regionDB = loadRegionDB(dbLocation=dbPath)
         
         # garbage collection
@@ -470,6 +601,8 @@ server <- function(input, output, session) {
         # calculate distances to TSSs
         TSSDist = TSSDistance(userSets, input$refgenome)
         
+        # distribution of overlaps for a query set to genomic partitions
+        gp = genomicPartitions(userSets, input$refgenome)
         
       })
       
@@ -490,7 +623,8 @@ server <- function(input, output, session) {
       res = list(resRedefined = resRedefined,
                  genDist = genDist,
                  TSSDist = TSSDist,
-                 run_sum = run_sum)
+                 run_sum = run_sum,
+                 gp = gp)
       
       # caching
       # need to call keyphrase from reactive above because it is used to construct link
@@ -512,7 +646,7 @@ server <- function(input, output, session) {
   
   observe({
     
-    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    cachenames <- tools::file_path_sans_ext(list.files(cacheDir))
     
     if(length(query()) != 0 && !query()[[1]] %in% cachenames) {
       
@@ -527,11 +661,21 @@ server <- function(input, output, session) {
     
   })
   
+  # capture the number of user sets that are being uploaded
+  # use this to toggle radio buttons for building a universe 
+  nfiles <- reactiveValues(n = 0)
+  
+  observe({
+    
+    nfiles$n <- length(input$userset[,1])
+    
+  })
+  
   plot_render <- reactiveValues(state = FALSE)
   
   observe({
     
-    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    cachenames <- tools::file_path_sans_ext(list.files(cacheDir))
     
     if(length(query()) != 0 && query()[[1]] %in% cachenames) {
     
@@ -539,7 +683,7 @@ server <- function(input, output, session) {
     
     env <- new.env()
     
-    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = environment(), cacheDir = "cache")
+    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = environment(), cacheDir=cacheDir)
     
     cipher <- get("cipher", envir = env)
     
@@ -556,18 +700,12 @@ server <- function(input, output, session) {
 
     rawdat_res$TSSDist <- res$TSSDist
     
+    rawdat_res$gp  <- res$gp
+    
     rawdat_res$run_sum <- res$run_sum
     
     # disable all buttons in header when query is good
-    shinyjs::disable("run")
-    shinyjs::disable("userset")
-    shinyjs::disable("universe")
-    shinyjs::disable("loladb")
-    shinyjs::disable("button_userset_example")
-    shinyjs::disable("refgenome")
-    shinyjs::disable("defaultuniverse")
-    shinyjs::disable("useruniverse")
-    shinyjs::disable("checkbox")
+    shinyjs::runjs("$('#runInputs').addClass('disabledinputs');")
     
     # show results message on run tab
     shinyjs::show("noinputmsg")
@@ -579,17 +717,22 @@ server <- function(input, output, session) {
                       selected = "Results")
     
     shinyjs::show("gear2")
-
+    shinyjs::show("result-tabs")
+    
+    
     # show help text for results sliders and plots
     shinyjs::show("infoplot_div")
     shinyjs::show("infodisplay_div")
     shinyjs::show("run_sum")
+    
+    
   
     } else {
     
     rawdat_res$rawdat <- rawdat_nocache()$resRedefined
     rawdat_res$genDist <- rawdat_nocache()$genDist
     rawdat_res$TSSDist <- rawdat_nocache()$TSSDist
+    rawdat_res$gp <- rawdat_nocache()$gp
     rawdat_res$run_sum <- rawdat_nocache()$run_sum
     
     }
@@ -605,7 +748,8 @@ server <- function(input, output, session) {
     } else {
       
       shinyjs::hide("gear2")
-
+      shinyjs::show("scatterhead")
+    
     }
     
   })
@@ -722,15 +866,15 @@ server <- function(input, output, session) {
     
     data.frame(
       x = 
-        c("Start ", 
-        "End ", 
-        "Elapsed", 
-        "Cache ", 
+        c("Start Time ", 
+        "End Time ", 
+        "Elapsed Time ", 
+        "Cache ID ", 
         "Regions ",
         "Genome ",
         "Universe ",
         "Database ",
-        "Commit "),
+        "LOLAweb Commit Used "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
@@ -746,16 +890,69 @@ server <- function(input, output, session) {
 
   }, spacing = "s", colnames = FALSE, align = "l")
   
-  # call plot
-  output$oddsratio_plot <- renderPlot({
+  
+  scatterplot_input <- function() {
     
-    req(input$select_sort_i)
+    ggplot(dat(), aes(pValueLog, oddsRatio, size = log(support), 
+                        text = paste0("Collection: ", 
+                                      collection, 
+                                      "\n",
+                                      "Description: ",
+                                      axis_label))) +
+      geom_point(aes(col=userSet), alpha=.75) +
+      xlab("Log(P value)") +
+      ylab("Odds ratio") +
+      scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio), max(rawdat_res$rawdat$oddsRatio))) +
+      scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), max(rawdat_res$rawdat$pValueLog))) +
+      scale_size_continuous(range = c(0.5,4)) +
+      geom_blank(aes(text = collection)) +
+      theme_ns() 
+    
+  }
+  
+  output$scatter <- renderPlotly({
+    
+    req(input$select_collection_i)
     
     plot_render$state <- TRUE
+  
+    ggplotly(scatterplot_input()) %>%
+      config(displayModeBar = FALSE)
     
+  })
+  
+  # download handler
+  output$scatterplot_dl <- downloadHandler(
+    filename = function() { paste("scatter", 
+                                  ".pdf", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = scatterplot_input()
+             , device = "pdf")
+    }
+  )
+  
+  # call plot
+  output$oddsratio_plot <- renderPlot({
+
+    req(input$select_sort_i)
+
     plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
 
   })
+  
+  # # call plot
+  # output$oddsratio_plot <- renderPlotly({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   p <- plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+  #   
+  #   ggplotly(p) %>%
+  #     layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
+  #   
+  # })
+  # 
   
   # download handler
   output$oddsratio_plot_dl <- downloadHandler(
@@ -784,12 +981,23 @@ server <- function(input, output, session) {
   })  
   
   output$support_plot <- renderPlot({
-    
+
     req(input$select_sort_i)
-    
+
     plot_input(dat(), "support", "Support", input$select_sort_i)
-    
+
   })
+  
+  # output$support_plot <- renderPlotly({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   p <- plot_input(dat(), "support", "Support", input$select_sort_i)
+  #   
+  #   ggplotly(p) %>%
+  #     layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
+  #   
+  # })
   
   # download handler
   output$support_plot_dl <- downloadHandler(
@@ -820,13 +1028,25 @@ server <- function(input, output, session) {
   })  
   
   output$pvalue_plot <- renderPlot({
-    
+
     req(input$select_sort_i)
-    
+
     plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
-    
-    
+
+
   })
+  
+  # output$pvalue_plot <- renderPlotly({
+  #   
+  #   req(input$select_sort_i)
+  #   
+  #   p <- plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+  #   
+  #   ggplotly(p) %>%
+  #     layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
+  #   
+  #   
+  # })
   
   output$pvalue_plot_dl <- downloadHandler(
     filename = function() { paste("pvalue",
@@ -849,12 +1069,13 @@ server <- function(input, output, session) {
   }
   
   output$distrib_plot <- renderPlot({
-    
+
     req(input$select_sort_i)
-    
+
     distrib_plot_input()
-    
+
   })
+  
   
   # feature distance plot
   dist_plot_input <- function() {
@@ -870,6 +1091,32 @@ server <- function(input, output, session) {
     req(input$select_sort_i)
     
     dist_plot_input()
+    
+  })
+  
+  # partitions plot
+  part_plot_input <- function() {
+    
+    gp <- rawdat_res$gp
+    
+    if(is.null(gp)) {
+      
+      NULL
+      
+    } else {
+      
+      plotPartitions(gp)
+      
+    }
+  
+    
+  }
+  
+  output$part_plot <- renderPlot({
+    
+    req(input$select_sort_i)
+    
+    part_plot_input()
     
   })
 
@@ -889,6 +1136,15 @@ server <- function(input, output, session) {
                                   sep="") },
     content = function(file) {
       ggsave(file, plot = dist_plot_input(), device = "pdf")
+    }
+  )
+  
+  output$part_plot_dl <- downloadHandler(
+    filename = function() { paste("paritions",
+                                  ".pdf", 
+                                  sep="") },
+    content = function(file) {
+      ggsave(file, plot = part_plot_input(), device = "pdf")
     }
   )
   
