@@ -14,8 +14,7 @@ library(shinyBS)
 library(GenomicDistributions)
 library(plotly)
 
-setCacheDir("cache")
-
+setCacheDir(cacheDir)
 # get lolaweb version
 lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
 
@@ -67,7 +66,7 @@ ui <- list(
                uiOutput("refgenome"),
                shinyjs::hidden(selectInput("defaultuserset", 
                                            label = "Select pre-loaded region set",
-                                           choices = list.files("userSets"))),
+                                           choices = list.files(exampleDir))),
                fileInput("userset", "Choose BED file(s)",
                          multiple = TRUE,
                          accept = c(".bed")),
@@ -438,7 +437,7 @@ server <- function(input, output, session) {
   output$loladbs <- renderUI({
     
     fl <- grep(input$refgenome, 
-               list.files("reference", recursive = TRUE), 
+               list.files(dbDir, recursive = TRUE), 
                value = TRUE)
     
     dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
@@ -478,7 +477,7 @@ server <- function(input, output, session) {
         
         selectInput("defaultuniverse", 
                     label = "Select pre-loaded universe",
-                    choices = list.files(paste0("universes/", input$refgenome)))
+                    choices = list.files(paste0(universeDir, input$refgenome)))
       
       }
       
@@ -520,7 +519,7 @@ server <- function(input, output, session) {
 
           message("Loading example data")
 
-          datapath <- paste0("userSets/", input$defaultuserset)
+          datapath <- paste0(exampleDir, input$defaultuserset)
   
           userSet = readBed(datapath)
           userSets[[1]] <- userSet
@@ -559,7 +558,7 @@ server <- function(input, output, session) {
           
         } else if (input$universe_opts == "default") {
           
-          datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
+          datapath <- paste0(universeDir, input$refgenome, "/", input$defaultuniverse)
           
           userUniverse <- readBed(file = datapath)
         
@@ -576,7 +575,7 @@ server <- function(input, output, session) {
         userSetsRedefined =	redefineUserSets(userSets, userUniverse)
   
         # set up path to databases for given reference genome
-        dbPath = paste("reference",
+        dbPath = paste(dbDir,
                         input$loladb,
                         input$refgenome,
                        sep = "/"
@@ -647,7 +646,7 @@ server <- function(input, output, session) {
   
   observe({
     
-    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    cachenames <- tools::file_path_sans_ext(list.files(cacheDir))
     
     if(length(query()) != 0 && !query()[[1]] %in% cachenames) {
       
@@ -676,7 +675,7 @@ server <- function(input, output, session) {
   
   observe({
     
-    cachenames <- tools::file_path_sans_ext(list.files("cache"))
+    cachenames <- tools::file_path_sans_ext(list.files(cacheDir))
     
     if(length(query()) != 0 && query()[[1]] %in% cachenames) {
     
@@ -684,7 +683,7 @@ server <- function(input, output, session) {
     
     env <- new.env()
     
-    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = environment(), cacheDir = "cache")
+    simpleCache(keyphrase, assignToVariable = "cipher", loadEnvir = environment(), cacheDir=cacheDir)
     
     cipher <- get("cipher", envir = env)
     

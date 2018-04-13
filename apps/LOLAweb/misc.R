@@ -39,3 +39,34 @@ plot_input <- function(res, metric, ylabel, sortcol) {
     theme_ns()
   
 }
+
+
+# This function just wraps the base Sys.gentenv function to provide a default
+# value for the case that the environment variable is not specified.
+getEnv = function(envVar, default="") {
+  var = Sys.getenv(envVar)
+  if (var == "") {
+    return(default)
+  } else {
+    return(var)
+  }
+}
+
+
+
+# Set up cache dir based on environment variable
+localDir = getEnv("LWLOCAL", "/data/lola/")
+cacheDir = paste0(localDir, "cache/")
+logDir = paste0(localDir, "shinylog/")
+resultsDir = paste0(localDir, "results/")
+
+
+refDir = getEnv("LWREF", "/mnt/q/shefflab/LOLAweb/")
+
+dbDir = paste0(refDir, "databases/")
+universeDir = paste0(refDir, "universes/")
+exampleDir =  paste0(refDir, "examples/")
+message("Local dir: ", localDir)
+message("Reference data dir: ", refDir)
+message("universe dir: ", universeDir)
+message("dbDir data dir: ", dbDir)
