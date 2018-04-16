@@ -647,7 +647,8 @@ server <- function(input, output, session) {
     cachenames <- tools::file_path_sans_ext(list.files(cacheDir))
     
     if(length(query()) != 0 && !query()[[1]] %in% cachenames) {
-      
+      message("Cachenames: ", cachenames)
+      message("cacheDir: ", cacheDir)
       showModal(modalDialog(
         title = "Bad Request",
         HTML(paste0("The cache '",
