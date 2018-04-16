@@ -64,9 +64,11 @@ ui <- list(
                ),
                # selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
                uiOutput("refgenome"),
-               shinyjs::hidden(selectInput("defaultuserset", 
-                                           label = "Select pre-loaded region set",
-                                           choices = list.files(exampleDir))),
+               # shinyjs::hidden(selectInput("defaultuserset", 
+               #                             label = "Select pre-loaded region set",
+               #                             choices = list.files(exampleDir))),
+               shinyjs::hidden(
+                 uiOutput("defaultuserset")),
                fileInput("userset", "Choose BED file(s)",
                          multiple = TRUE,
                          accept = c(".bed")),
@@ -420,15 +422,15 @@ server <- function(input, output, session) {
   
   output$refgenome <- renderUI({
     
-    if(input$defaultuserset == "setB_100.bed" & exampleuserset$toggle) {
-      
-      selectInput("refgenome", label = "Reference genome", choices = "hg19")
-      
-    } else {
+    # if(input$defaultuserset == "setB_100.bed" & exampleuserset$toggle) {
+    #   
+    #   selectInput("refgenome", label = "Reference genome", choices = "hg19")
+    #   
+    # } else {
       
       selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10", "mm9"))
       
-    }
+    # }
     
   })
   
@@ -446,6 +448,14 @@ server <- function(input, output, session) {
     
   })
   
+  output$defaultuserset <- renderUI({
+    
+    selectInput("defaultuserset",
+                label = "Select pre-loaded region set",
+                choices = list.files(paste0(exampleDir, "/", input$refgenome)))
+    
+  })
+
   output$universe_opts <- renderUI({
     
     if(nfiles$n > 1) {
@@ -519,7 +529,7 @@ server <- function(input, output, session) {
 
           message("Loading example data")
 
-          datapath <- paste0(exampleDir, input$defaultuserset)
+          datapath <- paste0(exampleDir, input$refgenome, "/", input$defaultuserset)
   
           userSet = readBed(datapath)
           userSets[[1]] <- userSet
