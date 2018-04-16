@@ -62,11 +62,7 @@ ui <- list(
                 h3("#1 Upload regions of interest",
                     actionLink("infouserset", "", icon = icon("question-circle-o")))
                ),
-               # selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10")),
                uiOutput("refgenome"),
-               # shinyjs::hidden(selectInput("defaultuserset", 
-               #                             label = "Select pre-loaded region set",
-               #                             choices = list.files(exampleDir))),
                shinyjs::hidden(
                  uiOutput("defaultuserset")),
                fileInput("userset", "Choose BED file(s)",
@@ -87,9 +83,6 @@ ui <- list(
                ),
                uiOutput("universe_opts"),
                uiOutput("universe")
-               # checkboxInput("checkbox", 
-               #               label = "Check here to upload your own universe",
-               #               value = FALSE)
                ),
         column(4, 
                tags$div(
@@ -102,7 +95,6 @@ ui <- list(
                             class = "runLOLA"),
                HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=F1NJU8KSWI59H4E'>Sample Results</a></div>")
         ),
-      # class = "headerBox", id = "runInputs"),
   id = "runInputs"),
   
   fluidRow(
@@ -149,19 +141,16 @@ ui <- list(
                                                 )),
                                                 plotlyOutput("scatter")),
                                        tabPanel("Histograms",
-        # fluidRow(
         column(5,
                                 h4("Odds Ratio", class = "plot_header"),
                                 downloadButton("oddsratio_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
                plotOutput("oddsratio_plot"),
-               # plotlyOutput("oddsratio_plot"),
                                 h4("Support", class = "plot_header"),
                                 downloadButton("support_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
-               # plotlyOutput("support_plot"),
                plotOutput("support_plot")
         
         ),
@@ -170,10 +159,8 @@ ui <- list(
                                 downloadButton("pvalue_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
-               # plotlyOutput("pvalue_plot")
                plotOutput("pvalue_plot")
         )
-        # )
            ),
       tabPanel("Distribution",
                fluidRow(
@@ -421,28 +408,15 @@ server <- function(input, output, session) {
   })
   
   output$refgenome <- renderUI({
-    
-    # if(input$defaultuserset == "setB_100.bed" & exampleuserset$toggle) {
-    #   
-    #   selectInput("refgenome", label = "Reference genome", choices = "hg19")
-    #   
-    # } else {
       
       selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10", "mm9"))
       
-    # }
-    
   })
   
   output$loladbs <- renderUI({
-    message("timetest1")
-    #fl <- grep(input$refgenome, 
-     #          list.files("/ext/qumulo/LOLAweb/databases", pattern="*/hg19", recursive = TRUE), 
-     #          value = TRUE)
-    #dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
+
     fl = Sys.glob(paste0(dbDir, "/*/", input$refgenome))
     dbs = gsub(paste0(dbDir, "/(.*)/", input$refgenome), "\\1", fl)
-    message("timetest2")
 
     selectInput("loladb", label = "", choices = dbs)
     
@@ -541,24 +515,6 @@ server <- function(input, output, session) {
         }
         
         # universe
-        
-        # if(input$checkbox) {
-        # 
-        #   userUniverse = readBed(file = input$useruniverse$datapath)
-        #   
-        #   
-        #   universename <- input$useruniverse$datapath
-        # 
-        # } else {
-        # 
-        #   datapath <- paste0("universes/", input$refgenome, "/", input$defaultuniverse)
-        # 
-        #   userUniverse = readBed(file = datapath)
-        #   
-        # 
-        #   universename <- input$defaultuniverse
-        #   
-        # }
         
         if(input$universe_opts == "user") {
           
@@ -952,19 +908,6 @@ server <- function(input, output, session) {
 
   })
   
-  # # call plot
-  # output$oddsratio_plot <- renderPlotly({
-  #   
-  #   req(input$select_sort_i)
-  #   
-  #   p <- plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
-  #   
-  #   ggplotly(p) %>%
-  #     layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
-  #   
-  # })
-  # 
-  
   # download handler
   output$oddsratio_plot_dl <- downloadHandler(
     filename = function() { paste("oddsratio", 
@@ -998,17 +941,6 @@ server <- function(input, output, session) {
     plot_input(dat(), "support", "Support", input$select_sort_i)
 
   })
-  
-  # output$support_plot <- renderPlotly({
-  #   
-  #   req(input$select_sort_i)
-  #   
-  #   p <- plot_input(dat(), "support", "Support", input$select_sort_i)
-  #   
-  #   ggplotly(p) %>%
-  #     layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
-  #   
-  # })
   
   # download handler
   output$support_plot_dl <- downloadHandler(
@@ -1046,18 +978,6 @@ server <- function(input, output, session) {
 
 
   })
-  
-  # output$pvalue_plot <- renderPlotly({
-  #   
-  #   req(input$select_sort_i)
-  #   
-  #   p <- plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
-  #   
-  #   ggplotly(p) %>%
-  #     layout(legend = list(orientation = "h", x = -0.5, y =-0.25))
-  #   
-  #   
-  # })
   
   output$pvalue_plot_dl <- downloadHandler(
     filename = function() { paste("pvalue",
