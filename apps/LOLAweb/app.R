@@ -176,7 +176,7 @@ ui <- list(
       tabPanel("Distribution",
                fluidRow(
                  column(10,
-                        h4("Distribution over genome"),
+                        h4("Distribution over genome", class = "plot_header"),
                         downloadButton("distrib_plot_dl",
                                        label = "PDF",
                                        class = "dt-button"),
