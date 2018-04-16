@@ -426,7 +426,7 @@ server <- function(input, output, session) {
       
     } else {
       
-      selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10"))
+      selectInput("refgenome", label = "Reference genome", choices = c("hg19", "hg38", "mm10", "mm9"))
       
     }
     
