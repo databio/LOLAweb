@@ -433,12 +433,14 @@ server <- function(input, output, session) {
   })
   
   output$loladbs <- renderUI({
-    
-    fl <- grep(input$refgenome, 
-               list.files(dbDir, recursive = TRUE), 
-               value = TRUE)
-    
-    dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
+    message("timetest1")
+    #fl <- grep(input$refgenome, 
+     #          list.files("/ext/qumulo/LOLAweb/databases", pattern="*/hg19", recursive = TRUE), 
+     #          value = TRUE)
+    #dbs <- unique(gsub("(.*?)(/.*)", "\\1", fl))
+    fl = Sys.glob(paste0(dbDir, "/*/", input$refgenome))
+    dbs = gsub(paste0(dbDir, "/(.*)/", input$refgenome), "\\1", fl)
+    message("timetest2")
 
     selectInput("loladb", label = "", choices = dbs)
     
