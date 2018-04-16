@@ -32,6 +32,10 @@
 }
 
 .disabledinputs {
-    pointer-events: none;
-    opacity: 0.4;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.plot_header {
+  display: inline-block;
 }

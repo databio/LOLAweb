@@ -139,7 +139,7 @@ ui <- list(
                                        tabPanel("Scatterplot",
                                                 shinyjs::hidden(
                                                   div(
-                                                    h4("Scatter Plot"),
+                                                    h4("Scatter Plot", class ="plot_header"),
                                                     downloadButton("scatterplot_dl",
                                                                    label = "PDF",
                                                                    class = "dt-button"),
@@ -149,15 +149,13 @@ ui <- list(
                                        tabPanel("Histograms",
         # fluidRow(
         column(5,
-                                div(
-                                  h4("Odds Ratio"),
+                                h4("Odds Ratio", class = "plot_header"),
                                 downloadButton("oddsratio_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
-                                style ="display:inline-block;"),
                plotOutput("oddsratio_plot"),
                # plotlyOutput("oddsratio_plot"),
-                                h4("Support"),
+                                h4("Support", class = "plot_header"),
                                 downloadButton("support_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
@@ -166,7 +164,7 @@ ui <- list(
         
         ),
         column(5,
-                                h4("P Value"),
+                                h4("P Value", class = "plot_header"),
                                 downloadButton("pvalue_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
@@ -186,13 +184,13 @@ ui <- list(
                ),
                fluidRow(
                  column(5,
-                        h4("Distance to TSS"),
+                        h4("Distance to TSS", class = "plot_header"),
                         downloadButton("dist_plot_dl",
                                        label ="PDF",
                                        class = "dt-button"),
                         plotOutput("dist_plot")),
                  column(5,
-                        h4("Genomic Partitions"),
+                        h4("Genomic Partitions", class = "plot_header"),
                         downloadButton("part_plot_dl",
                                        label = "PDF",
                                        class = "dt-button"),
