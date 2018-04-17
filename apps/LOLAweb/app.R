@@ -873,7 +873,8 @@ server <- function(input, output, session) {
       scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), max(rawdat_res$rawdat$pValueLog))) +
       scale_size_continuous(range = c(0.5,4)) +
       geom_blank(aes(text = collection)) +
-      theme_ns() 
+      theme_ns() +
+      guides(size = FALSE)
     
   }
   
@@ -884,7 +885,12 @@ server <- function(input, output, session) {
     plot_render$state <- TRUE
   
     ggplotly(scatterplot_input()) %>%
-      config(displayModeBar = FALSE)
+      config(displayModeBar = FALSE) %>%
+      layout(
+        legend = list(orientation = "h",
+                      x = 0.44,
+                      y = -0.2,
+                      title = ""))
     
   })
   
