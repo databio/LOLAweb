@@ -869,8 +869,8 @@ server <- function(input, output, session) {
       geom_point(aes(col=userSet), alpha=.75) +
       xlab("Log(P value)") +
       ylab("Odds ratio") +
-      scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio), max(rawdat_res$rawdat$oddsRatio))) +
-      scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), max(rawdat_res$rawdat$pValueLog))) +
+      scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE))) +
+      scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog, na.rm = TRUE), max(rawdat_res$rawdat$pValueLog, na.rm = TRUE))) +
       scale_size_continuous(range = c(0.5,4)) +
       geom_blank(aes(text = collection)) +
       theme_ns() +
