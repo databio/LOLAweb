@@ -198,17 +198,17 @@ ui <- list(
       id = "result-tabs")))
   )
   ),
-  tabPanel("About",
-    includeHTML("about.html")
+  tabPanel("AboutMD",
+    includeMarkdown("about.md")
   ),
   footer = div(HTML(
     paste0("<div>
       Built by the <a href ='http://databio.org/'
     target = 'blank'>Sheffield Computational Biology Lab</a> and <a href = 'https://somrc.virginia.edu'
-    target='blank'>SOMRC</a> at UVA. <br>View source code on <a href
-    ='https://github.com/databio/LOLAweb' target = 'blank'>GitHub</a> or run it locally with <a
+    target='blank'>SOMRC</a> at UVA. <br>View <a href
+    ='https://github.com/databio/LOLAweb' target = 'blank'>source code on GitHub</a> or run it locally with <a
     href='https://github.com/databio/LOLAweb/blob/master/docker/README.md'
-    target = 'blank'>Docker</a>", "<br>LOLAweb version: <a href
+    target = 'blank'>our docker image</a>", "<br>LOLAweb version: <a href
     ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version,
     "</a></div>")
     ), 
