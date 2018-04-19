@@ -5,12 +5,12 @@
 - [How do I use LOLAweb?](#how-to-use)
 - [How do I cite LOLAweb?](#how-to-cite)
 - [What universe should I choose?](#uni)
-- [What database should I choose?](#database)
+- [What is in the LOLAweb region set databases?](#database)
 - [Can I use a custom database with LOLAweb?](#customdb)
 - [How do I run LOLAweb locally?](#run-locally)
 - [Can I share my LOLAweb results with others?](#share-results)
 - [How long are LOLAweb results kept?](#results-kept)
-- [What other resources are available for LOLAweb?](#other-resources)
+- [What can I find more information or support?](#other-resources)
 
 ----------------------------------------
 
@@ -20,9 +20,8 @@
 LOLAweb is a web server and interactive results viewer for enrichment of overlap
 between a query region set (a bed file) and a database of region sets. It
 provides an interactive result explorer to visualize the highest ranked
-enrichments from the database. LOLAweb is a web interface to the <a
-href="http://bioconductor.org/packages/release/bioc/html/LOLA.html"
-target="_new">LOLA R package</a>.
+enrichments from the database. LOLAweb is a web interface to the [LOLA R
+package](http://bioconductor.org/packages/LOLA/).
 
 --------------------------------------------------------------------------------
 
@@ -48,6 +47,13 @@ interactive interface letting you sort and filter the top hits. The schematic
 below demonstrates the whole process:
 
 <img alt="LOLAweb workflow" title="LOLAweb workflow" src="LOLAweb-workflow.png" style="height:auto; width:50%; min-width:50%;">
+
+--------------------------------------------------------------------------------
+
+<a name="how-to-cite"> </a>
+### How do I cite LOLAweb?
+
+LOLAweb is pending publication.
 
 --------------------------------------------------------------------------------
 
@@ -139,14 +145,16 @@ they could have been differentially methylated, even if they weren't.
 
 <a name="database"></a>
 
-### What database should I choose?
+### What is in the LOLAweb region set databases?
 
 LOLAweb provides access to a few curated databases we have put together for you.
-If you want to run LOLAweb on a custom database, that's also possible, but you'd
-have to download the app and run it locally. When you select a genome assembly,
-LOLAweb will automatically populate the database dropdown menu with all
-available databases for the chosen assembly. Here are the contents of the
-databases currently available to LOLAweb users:
+You can also [run LOLAweb on a custom database](#customdb), if you want. But the
+online version provides a few useful databases that will suffice for the
+majority of users.
+
+When you select a genome assembly, LOLAweb will automatically populate the
+database dropdown menu with all available databases for the chosen assembly.
+Here are the contents of the databases currently available to LOLAweb users:
 
 **LOLA Core**:
 
@@ -184,9 +192,19 @@ databases currently available to LOLAweb users:
 
 Yes, you can, but you'll have to run LOLAweb locally because it's not practical
 to let users upload an entire database. Luckily, we've containerized LOLAweb, so
-it's relatively easy to run it locally. Alternatively, the LOLA R package can
-work with custom databases and may be simpler, if you don't want to deal with a
-containerized setup or running your own local shiny server.
+it's relatively easy to run it locally. Alternatively, the [LOLA R
+package](http://bioconductor.org/packages/LOLA/) can work with custom databases
+and may be simpler, if you don't want to deal with a containerized setup or
+running your own local shiny server. But if you do want to run LOLAweb locally,
+check out *[how to run LOLAweb locally](#run-locally)*.
+
+--------------------------------------------------------------------------------
+
+<a name="run-locally"></a>
+### How do I run LOLAweb locally?
+
+You'll need to be familiar with [Docker](http://docker.com). You can find the Docker container for LOLAweb at [Dockerhub (https://hub.docker.com/r/databio/lolaweb/)](https://hub.docker.com/r/databio/lolaweb/). Instructions for run a local LOLAweb instance are here: https://github.com/databio/LOLAweb/tree/master/docker
+
 
 --------------------------------------------------------------------------------
 
@@ -207,9 +225,21 @@ your original data or any identifying information about who submitted it.
 
 LOLAweb results are stored on our servers for one year, then automatically deleted.
 
---------------------------------------------------------------------------------
+<a name="other-resources"></a>
+### Where can I find more information or support?
 
-<a name="run-locally"></a>
-### How do I run LOLAweb locally?
+Here are
 
-blah.blahl.
+- [LOLAweb Issue tracker](https://github.com/databio/LOLAweb/issues) - please use this for support requests for LOLAweb.
+- [LOLAweb GitHub source code](https://github.com/databio/LOLAweb)
+- [Dockerhub docker image](https://hub.docker.com/r/databio/lolaweb/)
+- Manuscript (pending)
+- [LOLA R package at Bioconductor](http://bioconductor.org/packages/LOLA/)
+- [LOLA R package source code at GitHub](https://github.com/nsheff/LOLA)
+- [LOLA R package documentation](http://code.databio.org/LOLA)
+- [Published Bioinformatics paper describing LOLA](http://dx.doi.org/10.1093/bioinformatics/btv612)
+- [Region set databases and vignette data](http://cloud.databio.org)
+
+
+
+

@@ -198,7 +198,7 @@ ui <- list(
       id = "result-tabs")))
   )
   ),
-  tabPanel("AboutMD",
+  tabPanel("About",
     includeMarkdown("about.md")
   ),
   footer = div(HTML(
