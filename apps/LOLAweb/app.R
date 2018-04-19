@@ -133,16 +133,16 @@ ui <- list(
                                        tabPanel("Scatterplot",
                                                 shinyjs::hidden(
                                                   div(
-                                                    h4("Scatter Plot", class ="plot_header"),
+                                                    h4("Scatterplot", class ="plot_header"),
                                                     downloadButton("scatterplot_dl",
                                                                    label = "PDF",
                                                                    class = "dt-button"),
                                                     id = "scatterhead"
                                                 )),
                                                 plotlyOutput("scatter")),
-                                       tabPanel("Histograms",
+                                       tabPanel("Barplots",
         column(5,
-                                h4("Odds Ratio", class = "plot_header"),
+                                h4("Odds ratio", class = "plot_header"),
                                 downloadButton("oddsratio_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
@@ -818,7 +818,7 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
     sliderInput("slider_oddsratio_i",
-                "Odds Ratio Cutoff",
+                "Odds ratio cutoff",
                 min = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
                 max = round(max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
                 value = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3))
@@ -832,15 +832,15 @@ server <- function(input, output, session) {
     
     data.frame(
       x = 
-        c("Start Time ", 
-        "End Time ", 
-        "Elapsed Time ", 
+        c("Start time ", 
+        "End time ", 
+        "Elapsed time ", 
         "Cache ID ", 
         "Regions ",
         "Genome ",
         "Universe ",
         "Database ",
-        "LOLAweb Commit Used "),
+        "LOLAweb commit used "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
@@ -866,7 +866,7 @@ server <- function(input, output, session) {
                                       "Description: ",
                                       axis_label))) +
       geom_point(aes(col=userSet), alpha=.75) +
-      xlab("Log(P value)") +
+      xlab("log(p value)") +
       ylab("Odds ratio") +
       scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE))) +
       scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog, na.rm = TRUE), max(rawdat_res$rawdat$pValueLog, na.rm = TRUE))) +
@@ -909,7 +909,7 @@ server <- function(input, output, session) {
 
     req(input$select_sort_i)
 
-    plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+    plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i)
 
   })
   
@@ -919,7 +919,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = plot_input(dat(), "oddsRatio", "Odds Ratio", input$select_sort_i)
+      ggsave(file, plot = plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i)
 , device = "pdf")
     }
   )
@@ -932,7 +932,7 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
     sliderInput("slider_support_i",
-                "Support Cutoff",
+                "Support cutoff",
                 min = round(min(rawdat_res$rawdat$support, na.rm=TRUE), 3),
                 max = round(max(rawdat_res$rawdat$support, na.rm=TRUE), 3),
                 value = round(min(rawdat_res$rawdat$support, na.rm=TRUE), 3))
@@ -979,7 +979,7 @@ server <- function(input, output, session) {
 
     req(input$select_sort_i)
 
-    plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+    plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i)
 
 
   })
@@ -989,7 +989,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = plot_input(dat(), "pValueLog", "P Value (log scale)", input$select_sort_i)
+      ggsave(file, plot = plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i)
 , device = "pdf")
     }
   )
