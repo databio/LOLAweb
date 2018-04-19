@@ -1,37 +1,43 @@
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link href="shared/shiny.css" rel="stylesheet" />
+<script src="shared/shiny.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="shared/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<script src="shared/bootstrap/js/bootstrap.min.js"></script>
+<script src="shared/bootstrap/shim/html5shiv.min.js"></script>
+<script src="shared/bootstrap/shim/respond.min.js"></script>
+<link href="sbs/shinyBS.css" rel="stylesheet" />
+<script src="sbs/shinyBS.js"></script>
+<link href="shared/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+<script src="htmlwidgets-1.0/htmlwidgets.js"></script>
+<script src="plotly-binding-4.7.1/plotly.js"></script>
+<link href="datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="datatables-binding-0.4/datatables.js"></script>
+<link href="crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link rel="icon", href="favicon.ico" type="image/png" />
+  <title>LOLA</title>
 
 <body>
+  <nav class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <span class="navbar-brand">
+          <div>
+            <a href="/">
+              <img src="LOLAweb-logo-cropped.png" style="width:150px"/>
+            </a>
+            
+          </div>
+        </span>
+      </div>
+  </nav>
+  <div class="container-fluid" style="margin:10px">
+  <h1>Universes</h1>
 
-  <div class="container-fluid">
-
-    <ul>
-      <li><a href="#what">What is LOLAweb?</a></li>
-      <li><a href="#how">How do I use LOLAweb?</a></li>
-      <li><a href="#uni">What universe should I choose?</a></li>
-      <li><a href="#database">What database should I choose?</a></li>
-      <li><a href="#share">Can I share my LOLAweb results with others?</a></li>
-      <li><a href="#results">How long are LOLAweb results kept?</a></li>
-    </ul>
-
-    <a name="what"> </a>
-    <h3>What is LOLAweb?</h3>
-    <p>LOLAweb is a web server and interactive results viewer for enrichment of overlap between a query region set (a bed file) and a database of region sets. It provides an interactive result explorer to visualize the highest ranked enrichments from the database. LOLAweb is a web interface to the <a href="http://bioconductor.org/packages/release/bioc/html/LOLA.html" target="_new">LOLA R package</a>.</p>
-    
-    <hr>
-
-    <a name="how"> </a>
-    <h3>How do I use LOLAweb?</h3>    
-    <p>Using LOLAweb is as easy as 1-2-3. First, all you really need is a bed file (with at least 3 columns: chromosome, start, and end) identifying regions of interest. These could be the result of a differential ChIP-seq or ATAC-seq experiment, or anything, really. Upload that file by dragging it into the first query box. You'll need to indicate which reference assembly your file subscribes to.</p>
-
-    <p>Second, choose a universe. If you have a set of background regions, upload them here; otherwise, choose one of our built-in universe sets.</p>
-
-    <p>Finally, choose a database. We offer a few options; just start with the default Core database at first, but feel free to look around. If you want, you can always use a custom database by running either LOLAweb or LOLA locally.</p>
-
-    <p>Hit "Run LOLA" and watch the magic happen! The results will be displayed as an interactive interface letting you sort and filter the top hits. The schematic below demonstrates the whole process:</p> 
-
-    <img alt="LOLAweb workflow" title="LOLAweb workflow" src="LOLAweb-workflow.png" style="height:auto; width:50%; min-width:50%;">
-    
-    <hr>
-  
     <a name="uni"> </a>
     <h3>What universe should I choose?</h3>
 	
@@ -52,57 +58,6 @@
 	<p><b>Choice 4: changing regions only</b> Finally, you could make a very restrictive universe by just combining your two region sets of interest. In this case, it would be the set of regions that either increased or decreased. The result of this test will give you the enrichment of the increased regions <i>relative to changing regions</i>. This is a subtly different question to ask than using the set of all covered regions (choice 3). The LOLA R package provides an easy way to do this with the <i>buildRestrictedUniverse</i> function, and you can accomplish the same thing with the radio button on LOLAweb. It assumes that we're only interested in regions that change, then we ask the question: what's special about the ones that increased?</p>
 
 	<p>In the case of DNA methylation: all regions that had reasonable coverage of methylation reads are your universe, and those that were either highly methylated or lowly methylated (or differentially methylated) would be your subsets of interest. It's the set including all genes that had enough reads that they could have been differentially methylated, even if they weren't.</p>
-
-<hr>
-
-    <a name="database"> </a>
-    <h3>What database should I choose?</h3>
-
-    LOLAweb provides access to a few curated databases we have put together for you. If you want to run LOLAweb on a custom database, that's also possible, but you'd have to download the app and run it locally. We provide docker containers that make this easy. Alternatively, the LOLA R package can work with custom databases and may be simpler, if you don't want to deal with a containerized setup or running your own local shiny server.
-
-    But because databases are too large , with LOLAwebWhen you select a reference
-    
-    Current contents of LOLA core:
-
-    * hg19/hg38
-      1. Transcription Factor binding sites from [ENCODE](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeAwgTfbsUniform/)
-      2. Tissue clustered DNase hypersensitive sites from [Sheffield et al. (2013)](http://dnase.genome.duke.edu)
-      3. [Codex database](http://codex.stemcells.cam.ac.uk/)
-      4. A collection of UCSC feature tables (like CpG islands)
-      5. Cistrome database from [Cistrome](http://dx.doi.org/10.1186/gb-2011-12-8-r83)
-      6. Epigenome databases from [Cistrome](http://dx.doi.org/10.1186/gb-2011-12-8-r83)
-    * mm10
-      1. [Codex database](http://codex.stemcells.cam.ac.uk/)
-      2. Cistrome database
-      3. Encode TFBS
-
-
-    Current contents of LOLA Extended:
-
-    * hg19/hg38
-      1. Roadmap epigenomics regions
-      2. JASPAR motif matches
-
-
-<hr>
-  <a name="customdb"> </a>
-    <h3>Can I use a custom database with LOLAweb?</h3>
-    <p>Yes, you can, but you'll have to run LOLAweb locally. Luckily, we make this easy. LOLAweb provides access to a few curated databases we have put together for you. If you want to run LOLAweb on a custom database, that's also possible, but you'd have to download the app and run it locally. We provide docker containers that make this easy. Alternatively, the LOLA R package can work with custom databases and may be simpler, if you don't want to deal with a containerized setup or running your own local shiny server.</p>
-
-<hr>
-
-    <a name="share"> </a>
-    <h3>Can I share my LOLAweb results with others?</h3>    
-    <p>Yes! Once you run your region sets through LOLAweb, you are redirected to a web page unique to your data. It will look something like this:</p>
-        <div style="margin-left:20px;padding:10px;"><code>http://dev.lolaweb.databio.org/?key=VWQN3ZC5HFD92EK</code></div>
-    <p>This link can be sent to other users to share your findings. We do not store your original data or any identifying information about who submitted it.</p>
-
-    <hr>
-
-    <a name="results"> </a>
-    <h3>How long are LOLAweb results kept?</h3>    
-    <p>LOLAweb results are stored on our servers for one year, then automatically deleted.</p>
-
   </div>
 
 </body>
