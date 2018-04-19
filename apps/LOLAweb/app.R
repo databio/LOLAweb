@@ -820,7 +820,7 @@ server <- function(input, output, session) {
     sliderInput("slider_oddsratio_i",
                 "Odds ratio cutoff",
                 min = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
-                max = round(max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3),
+                max = round(max(inf.omit(rawdat_res$rawdat$oddsRatio), na.rm = TRUE), 3),
                 value = round(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), 3))
     })
   
@@ -860,79 +860,97 @@ server <- function(input, output, session) {
   scatterplot_input <- function() {
     
     # conditions for handling infinite log pvalues (i.e. pval = 0 due to perfect overlap )
-    noinfres <- dat()[!is.infinite(dat()$pValueLog),]
+    # also accounting for infinite oddsRatio
+    noinfres <- dat()[!is.infinite(dat()$pValueLog) & !is.infinite(dat()$oddsRatio),]
     
     inflogpval <- dat()[is.infinite(dat()$pValueLog),]
     inflogpval$pValueLog <- max(inf.omit(rawdat_res$rawdat$pValueLog))+1
     
-    # case when all the rows have infinite pvalues
+    infor <- dat()[is.infinite(dat()$oddsRatio),]
+    infor$oddsRatio <- -1e-6
+    
+    infvals <- rbind(inflogpval, infor)
+    
+    # case when all the rows have infinite values
     if (all(is.infinite(dat()$pValueLog))) {
       
       p <- 
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0(
-                         "Log P Value: ",
-                         "Infinite",
-                         "\n",
-                         "Odds Ratio: ",
-                         oddsRatio,
-                         "\n",
-                         "Support: ",
-                         support,
-                         "\n",
-                         "Collection: ", 
-                         collection, 
-                         "\n",
-                         "Description: ",
-                         axis_label)),
+                       text = paste0("Log P Value: ", "Infinite", "\n", "Odds Ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = inflogpval)
       
-    # ... when some have infinite values
-    } else if (any(is.infinite(dat()$pValueLog))) {
+    } else if (all(is.infinite(dat()$oddsRatio))) {
+      p <- 
+        ggplot() +
+        geom_point(aes(pValueLog, oddsRatio, 
+                       # need to construct custom text since the value is fudged
+                       text = paste0("Log P Value: ", pValueLog, "\n", "Odds Ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
+                   col = "black",
+                   pch = "O",
+                   alpha = 0.75, data = infor)
+      
+      # ... when some have infinite values
+    } else if (any(is.infinite(dat()$pValueLog)) & !any(is.infinite(dat()$oddsRatio))) {
       
       p <-
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0(
-                         "Log P Value: ",
-                         "Infinite",
-                         "\n",
-                         "Odds Ratio: ",
-                         oddsRatio,
-                         "\n",
-                         "Support: ",
-                         support,
-                         "\n",
-                         "Collection: ", 
-                         collection, 
-                         "\n",
-                         "Description: ",
-                         axis_label)),
+                       text = paste0("Log P Value: ", "Infinite", "\n", "Odds Ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = inflogpval) +
         geom_point(aes(pValueLog, 
                        oddsRatio, 
-                       text = paste0(
-                         "Log P Value: ",
-                         pValueLog,
-                         "\n",
-                         "Odds Ratio: ",
-                         oddsRatio,
-                         "\n",
-                         "Support: ",
-                         support,
-                         "\n",
-                         "Collection: ", 
-                         collection, 
-                         "\n",
-                         "Description: ",
-                         axis_label),
+                       text = paste0("Log (p value): ", pValueLog, "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label),
+                       col=userSet, 
+                       size = log(support)), 
+                   alpha=.75, 
+                   data = noinfres)
+      
+      # ... when some have infinite values
+    } else if (!any(is.infinite(dat()$pValueLog)) & any(is.infinite(dat()$oddsRatio))) {
+      
+      p <-
+        ggplot() +
+        geom_point(aes(pValueLog, oddsRatio, 
+                       # need to construct custom text since the value is fudged
+                       text = paste0("Log P Value: ", pValueLog, "\n", "Odds Ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
+                   col = "black",
+                   pch = "O",
+                   alpha = 0.75, data = infor) +
+        geom_point(aes(pValueLog, 
+                       oddsRatio, 
+                       text = paste0("Log (p value): ", pValueLog, "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label),
+                       col=userSet, 
+                       size = log(support)), 
+                   alpha=.75, 
+                   data = noinfres) 
+      
+      # ... when some have infinite values
+    } else if (any(is.infinite(dat()$pValueLog)) & any(is.infinite(dat()$oddsRatio))) {
+      
+      p <-
+        ggplot() +
+        geom_point(aes(pValueLog, oddsRatio, 
+                       # need to construct custom text since the value is fudged
+                       text = paste0("Log P Value: ", "Infinite", "\n", "Odds Ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label)),
+                   col = "black",
+                   pch = "O",
+                   alpha = 0.75, data = inflogpval) +
+        geom_point(aes(pValueLog, oddsRatio, 
+                       # need to construct custom text since the value is fudged
+                       text = paste0( "Log P Value: ", pValueLog, "\n", "Odds Ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label)),
+                   col = "black",
+                   pch = "O",
+                   alpha = 0.75, data = infor) +
+        geom_point(aes(pValueLog, 
+                       oddsRatio, 
+                       text = paste0("Log (p value): ",pValueLog,"\n","Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection,"\n", "Description: ", axis_label),
                        col=userSet, 
                        size = log(support)), 
                    alpha=.75, 
@@ -945,34 +963,22 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, 
                        oddsRatio, 
-                       text = paste0(
-                         "Log P Value: ",
-                         pValueLog,
-                         "\n",
-                         "Odds Ratio: ",
-                         oddsRatio,
-                         "\n",
-                         "Support: ",
-                         support,
-                         "\n",
-                         "Collection: ", 
-                         collection, 
-                         "\n",
-                         "Description: ",
-                         axis_label),
+                       text = paste0("Log (p value): ",pValueLog,"\n","Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection,"\n", "Description: ", axis_label),
                        col=userSet, 
                        size = log(support)), 
                    alpha=.75, 
-                   data = noinfres) 
+                   data = noinfres)
       
     }
     
     p +         
-      xlab("log(p value)") +
-      ylab("Odds ratio") +
+    xlab("log(p value)") +
+    ylab("Odds ratio") +
     scale_size_continuous(range = c(0.5,4)) +
-    scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio), max(rawdat_res$rawdat$oddsRatio))) +
-    scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), max(inf.omit(rawdat_res$rawdat$pValueLog))+1)) +
+    scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio)-1, 
+                                  max(inf.omit(rawdat_res$rawdat$oddsRatio)))) +
+    scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), 
+                                  max(inf.omit(rawdat_res$rawdat$pValueLog))+1)) +
     guides(size = FALSE) +
     theme_ns()
     

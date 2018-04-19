@@ -305,7 +305,8 @@ resRedefined = runLOLA(userSetsRedefined, restrictedUniverse, regionDB, cores=1)
 
 library(sodium)
 
-keyphrase <- "9B1MPF7WEGYCZJ4"
+# keyphrase <- "9B1MPF7WEGYCZJ4"
+keyphrase <- "NHKZSD5B64EOLY1"
 loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
 
 cipher <- get("cipher", envir = globalenv())
