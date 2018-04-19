@@ -557,7 +557,7 @@ server <- function(input, output, session) {
                                userUniverse,
                                regionDB,
                                cores=4)
-  
+        
         # need to make sure user set is discrete even if coded as number
         resRedefined$userSet = as.character(resRedefined$userSet)
         
@@ -860,21 +860,164 @@ server <- function(input, output, session) {
   
   scatterplot_input <- function() {
     
-    ggplot(dat(), aes(pValueLog, oddsRatio, size = log(support), 
-                        text = paste0("Collection: ", 
-                                      collection, 
-                                      "\n",
-                                      "Description: ",
-                                      axis_label))) +
-      geom_point(aes(col=userSet), alpha=.75) +
-      xlab("Log(P value)") +
-      ylab("Odds ratio") +
-      scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE))) +
-      scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog, na.rm = TRUE), max(rawdat_res$rawdat$pValueLog, na.rm = TRUE))) +
-      scale_size_continuous(range = c(0.5,4)) +
-      geom_blank(aes(text = collection)) +
-      theme_ns() +
-      guides(size = FALSE)
+    # dat <- dat()[!is.infinite(dat()$pValueLog) & !is.infinite(dat()$oddsRatio),]
+    # 
+    # p <-
+    #   ggplot(dat, aes(pValueLog, oddsRatio, 
+    #                     text = paste0("Collection: ", 
+    #                                   collection, 
+    #                                   "\n",
+    #                                   "Description: ",
+    #                                   axis_label))) +
+    #   geom_point(aes(col=userSet, size = log(support)), alpha=.75) +
+    #   xlab("Log(P value)") +
+    #   ylab("Odds ratio") +
+    #   scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio, na.rm = TRUE), max(rawdat_res$rawdat$oddsRatio, na.rm = TRUE))) +
+    #   scale_x_continuous(limits = c(min(inf.omit(rawdat_res$rawdat$pValueLog), na.rm = TRUE)), max(inf.omit(rawdat_res$rawdat$pValueLog), na.rm = TRUE)) +
+    #   scale_size_continuous(range = c(0.5,4)) +
+    #   geom_blank(aes(text = collection)) +
+    #   theme_ns() +
+    #   guides(size = FALSE)
+    # 
+    # if (any(is.infinite(dat()$pValueLog))) {
+    # 
+    #   inflogpval <- dat()[is.infinite(dat()$pValueLog),]
+    #   inflogpval$pValueLog <- -1e-6
+    # 
+    #   p <- p + geom_point(aes(pValueLog, oddsRatio), col = "black", pch="O", alpha = 0.75, data = inflogpval)
+    # 
+    # }
+    # 
+    # if (any(is.infinite(dat()$oddsRatio))) {
+    # 
+    #   infor <- dat()[is.infinite(dat()$oddsRatio),]
+    #   infor$oddsRatio <- -1e-6
+    # 
+    #   p <- p + geom_point(col = "black", pch="O", alpha = 0.75, data = infor)
+    # 
+    #   p
+    # 
+    # }
+    # 
+    # p
+    
+    # conditions for handling infinite log pvalues (i.e. pval = 0 due to perfect overlap )
+    noinfres <- dat()[!is.infinite(dat()$pValueLog),]
+    
+    inflogpval <- dat()[is.infinite(dat()$pValueLog),]
+    inflogpval$pValueLog <- max(inf.omit(rawdat_res$rawdat$pValueLog))+1
+    
+    # case when all the rows have infinite pvalues
+    if (all(is.infinite(dat()$pValueLog))) {
+      
+      p <- 
+        ggplot() +
+        geom_point(aes(pValueLog, oddsRatio, 
+                       # need to construct custom text since the value is fudged
+                       text = paste0(
+                         "Log P Value: ",
+                         "Infinite",
+                         "\n",
+                         "Odds Ratio: ",
+                         oddsRatio,
+                         "\n",
+                         "Support: ",
+                         support,
+                         "\n",
+                         "Collection: ", 
+                         collection, 
+                         "\n",
+                         "Description: ",
+                         axis_label)),
+                   col = "black",
+                   pch = "O",
+                   alpha = 0.75, data = inflogpval)
+      
+    # ... when some have infinite values
+    } else if (any(is.infinite(dat()$pValueLog))) {
+      
+      p <-
+        ggplot() +
+        geom_point(aes(pValueLog, oddsRatio, 
+                       # need to construct custom text since the value is fudged
+                       text = paste0(
+                         "Log P Value: ",
+                         "Infinite",
+                         "\n",
+                         "Odds Ratio: ",
+                         oddsRatio,
+                         "\n",
+                         "Support: ",
+                         support,
+                         "\n",
+                         "Collection: ", 
+                         collection, 
+                         "\n",
+                         "Description: ",
+                         axis_label)),
+                   col = "black",
+                   pch = "O",
+                   alpha = 0.75, data = inflogpval) +
+        geom_point(aes(pValueLog, 
+                       oddsRatio, 
+                       text = paste0(
+                         "Log P Value: ",
+                         pValueLog,
+                         "\n",
+                         "Odds Ratio: ",
+                         oddsRatio,
+                         "\n",
+                         "Support: ",
+                         support,
+                         "\n",
+                         "Collection: ", 
+                         collection, 
+                         "\n",
+                         "Description: ",
+                         axis_label),
+                       col=userSet, 
+                       size = log(support)), 
+                   alpha=.75, 
+                   data = noinfres)
+      
+    # ... when none have infinite values
+    } else {
+      
+      p <- 
+        ggplot() +
+        geom_point(aes(pValueLog, 
+                       oddsRatio, 
+                       text = paste0(
+                         "Log P Value: ",
+                         pValueLog,
+                         "\n",
+                         "Odds Ratio: ",
+                         oddsRatio,
+                         "\n",
+                         "Support: ",
+                         support,
+                         "\n",
+                         "Collection: ", 
+                         collection, 
+                         "\n",
+                         "Description: ",
+                         axis_label),
+                       col=userSet, 
+                       size = log(support)), 
+                   alpha=.75, 
+                   data = noinfres) 
+      
+    }
+    
+    p +         
+    xlab("Log(P value)") +
+    ylab("Odds ratio") +
+    scale_size_continuous(range = c(0.5,4)) +
+    scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio), max(rawdat_res$rawdat$oddsRatio))) +
+    scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), max(inf.omit(rawdat_res$rawdat$pValueLog))+1)) +
+    guides(size = FALSE) +
+    theme_ns()
+      
     
   }
   
@@ -884,7 +1027,7 @@ server <- function(input, output, session) {
     
     plot_render$state <- TRUE
   
-    ggplotly(scatterplot_input()) %>%
+    ggplotly(scatterplot_input(), tooltip = "text") %>%
       config(displayModeBar = FALSE) %>%
       layout(
         legend = list(orientation = "h",
@@ -970,7 +1113,7 @@ server <- function(input, output, session) {
     sliderInput("slider_pvalue_i", 
                 "P Value Cutoff", 
                 min = round(min(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3), 
-                max = round(max(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3),
+                max = round(max(inf.omit(rawdat_res$rawdat$pValueLog), na.rm=TRUE), 3),
                 value = round(min(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3))
     
     

@@ -6,6 +6,20 @@ round_top <- function(x,n) {
   
 }
 
+# infinite value omission
+
+inf.omit <- function(x) {
+  
+  if(any(is.infinite(x))) {
+    
+    x <- x[!is.infinite(x)]
+    
+  }
+  
+  x
+  
+}
+
 # plot input
 
 plot_input <- function(res, metric, ylabel, sortcol) {
@@ -15,7 +29,7 @@ plot_input <- function(res, metric, ylabel, sortcol) {
     
     res <- head(res,50)
   }
-  
+
   # conditional for inverting rank sorting
   if(grepl("rnk", sortcol, ignore.case = TRUE)) {
     

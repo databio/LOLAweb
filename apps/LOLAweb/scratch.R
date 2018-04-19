@@ -305,7 +305,7 @@ resRedefined = runLOLA(userSetsRedefined, restrictedUniverse, regionDB, cores=1)
 
 library(sodium)
 
-keyphrase <- "486TQ3MHFJPU2D9"
+keyphrase <- "9B1MPF7WEGYCZJ4"
 loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
 
 cipher <- get("cipher", envir = globalenv())
@@ -324,7 +324,7 @@ library(magrittr)
 
 p <-
   res$resRedefined %>%
-  filter(maxRnk < 90) %>%
+  filter(maxRnk < 200) %>%
   arrange(desc(meanRnk)) %>%
   # ggplot(aes(description, eval(parse(text = "meanRnk")), oddsRatio, fill = userSet, group = id)) +
   ggplot(aes(reorder(axis_label, eval(parse(text = "meanRnk"))), rev(oddsRatio), fill = userSet, group = id)) +
@@ -340,28 +340,43 @@ library(plotly)
 ggplotly(p)
 
 
+noinfres <- res$resRedefined[!is.infinite(res$resRedefined$pValueLog),]
+
+# data with infinite pvalue log values
+inflogpval <- res$resRedefined[is.infinite(res$resRedefined$pValueLog),]
+inflogpval$pValueLog <- -1e-6
+
+# data with 
+infor <- 
+
 q <- 
-  res$resRedefined %>%
-  filter(maxRnk < 100) %>%
+  # res$resRedefined %>%
+  # mutate(pValueLog = ifelse(is.infinite(pValueLog), -1e-6, pValueLog)) %>%
+  noinfres %>%
+  filter(maxRnk < 1000) %>%
   arrange(desc(meanRnk)) %>%
-  ggplot(aes(pValueLog, oddsRatio, size = log(support), 
+  ggplot(aes(pValueLog, oddsRatio), 
              text = paste0("Collection: ", 
                            collection, 
                            "\n",
                            "Description: ",
-                           axis_label))) +
-  geom_point() +
+                           axis_label)) +
+  geom_point(aes(size = log(support))) +
   xlab("P Value Log") +
   ylab("Odds Ratio") +
   # coord_flip() +
   geom_blank(aes(text = collection)) +
+  geom_point(col = "red", pch="O", alpha = 0.25, data = inflogpval) +
   theme_ns()
 
-ggplotly(q, tooltip = c("x", "y", "size", "text"))
+q
+
+ggplotly(q, tooltip = c("x"))
 
 x <-
   ggplotly(q, tooltip = c("x", "y", "size")) %>%
   layout(showlegend = TRUE, legendgroup = "size")
 
-
-
+x
+infcheck <- apply(res$resRedefined[,c("pValueLog", "oddsRatio")], 2, function(x) !is.infinite(x))
+res$resRedefined[infcheck[,1],]
