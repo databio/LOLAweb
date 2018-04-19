@@ -778,9 +778,8 @@ server <- function(input, output, session) {
   output$slider_rank <- renderUI({
     
     req(rawdat_res$rawdat)
-    
     sliderInput("slider_rank_i", 
-                "Max Rank Cutoff", 
+                "Max Rank Cutoff (master slider)", 
                 min = min(rawdat_res$rawdat$maxRnk, na.rm = TRUE),
                 max = max(rawdat_res$rawdat$maxRnk, na.rm = TRUE),
                 value = quantile(rawdat_res$rawdat$maxRnk, probs = 20/nrow(rawdat_res$rawdat)))

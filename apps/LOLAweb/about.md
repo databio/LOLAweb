@@ -1,7 +1,7 @@
 
 
 
-- [What is LOLAweb?](#what)
+- [What is LOLAweb and what is it used for?](#what)
 - [How do I use LOLAweb?](#how-to-use)
 - [How do I cite LOLAweb?](#how-to-cite)
 - [What universe should I choose?](#uni)
@@ -15,13 +15,15 @@
 ----------------------------------------
 
 <a name="what"></a>
-### What is LOLAweb?
+### What is LOLAweb and what is it used for?
 
 LOLAweb is a web server and interactive results viewer for enrichment of overlap
 between a query region set (a bed file) and a database of region sets. It
 provides an interactive result explorer to visualize the highest ranked
 enrichments from the database. LOLAweb is a web interface to the [LOLA R
 package](http://bioconductor.org/packages/LOLA/).
+
+LOLA web is useful for exploring enrichment of genomic ranges. Frequently, we uncover sets of genomic regions as relevant for some particular biological scenario. For example, they may be binding sites of a given transcription 
 
 --------------------------------------------------------------------------------
 
@@ -69,6 +71,19 @@ significance for your user sets. The reason this is important is that if you
 have some regions which were never really possible to end up in a region set of
 interest, it's unfair to penalize your regions for not overlapping those regions
 in the database, changing the results of the significance test.
+
+LOLAweb provides 3 basic options. These options are briefly introduced here, and
+then details on how to decide are provided below:
+
+**Use pre-loaded universe**: Here you can select from a series of universes we
+have already created for you. These universes vary based on the reference genome
+assembly you have chosen. They may include tiling regions (which). LOLAweb
+includes a manually curated universe set that was derived by merging all of the
+DNAse hypersensitivity data from over 100 cell types from the ENCODE project.
+
+**Build restricted universe**:
+
+**
 
 <img src="universe_selection.svg" style="padding:35px; float:right; max-
 width:50%;">
@@ -135,11 +150,20 @@ function, and you can accomplish the same thing with the radio button on
 LOLAweb. It assumes that we're only interested in regions that change, then we
 ask the question: what's special about the ones that increased?
 
-In the case of DNA methylation: all regions that had reasonable coverage of
-methylation reads are your universe, and those that were either highly
-methylated or lowly methylated (or differentially methylated) would be your
-subsets of interest. It's the set including all genes that had enough reads that
-they could have been differentially methylated, even if they weren't.
+
+### How could I define my own universe?
+
+If you want complete control over the question you're asking, the best thing to do is define your own universe. How to do this depends on the particular data you're looking at. Here we outline a few guidelines for common data types to get you started in how to think about the universe:
+
+**DNA methylation data**: all regions that had reasonable coverage of methylation
+reads are your universe, and those that were either highly methylated or lowly
+methylated (or differentially methylated) would be your subsets of interest.
+It's the set of CpGs including all CpGs that had enough reads that they could
+have been differentially methylated, even if they weren't. The universe could be
+quite different for RRBS (reduced representation bisulfite sequencing) vs. WGBS
+(whole-genome bisulfite sequencing).
+
+**Chip-seq data**: 
 
 --------------------------------------------------------------------------------
 
@@ -183,6 +207,9 @@ Here are the contents of the databases currently available to LOLAweb users:
   database. Each motif has an entry in the database with all its matches. This
   enables you to do a type of simple motif enrichment analysis to see if your
   regions significantly overlap the set of motif matches for any known motifs.
+
+You can also download these databases and explore them yourself at
+http://cloud.databio.org.
 
 
 --------------------------------------------------------------------------------
