@@ -162,7 +162,10 @@ ui <- list(
                plotOutput("pvalue_plot")
         )
            ),
-      tabPanel("Distribution",
+      tabPanel("Genomic distribution",
+          HTML("<i>These plots come from the 
+            <a href='http://code.databio.org/GenomicDistributions/'>GenomicDistributions</a> 
+            package.</i>"),
                fluidRow(
                  column(10,
                         h4("Distribution over genome", class = "plot_header"),
@@ -179,7 +182,7 @@ ui <- list(
                                        class = "dt-button"),
                         plotOutput("dist_plot")),
                  column(5,
-                        h4("Genomic Partitions", class = "plot_header"),
+                        h4("Genomic partitions", class = "plot_header"),
                         downloadButton("part_plot_dl",
                                        label = "PDF",
                                        class = "dt-button"),
@@ -189,9 +192,9 @@ ui <- list(
       tabPanel("Table",
                column(DT::dataTableOutput("res"), width = 12)
                ),
-      tabPanel("Run Summary",
+      tabPanel("Run summary",
                conditionalPanel(condition = "output.res",
-                                h4("Run Summary"),
+                                h4("Run summary"),
                                 tableOutput("run_sum"), style = "font-size:18px;")
                )
            ),
@@ -779,7 +782,7 @@ server <- function(input, output, session) {
     
     req(rawdat_res$rawdat)
     sliderInput("slider_rank_i", 
-                "Max Rank Cutoff (master slider)", 
+                "Max rank cutoff (master slider)", 
                 min = min(rawdat_res$rawdat$maxRnk, na.rm = TRUE),
                 max = max(rawdat_res$rawdat$maxRnk, na.rm = TRUE),
                 value = quantile(rawdat_res$rawdat$maxRnk, probs = 20/nrow(rawdat_res$rawdat)))
