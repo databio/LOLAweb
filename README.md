@@ -9,4 +9,4 @@ LOLAweb is implemented as an interactive Shiny app. You can run this app locally
 
 ## Dockerfile
 
-We have also produced a Dockerfile and host an image on dockerhub (`databio/lolaweb`). You can read how to run LOLAweb locally in a docker container by reading the [instructions in the docker folder](docker/). 
+We have also produced a Dockerfile and published an image on Docker Hub (`databio/lolaweb`). You can read how to run LOLAweb locally in a docker container by reading the [instructions in the docker folder](docker/). 
