@@ -998,8 +998,8 @@ server <- function(input, output, session) {
     ggplotly(scatterplot_input(), tooltip = "text") %>%
       config(displayModeBar = FALSE) %>%
       layout(
-        height = 500,
-        width = 500,
+        height = 600,
+        width = 600,
         legend = list(orientation = "h",
                       x = 0.44,
                       y = -0.2,
