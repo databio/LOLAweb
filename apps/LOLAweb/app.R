@@ -977,8 +977,10 @@ server <- function(input, output, session) {
     scale_size_continuous(range = c(0.5,4)) +
     scale_y_continuous(limits = c(min(rawdat_res$rawdat$oddsRatio)-1, 
                                   max(inf.omit(rawdat_res$rawdat$oddsRatio)))) +
+                       # expand = expand_scale(mult = c(0,0))) +
     scale_x_continuous(limits = c(min(rawdat_res$rawdat$pValueLog), 
-                                  max(inf.omit(rawdat_res$rawdat$pValueLog))+1)) +
+                                  max(inf.omit(rawdat_res$rawdat$pValueLog))+5)) +
+                       # expand = expand_scale(mult = c(0,0))) +
     guides(size = FALSE) +
     theme_ns()
     
@@ -993,6 +995,8 @@ server <- function(input, output, session) {
     ggplotly(scatterplot_input(), tooltip = "text") %>%
       config(displayModeBar = FALSE) %>%
       layout(
+        height = 500,
+        width = 500,
         legend = list(orientation = "h",
                       x = 0.44,
                       y = -0.2,
