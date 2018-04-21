@@ -459,9 +459,6 @@ server <- function(input, output, session) {
 
     } else {
       
-      # radioButtons("universe_opts", "Universe", 
-      #              choiceValues = c("default", "user", "build"),
-      #              choiceNames = list("Use default universe", "Upload universe", tags$div("Build universe with user sets", style = "pointer-events:none; opacity: 0.4;")))
       HTML(disabledbutton)
       
     }

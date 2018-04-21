@@ -4,7 +4,7 @@ disabledbutton <- "<div id='universe_opts' class='form-group shiny-input-radiogr
 <div class='radio'>
 <label>
 <input type='radio' name='universe_opts' value='default' checked='checked'>
-<span>Use default universe</span>
+<span>Use pre-loaded universe</span>
 </label>
 </div>
 <div class='radio'>
