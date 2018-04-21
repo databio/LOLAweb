@@ -2,6 +2,7 @@ options(shiny.maxRequestSize=100*1024^2)
 
 source("themes.R")
 source("misc.R")
+source("disabler.R")
 
 library(shiny)
 library(LOLA)
@@ -42,6 +43,13 @@ ui <- list(
     # javascript for redirect to results view
     tags$script("Shiny.addCustomMessageHandler('redirect', 
                 function(result_url) {window.location = result_url;});"),
+    # tags$script('Shiny.addCustomMessageHandler("jsCode",
+    #                               function(message) {
+    #                                 console.log(message)
+    #                                 eval(message.code);
+    #                               }
+    # );
+    # '),
     tags$link(rel="shortcut icon", href="favicon.ico")
 
   ),
@@ -438,14 +446,15 @@ server <- function(input, output, session) {
     if(nfiles$n > 1) {
       
       radioButtons("universe_opts", "Universe", 
-                   choiceValues = c("default", "user", "build"), 
+                   choiceValues = c("default", "user", "build"),
                    choiceNames = c("Use default universe", "Upload universe", "Build universe with user sets"))
       
     } else {
       
-      radioButtons("universe_opts", "Universe", 
-                   choiceValues = c("default", "user"),
-                   choiceNames = c("Use default universe", "Upload universe"))
+      # radioButtons("universe_opts", "Universe", 
+      #              choiceValues = c("default", "user", "build"),
+      #              choiceNames = list("Use default universe", "Upload universe", tags$div("Build universe with user sets", style = "pointer-events:none; opacity: 0.4;")))
+      HTML(disabledbutton)
       
     }
     

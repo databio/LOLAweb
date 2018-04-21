@@ -1,16 +1,22 @@
-disabledbutton <- "<div id='loladb' class='form-group shiny-input-radiogroup shiny-input-container shiny-bound-input'>
-          <label class='control-label' for='loladb'></label>
+disabledbutton <- "<div id='universe_opts' class='form-group shiny-input-radiogroup shiny-input-container shiny-bound-input'>
+          <label class='control-label' for='universe_opts'></label>
 <div class='shiny-options-group'>
 <div class='radio'>
 <label>
-<input type='radio' name='loladb' value='Core' checked='checked'>
-<span>Core</span>
+<input type='radio' name='universe_opts' value='default' checked='checked'>
+<span>Use default universe</span>
 </label>
 </div>
 <div class='radio'>
 <label>
-<input type='radio' name='loladb' value='Extended' disabled='disabled'>
-<span>Extended</span>
+<input type='radio' name='universe_opts' value='user'>
+<span>Upload universe</span>
+</label>
+</div>
+<div class='radio' style='opacity:0.4;'>
+<label>
+<input type='radio' name='universe_opts' value='build' disabled='disabled'>
+<span>Build universe with user sets</span>
 </label>
 </div>
 </div>
