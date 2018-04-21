@@ -5,7 +5,9 @@
 - [How do I use LOLAweb?](#how-to-use)
 - [How do I cite LOLAweb?](#how-to-cite)
 - [What universe should I choose?](#uni)
+- [How could I define my own universe?](#custom-universe)
 - [What is in the LOLAweb region set databases?](#database)
+- [What are the example query sets?](#examples)
 - [Can I use a custom database with LOLAweb?](#customdb)
 - [How do I run LOLAweb locally?](#run-locally)
 - [Can I share my LOLAweb results with others?](#share-results)
@@ -25,6 +27,7 @@ package](http://bioconductor.org/packages/LOLA/).
 
 LOLA web is useful for exploring enrichment of genomic ranges. Frequently, we uncover sets of genomic regions as relevant for some particular biological scenario. For example, they may be binding sites of a given transcription 
 
+[...]
 --------------------------------------------------------------------------------
 
 <a name="how-to-use"> </a>
@@ -55,7 +58,9 @@ below demonstrates the whole process:
 <a name="how-to-cite"> </a>
 ### How do I cite LOLAweb?
 
-LOLAweb is pending publication.
+LOLAweb is pending publication. In the interim, please cite the LOLA R package:
+
+[...]
 
 --------------------------------------------------------------------------------
 
@@ -84,6 +89,8 @@ DNAse hypersensitivity data from over 100 cell types from the ENCODE project.
 **Build restricted universe**:
 
 **
+
+[...]
 
 <img src="universe_selection.svg" style="padding:35px; float:right; max-
 width:50%;">
@@ -150,7 +157,9 @@ function, and you can accomplish the same thing with the radio button on
 LOLAweb. It assumes that we're only interested in regions that change, then we
 ask the question: what's special about the ones that increased?
 
+--------------------------------------------------------------------------------
 
+<a name="custom-universe"></a>
 ### How could I define my own universe?
 
 If you want complete control over the question you're asking, the best thing to do is define your own universe. How to do this depends on the particular data you're looking at. Here we outline a few guidelines for common data types to get you started in how to think about the universe:
@@ -210,6 +219,20 @@ Here are the contents of the databases currently available to LOLAweb users:
 
 You can also download these databases and explore them yourself at
 http://cloud.databio.org.
+
+--------------------------------------------------------------------------------
+
+<a name="examples"></a>
+### What are the example query sets?
+
+**lamina.bed**. This is a set of regions that are identified as being attached
+to the nuclear periphery.
+
+**ewing_DHS.bed**. This is a very small example of some DNase hypersensitivity sites
+that are specific to Ewing sarcoma, a rare pediatric cancer. This is the example
+set used in the LOLA vignettes and the data were from Sheffield et al. (2017).
+
+**mesenchymal_DHS.bed**. This example set is derived from ENCODE DNase hypersensitivity data
 
 
 --------------------------------------------------------------------------------

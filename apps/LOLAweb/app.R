@@ -167,9 +167,17 @@ ui <- list(
                                 downloadButton("pvalue_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
-               plotOutput("pvalue_plot")
+               plotOutput("pvalue_plot"), HTML("<i>These barplots depict the
+               top-ranking database region sets. The sort order for all 3 plots
+               is determined by the sort column selected in the Display Options
+               panel. At most, 50 region sets will be displayed. Entries with
+               multiple small bars represent multiple database replicates with
+               the same descriptive label. Further details on each comparison
+               can be found in the Table tab. </i>")
         )
            ),
+         
+                                       
       tabPanel("Genomic distribution",
           HTML("<i>These plots come from the 
             <a href='http://code.databio.org/GenomicDistributions/'>GenomicDistributions</a> 
@@ -446,9 +454,9 @@ server <- function(input, output, session) {
     if(nfiles$n > 1) {
       
       radioButtons("universe_opts", "Universe", 
-                   choiceValues = c("default", "user", "build"),
-                   choiceNames = c("Use default universe", "Upload universe", "Build universe with user sets"))
-      
+                   choiceValues = c("default", "user", "build"), 
+                   choiceNames = c("Use pre-loaded universe", "Upload universe", "Build universe with user sets"))
+
     } else {
       
       # radioButtons("universe_opts", "Universe", 
