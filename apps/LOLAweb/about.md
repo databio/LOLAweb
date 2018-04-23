@@ -3,6 +3,7 @@
 
 - [What is LOLAweb and what is it used for?](#what)
 - [How do I use LOLAweb?](#how-to-use)
+- [How does LOLAweb evaluate overlap?](#overlap-evaluation)
 - [How do I cite LOLAweb?](#how-to-cite)
 - [What universe should I choose?](#uni)
 - [How could I define my own universe?](#custom-universe)
@@ -20,12 +21,25 @@
 ### What is LOLAweb and what is it used for?
 
 LOLAweb is a web server and interactive results viewer for enrichment of overlap
-between a query region set (a bed file) and a database of region sets. It
-provides an interactive result explorer to visualize the highest ranked
+between a user-provided query region set (a bed file) and a database of region
+sets. It provides an interactive result explorer to visualize the highest ranked
 enrichments from the database. LOLAweb is a web interface to the [LOLA R
 package](http://bioconductor.org/packages/LOLA/).
 
-LOLA web is useful for exploring enrichment of genomic ranges. Frequently, we uncover sets of genomic regions as relevant for some particular biological scenario. For example, they may be binding sites of a given transcription 
+LOLA web is useful for exploring enrichment of genomic ranges. Frequently, we
+uncover sets of genomic regions as relevant for some particular biological
+scenario. For example, they may be binding sites of a given transcription,
+regions that change in methylation or histone modification signals after some
+perturbation, regions that specify differences between two species or cell
+states, and so on. From the way we've found the regions, we know something about
+them, but we'd now like to know if anything else is known about these particular
+regions. Have other experiments uncovered them as important for something? Have
+they been highlighted in a large-scale project in some other related cell type?
+
+This is where LOLAweb can help. We test the query regions for overlap with
+thousands of existing database region sets. By ranking the overlap, we can see
+which existing datasets are most similar to the new query set. This enables us
+to tie previous knowledge to our new genomic regions.
 
 [...]
 --------------------------------------------------------------------------------
@@ -55,12 +69,24 @@ below demonstrates the whole process:
 
 --------------------------------------------------------------------------------
 
+<a name="overlap-evaluation"> </a>
+### How does LOLAweb evaluate overlap?
+
+LOLA uses three summary statistics to assess the degree of overlap: 1) the P-value and 2) odds ratio from a Fisher's exact test, and 3) the raw number of overlapping regions. Each of these statistics emphasizes a different aspect of the comparison; for example, the number of overlapping regions emphasizes sheer volume of overlapping regions but does not correct for significance, while the odds ratio emphasizes relative enrichment but can be dominated by sets with small numbers of regions. To come up with an aggregate score that shares strengths of each of these statistics, LOLA ranks each pairwise comparison for each of these three statistics independently, and then calculates a combined rank for each region set by assigning it the worst (max) rank among these three. To rank highly in the combined rank, then, requires that a comparison do reasonably well on all three measures, because the worst score is taken. In our experience, this process prioritizes biologically relevant associations and eliminates spurious relationships [@Sheffield2016; @Assenov2014].
+
+LOLA evaluates overlaps by comparing the query region set to each database region set and calculates the number of overlapping regions for each pairwise comparison. **The number of overlaps is called the Support** for that relationship. Along with a similar calculation for the universe region set, LOLA uses the number of overlaps and non-overlaps to build a contingency table, and then uses a Fisher's exact test to assess the significance of the overlap. After computing these statistics for each comparison, LOLA ranks each database region set and provides a ranked summary of the top database sets. This procedure effectively pulls out the region sets in the database that are most similar to the query region set. 
+
+[ ... this section needs editing]
+
+--------------------------------------------------------------------------------
 <a name="how-to-cite"> </a>
 ### How do I cite LOLAweb?
 
 LOLAweb is pending publication. In the interim, please cite the LOLA R package:
 
-[...]
+N. C. Sheffield and C. Bock, “LOLA: enrichment analysis for genomic region sets and regulatory elements in R and Bioconductor,” Bioinformatics, vol. 32, no. 4, pp. 587–589, Oct. 2016.
+
+[http://dx.doi.org/10.1093/bioinformatics/btv612](http://dx.doi.org/10.1093/bioinformatics/btv612)
 
 --------------------------------------------------------------------------------
 
@@ -162,17 +188,30 @@ ask the question: what's special about the ones that increased?
 <a name="custom-universe"></a>
 ### How could I define my own universe?
 
-If you want complete control over the question you're asking, the best thing to do is define your own universe. How to do this depends on the particular data you're looking at. Here we outline a few guidelines for common data types to get you started in how to think about the universe:
+If you want complete control over the question you're asking, the best thing to
+do is define your own universe. How to do this depends on the particular data
+you're looking at. Here we outline a few guidelines for common data types to get
+you started in how to think about the universe:
 
-**DNA methylation data**: all regions that had reasonable coverage of methylation
-reads are your universe, and those that were either highly methylated or lowly
-methylated (or differentially methylated) would be your subsets of interest.
-It's the set of CpGs including all CpGs that had enough reads that they could
-have been differentially methylated, even if they weren't. The universe could be
-quite different for RRBS (reduced representation bisulfite sequencing) vs. WGBS
-(whole-genome bisulfite sequencing).
+**DNA methylation data**: You universe could be all regions that had reasonable
+coverage of methylation reads, and your user sets could be those that were either
+highly methylated or lowly methylated (or differentially methylated). The universe is the set of CpGs that had
+enough reads that they could have been differentially methylated, even if they
+weren't. The universe could be quite different for RRBS (reduced representation
+bisulfite sequencing) vs. WGBS (whole-genome bisulfite sequencing) protocols.
 
-**Chip-seq data**: 
+**Chip-seq data**: The universe could be the set of 1kb tiles that were covered
+by an Input experiment. This test would show where ChIP peaks are generally
+enriched relative to the whole genome, and will likely show enrichment in active
+areas generally. Alternatively, the universe could be the union of all
+transcription factor binding sites from large-scale projects like ENCODE, or the
+pre- loaded set of active DNase hypersensitive sites. This universe would test
+the enrichment of your ChIP peaks relative to other ChIP peaks, which will be
+more likely to highlight cell-type differences. Finally, perhaps you have
+differential peaks between two conditions. In this case, you could build a
+*restricted* universe of just peaks covered by these two experiments. This test
+would then show you how your increasing peaks are enriched relative only to
+peaks in this one cell type.
 
 --------------------------------------------------------------------------------
 
@@ -223,16 +262,19 @@ http://cloud.databio.org.
 --------------------------------------------------------------------------------
 
 <a name="examples"></a>
-### What are the example query sets?
+### What are the example user query sets?
 
 **lamina.bed**. This is a set of regions that are identified as being attached
 to the nuclear periphery.
 
-**ewing_DHS.bed**. This is a very small example of some DNase hypersensitivity sites
-that are specific to Ewing sarcoma, a rare pediatric cancer. This is the example
-set used in the LOLA vignettes and the data were from Sheffield et al. (2017).
+**ewing_DHS.bed**. This is a very small example of some DNase hypersensitivity
+sites that are specific to Ewing sarcoma, a rare pediatric cancer. This is the
+example set used in the LOLA vignettes and the data were from Sheffield et al.
+(2017).
 
-**mesenchymal_DHS.bed**. This example set is derived from ENCODE DNase hypersensitivity data
+**mesenchymal_DHS.bed**. This example set is derived from ENCODE DNase
+hypersensitivity data. It was derived by taking DNase hypersensitive sites with
+high scores in mesenchymal cell types and low scores in all other cell types
 
 
 --------------------------------------------------------------------------------

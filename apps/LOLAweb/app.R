@@ -155,7 +155,7 @@ ui <- list(
                                                label = "PDF",
                                                class = "dt-button"),
                plotOutput("oddsratio_plot"),
-                                h4("Support", class = "plot_header"),
+                                h4("Support (overlap count)", class = "plot_header"),
                                 downloadButton("support_plot_dl",
                                                label = "PDF",
                                                class = "dt-button"),
@@ -242,13 +242,19 @@ server <- function(input, output, session) {
   # user sets
   addPopover(session=session, 
              id="infouserset", 
-             title="User Sets", 
-             content="<p>The User Set is your set of genomic regions that you
-             want to test for overlap with the database. Upload a file in <a
-             href = 'https://genome.ucsc.edu/FAQ/FAQformat.html' target
-             'blank'>BED format</a> (really, it just needs the first 3 columns:
-             chr, start, and end). You can also drag and drop multiple files and
-             they will be analyzed simultaneously!
+             title="User query sets", 
+             content="<p>The regions of interest, also called the <i>user query
+             set</i>, is your set of genomic regions that you want to test for
+             overlap with the database. Upload a file in <a href =
+             'https://genome.ucsc.edu/FAQ/FAQformat.html' target 'blank'>BED
+             format</a> (really, it just needs the first 3 columns: chr, start,
+             and end). You can also drag and drop multiple files and they will
+             be analyzed simultaneously!</p>
+             
+             <p>You can also load example data for each reference genome.
+             Details about what regions are in these examples are on the About
+             tab.
+
              <button type='button' id='close' class='close' onclick='$(&quot;#infouserset&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
@@ -256,18 +262,22 @@ server <- function(input, output, session) {
   # universes
   addPopover(session=session, 
              id="infouniverse", 
-             title="Universes", 
-             content="<p>The universe is your background set of regions. You
+             title="Background universe", 
+             content="<p>The universe set is your background set of regions. You
              should think of the universe as the set of regions you tested for
-             possible inclusion in your user sets. We recommend you upload a
-             universe that is specific to the query set, but we also provide a
-             few basic region sets (like tiling regions, or the set of all
-             active DNaseI hypersensitive elements from the ENCODE project). The
-             choice of universe can have a drastic affect on the results of the
-             analysis, so it may also be worth running LOLA few times with
-             different universe sets. For further information, there are more
-             details on the <b>About tab</b>.
-             <button type='button' id='close' class='close' onclick='$(&quot;#infouniverse&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             possible inclusion in your user sets. You have 3 options: 1) we
+             provide a few pre-loaded region sets (like tiling regions, or the
+             set of all active DNaseI hypersensitive elements from the ENCODE
+             project) that can be useful for many analyses. 2), you can upload
+             your own universe, which lets you tailor the analysis to the query
+             set; 3) if you upload more than 1 query set, we can build a
+             universe by merging all of the uploaded query sets. The choice of
+             universe can have a drastic affect on the results of the analysis,
+             it may be worth running LOLA few times with different universe
+             sets. For further information, there are more details on the
+             <b>About tab</b>. <button type='button' id='close' class='close'
+             onclick='$(&quot;#infouniverse&quot;).popover(&quot;h
+             ide&quot;);'>&times;</button></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -275,16 +285,18 @@ server <- function(input, output, session) {
   # region dbs
   addPopover(session=session, 
              id="infodb", 
-             title="Region Databases", 
+             title="Region databases", 
              # html for content with JS at the bottom to close popup
              content="<p>We have provided a few different general-purpose
-             databases. We recommend starting with the Core database, but there
-             are also a few other more specific options if you want to extend
-             your analysis. Further details about what is contained in each
-             database can be found in the <a href =
-             'http://databio.org/regiondb' target = 'blank'>documentation on
-             LOLA region databases</a>.
-             <button type='button' id='close' class='close' onclick='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</button></p>",
+             databases. We recommend starting with the Core database, which
+             contains data from the ENCODE project, the cistrome project, and
+             other public data sources. We also provide databases containing
+             Roadmap Epigenomics data and motif searches using motifs from the
+             JASPAR motif database. Further details about what is contained in
+             each database can be found on the About tab. <button type='button'
+             id='close' class='close' oncli
+             ck='$(&quot;#infodb&quot;).popover(&quot;hide&quot;);'>&times;</but
+             ton></p>",
              placement = "bottom",
              trigger = "click", 
              options = NULL)
@@ -1095,7 +1107,7 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
     sliderInput("slider_pvalue_i", 
-                "P Value Cutoff", 
+                "P-value cutoff", 
                 min = round(min(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3), 
                 max = round(max(inf.omit(rawdat_res$rawdat$pValueLog), na.rm=TRUE), 3),
                 value = round(min(rawdat_res$rawdat$pValueLog, na.rm=TRUE), 3))

@@ -36,21 +36,26 @@ plot_input <- function(res, metric, ylabel, sortcol) {
     # need to order data frame by sort col if it's a rank
     dat <- res[order(as.data.frame(res)[,sortcol]), ]
     
-    # now construt base layer for plot with reverse on the sort
-    p <- ggplot(dat, aes(reorder(axis_label, rev(eval(parse(text = sortcol)))), eval(parse(text = metric)), fill = userSet, group = id))
+    # now construct base layer for plot with reverse on the sort
+    p <- ggplot(dat, aes(reorder(axis_label, 
+      rev(eval(parse(text = sortcol)))), eval(parse(text = metric)), fill = userSet, group = id))
     
   } else {
     
-    p <- ggplot(res, aes(reorder(axis_label, eval(parse(text = sortcol))), eval(parse(text = metric)), fill = userSet, group = id))
+    p <- ggplot(res, aes(reorder(axis_label, 
+      eval(parse(text = sortcol))), eval(parse(text = metric)), fill = userSet, group = id))
     
   }
-  
+
+  # Make label size dynamic based on number of entries in the table.
+  label_size = 9 + ( 8 * (1 - NROW(dat)/50) )
   p +
-    geom_bar(stat = "identity", position = "dodge") +
+    geom_bar(stat="identity", position="dodge") +
     xlab("Description") +
     ylab(ylabel) +
     coord_flip() +
-    theme_ns()
+    theme_ns() +
+    theme(axis.text=element_text(size=label_size))
   
 }
 
