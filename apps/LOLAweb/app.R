@@ -799,7 +799,7 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
         selectInput("select_collection_i", 
-                    "Select collection", 
+                    "Filter by collection", 
                     choices = c("All collections", unique(rawdat_res$rawdat$collection)),
                     selected = "All collections")
   })  
@@ -833,7 +833,7 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
     selectInput("select_userset_i", 
-                "Select user query set", 
+                "Filter by user query set", 
                 choices = setchoices())
     
   })  

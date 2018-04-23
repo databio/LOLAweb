@@ -47,7 +47,7 @@ to tie previous knowledge to our new genomic regions.
 
 <a name="how-to-use"> </a>
 ### How do I use LOLAweb?
-
+<img alt="LOLAweb workflow" title="LOLAweb workflow" src="LOLAweb-workflow.png" style="padding:30px; float:right; width:50%; max-width:600px">
 Using LOLAweb is as easy as 1-2-3. First, all you really need is a `BED`-like
 file (with at least 3 columns: chromosome, start, and end) identifying regions
 of interest. These could be the result of a differential ChIP-seq or ATAC-seq
@@ -65,9 +65,8 @@ always use a custom database by running either LOLAweb or LOLA locally.
 
 Hit "Run LOLA" and watch the magic happen! The results will be displayed as an
 interactive interface letting you sort and filter the top hits. The schematic
-below demonstrates the whole process:
+to the right demonstrates the whole process.
 
-<img alt="LOLAweb workflow" title="LOLAweb workflow" src="LOLAweb-workflow.png" style="height:auto; width:50%; min-width:50%;">
 
 --------------------------------------------------------------------------------
 
@@ -124,18 +123,16 @@ then details on how to decide are provided below:
 
 **Use pre-loaded universe**: Here you can select from a series of universes we
 have already created for you. These universes vary based on the reference genome
-assembly you have chosen. They may include tiling regions (which). LOLAweb
-includes a manually curated universe set that was derived by merging all of the
-DNAse hypersensitivity data from over 100 cell types from the ENCODE project.
+assembly you have chosen. They include tiling regions, as well as a manually
+curated universe set that was derived by merging all of the DNAse
+hypersensitivity data from over 100 cell types from the ENCODE project.
 
-**Build universe from user sets**:
+**Build universe from user sets**: This option tells LOLAweb to use your query user sets to build a new universe. To use this, you'll have to have uploaded at least 2 files for query. This will simply combine those files into a background set. This will let you test for differential enrichment within
+your usersets.
 
-**Upload universe**
+**Upload universe**: Finally, you're free to create and upload any universe you want to create. Details on what you might want to use this for follow.
 
-[...]
-
-<img src="universe_selection.svg" style="padding:35px; float:right; max-
-width:50%;">
+<img src="universe_selection.svg" style="padding:30px; width:50%; float:right; max-width:800px">
 
 Let's imagine you've done an experiment where you're testing how some epigenomic
 signal (say, H3K27ac or DNA methylation) responds to a perturbation. You end up
@@ -253,13 +250,10 @@ Here are the contents of the databases currently available to LOLAweb users:
   4. A collection of UCSC feature tables (like CpG islands)
   5. Cistrome database from [Cistrome](http://dx.doi.org/10.1186/gb-2011-12-8-r83)
   6. Epigenome databases from [Cistrome](http://dx.doi.org/10.1186/gb-2011-12-8-r83)
-* mm10
+* mm10/mm9
   1. [Codex database](http://codex.stemcells.cam.ac.uk/)
   2. Cistrome database
   3. Transcription Factor binding sites from ENCODE
-* mm9
-  A `liftOver` version of the `mm10` database.
-
 **LOLA Roadmap**:
 
 * hg19/hg38
@@ -273,7 +267,7 @@ Here are the contents of the databases currently available to LOLAweb users:
   regions significantly overlap the set of motif matches for any known motifs.
 
 You can also download these databases and explore them yourself at
-http://cloud.databio.org.
+[big.databio.org/regiondb](http://big.databio.org/regiondb/).
 
 --------------------------------------------------------------------------------
 
@@ -336,9 +330,9 @@ LOLAweb results are stored on our servers for one year, then automatically delet
 <a name="other-resources"></a>
 ### Where can I find more information or support?
 
-Here are
+Here are some links to other resources related to LOLA and LOLAweb:
 
-- [LOLAweb Issue tracker](https://github.com/databio/LOLAweb/issues) - please use this for support requests for LOLAweb.
+- [LOLAweb issue tracker](https://github.com/databio/LOLAweb/issues) - please use this for support requests for LOLAweb.
 - [LOLAweb GitHub source code](https://github.com/databio/LOLAweb)
 - [Dockerhub docker image](https://hub.docker.com/r/databio/lolaweb/)
 - Manuscript (pending)
