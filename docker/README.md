@@ -38,10 +38,11 @@ LOLAweb looks for `$LWLOCAL` to have two subfolders: `cache`, and `shinylogs`. T
 
     docker run -d \
       -p 80:80 \
-      --volume ${LWLOCAL}:${LWLOCAL} \
-      --volume ${LWREF}:${LWREF} \
       -e LWREF=$LWREF \
       -e LWLOCAL=$LWLOCAL \
+      --volume ${LWLOCAL}:${LWLOCAL} \
+      --volume ${LWREF}:${LWREF} \
+      --volume ${LWLOCAL}/shinylog:/var/log/shiny-server
       databio/lolaweb
 
 Open a browser to:
@@ -51,7 +52,7 @@ http://localhost/LOLAweb/apps/LOLAweb
 
 ## Running a dev container
 
-You could also run the `dev` version of the container by just changing `databio/lolaweb` to `databio/lolaweb:dev`. This will pull the dev tagged image from dockerhub.
+You could also run the `dev` version of the container by pulling `databio/lolaweb:dev`. This will retrieve the dev tagged image from dockerhub.
 
 
 ## Running multiple LOLAweb containers simultaneously with Docker Swarm:

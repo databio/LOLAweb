@@ -36,13 +36,13 @@ services:
       - net
     ports:
       - "80"
-    volumes:
-      - /data/lola:/data/lola
-      - /mnt/network-share/LOLAweb:/mnt/network-share/LOLAweb/
-      - /data/lola/shinylog:/var/log/shiny-server
     environment:
-      - LWREF=/mnt/network-share/LOLAweb/
-      - LWLOCAL=/data/lola/
+      - LWREF=$LWREF
+      - LWLOCAL=$LWLOCAL
+    volumes:
+      - ${LWLOCAL}:${LWLOCAL}
+      - ${LWREF}:${LWREF}
+      - ${LWLOCAL}/shinylog:/var/log/shiny-server
     deploy:
       mode: replicated
       replicas: 4
