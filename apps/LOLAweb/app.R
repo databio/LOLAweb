@@ -759,13 +759,13 @@ server <- function(input, output, session) {
                       support >= input$slider_support_i &
                       pValueLog >= input$slider_pvalue_i)
       
-      if (input$select_collection_i != "All Collections") {
+      if (input$select_collection_i != "All collections") {
         
          dat <- subset(dat, collection == input$select_collection_i)
          
       }
       
-      if (input$select_userset_i != "All User Sets") {
+      if (input$select_userset_i != "All user sets") {
   
         dat <- subset(dat, userSet == input$select_userset_i)
   
@@ -789,7 +789,7 @@ server <- function(input, output, session) {
       
     } else {
       
-      c("All User Sets", unique(rawdat_res$rawdat$userSet))
+      c("All user sets", unique(rawdat_res$rawdat$userSet))
       
     }
   }
@@ -799,9 +799,9 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
         selectInput("select_collection_i", 
-                    "Select Collection", 
-                    choices = c("All Collections", unique(rawdat_res$rawdat$collection)),
-                    selected = "All Collections")
+                    "Select collection", 
+                    choices = c("All collections", unique(rawdat_res$rawdat$collection)),
+                    selected = "All collections")
   })  
   
   output$slider_rank <- renderUI({
@@ -822,7 +822,7 @@ server <- function(input, output, session) {
     sortcols <- c("pValueLog", "oddsRatio", "support", "rnkPV", "rnkLO", "rnkSup", "maxRnk", "meanRnk")
     
     selectInput("select_sort_i", 
-                "Select Sort Column", 
+                "Select sort column", 
                 choices = sortcols,
                 selected = "meanRnk")
     
@@ -833,7 +833,7 @@ server <- function(input, output, session) {
     req(rawdat_res$rawdat)
     
     selectInput("select_userset_i", 
-                "Select User Set", 
+                "Select user query set", 
                 choices = setchoices())
     
   })  
@@ -907,7 +907,7 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0("Log P Value: ", "Infinite", "\n", "Odds Ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
+                       text = paste0("Log p-value: ", "Infinite", "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = inflogpval)
@@ -917,7 +917,7 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0("Log P Value: ", pValueLog, "\n", "Odds Ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
+                       text = paste0("Log p-value: ", pValueLog, "\n", "Odds ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = infor)
@@ -929,13 +929,13 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0("Log P Value: ", "Infinite", "\n", "Odds Ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
+                       text = paste0("Log p-value: ", "Infinite", "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = inflogpval) +
         geom_point(aes(pValueLog, 
                        oddsRatio, 
-                       text = paste0("Log (p value): ", pValueLog, "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label),
+                       text = paste0("Log p-value: ", pValueLog, "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label),
                        col=userSet, 
                        size = log(support)), 
                    alpha=.75, 
@@ -948,13 +948,13 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0("Log P Value: ", pValueLog, "\n", "Odds Ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
+                       text = paste0("Log p-value: ", pValueLog, "\n", "Odds ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ",collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = infor) +
         geom_point(aes(pValueLog, 
                        oddsRatio, 
-                       text = paste0("Log (p value): ", pValueLog, "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label),
+                       text = paste0("Log p-value: ", pValueLog, "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label),
                        col=userSet, 
                        size = log(support)), 
                    alpha=.75, 
@@ -967,19 +967,19 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0("Log P Value: ", "Infinite", "\n", "Odds Ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label)),
+                       text = paste0("Log p-value: ", "Infinite", "\n", "Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = inflogpval) +
         geom_point(aes(pValueLog, oddsRatio, 
                        # need to construct custom text since the value is fudged
-                       text = paste0( "Log P Value: ", pValueLog, "\n", "Odds Ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label)),
+                       text = paste0( "Log p-value: ", pValueLog, "\n", "Odds ratio: ", "NA", "\n", "Support: ", support, "\n", "Collection: ", collection, "\n", "Description: ", axis_label)),
                    col = "black",
                    pch = "O",
                    alpha = 0.75, data = infor) +
         geom_point(aes(pValueLog, 
                        oddsRatio, 
-                       text = paste0("Log (p value): ",pValueLog,"\n","Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection,"\n", "Description: ", axis_label),
+                       text = paste0("Log p-value: ",pValueLog,"\n","Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection,"\n", "Description: ", axis_label),
                        col=userSet, 
                        size = log(support)), 
                    alpha=.75, 
@@ -992,7 +992,7 @@ server <- function(input, output, session) {
         ggplot() +
         geom_point(aes(pValueLog, 
                        oddsRatio, 
-                       text = paste0("Log (p value): ",pValueLog,"\n","Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection,"\n", "Description: ", axis_label),
+                       text = paste0("Log p-value: ",pValueLog,"\n","Odds ratio: ", oddsRatio, "\n", "Support: ", support, "\n", "Collection: ", collection,"\n", "Description: ", axis_label),
                        col=userSet, 
                        size = log(support)), 
                    alpha=.75, 

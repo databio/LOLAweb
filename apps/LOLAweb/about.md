@@ -76,7 +76,7 @@ LOLA uses three summary statistics to assess the degree of overlap: 1) the P-val
 
 LOLA evaluates overlaps by comparing the query region set to each database region set and calculates the number of overlapping regions for each pairwise comparison. **The number of overlaps is called the Support** for that relationship. Along with a similar calculation for the universe region set, LOLA uses the number of overlaps and non-overlaps to build a contingency table, and then uses a Fisher's exact test to assess the significance of the overlap. After computing these statistics for each comparison, LOLA ranks each database region set and provides a ranked summary of the top database sets. This procedure effectively pulls out the region sets in the database that are most similar to the query region set. 
 
-[ ... this section needs editing]
+[ ... ]
 
 --------------------------------------------------------------------------------
 <a name="how-to-cite"> </a>
