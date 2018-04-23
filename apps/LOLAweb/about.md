@@ -4,6 +4,7 @@
 - [What is LOLAweb and what is it used for?](#what)
 - [How do I use LOLAweb?](#how-to-use)
 - [How does LOLAweb evaluate overlap?](#overlap-evaluation)
+- [What are the values in the results table?](#results-table)
 - [How do I cite LOLAweb?](#how-to-cite)
 - [What universe should I choose?](#uni)
 - [How could I define my own universe?](#custom-universe)
@@ -26,36 +27,37 @@ sets. It provides an interactive result explorer to visualize the highest ranked
 enrichments from the database. LOLAweb is a web interface to the [LOLA R
 package](http://bioconductor.org/packages/LOLA/).
 
-LOLA web is useful for exploring enrichment of genomic ranges. Frequently, we
+LOLAweb is useful for exploring enrichment of genomic ranges. Frequently, we
 uncover sets of genomic regions as relevant for some particular biological
-scenario. For example, they may be binding sites of a given transcription,
-regions that change in methylation or histone modification signals after some
-perturbation, regions that specify differences between two species or cell
-states, and so on. From the way we've found the regions, we know something about
-them, but we'd now like to know if anything else is known about these particular
-regions. Have other experiments uncovered them as important for something? Have
-they been highlighted in a large-scale project in some other related cell type?
+scenario. For example, they may be binding sites of a given transcription
+factor, regions that change in methylation after some perturbation, regions that
+specify differences between two species or cell states, and so on. From the way
+we've found the regions, we know something about them, but we'd now like to know
+if anything else is known about these particular regions. Have other experiments
+uncovered them as important for something? Have they been highlighted in a
+large-scale project in some other related cell type?
 
 This is where LOLAweb can help. We test the query regions for overlap with
 thousands of existing database region sets. By ranking the overlap, we can see
 which existing datasets are most similar to the new query set. This enables us
 to tie previous knowledge to our new genomic regions.
 
-[...]
+
 --------------------------------------------------------------------------------
 
 <a name="how-to-use"> </a>
 ### How do I use LOLAweb?
 
-Using LOLAweb is as easy as 1-2-3. First, all you really need is a bed file
-(with at least 3 columns: chromosome, start, and end) identifying regions of
-interest. These could be the result of a differential ChIP-seq or ATAC-seq
+Using LOLAweb is as easy as 1-2-3. First, all you really need is a `BED`-like
+file (with at least 3 columns: chromosome, start, and end) identifying regions
+of interest. These could be the result of a differential ChIP-seq or ATAC-seq
 experiment, or anything, really. Upload that file by dragging it into the first
 query box. You'll need to indicate which reference assembly your file subscribes
 to.
 
 Second, choose a universe. If you have a set of background regions, upload them
-here; otherwise, choose one of our built-in universe sets.
+here; otherwise, choose one of our built-in universe sets. You can read more
+about these choices later on this page.
 
 Finally, choose a database. We offer a few options; just start with the default
 Core database at first, but feel free to look around. If you want, you can
@@ -72,13 +74,27 @@ below demonstrates the whole process:
 <a name="overlap-evaluation"> </a>
 ### How does LOLAweb evaluate overlap?
 
-LOLA uses three summary statistics to assess the degree of overlap: 1) the P-value and 2) odds ratio from a Fisher's exact test, and 3) the raw number of overlapping regions. Each of these statistics emphasizes a different aspect of the comparison; for example, the number of overlapping regions emphasizes sheer volume of overlapping regions but does not correct for significance, while the odds ratio emphasizes relative enrichment but can be dominated by sets with small numbers of regions. To come up with an aggregate score that shares strengths of each of these statistics, LOLA ranks each pairwise comparison for each of these three statistics independently, and then calculates a combined rank for each region set by assigning it the worst (max) rank among these three. To rank highly in the combined rank, then, requires that a comparison do reasonably well on all three measures, because the worst score is taken. In our experience, this process prioritizes biologically relevant associations and eliminates spurious relationships [@Sheffield2016; @Assenov2014].
+LOLA evaluates overlaps by comparing the query region set to each database region set and calculates the number of overlapping regions for each pairwise comparison. Along with a similar calculation for the universe region set, LOLA uses the number of overlaps and non-overlaps to build a contingency table, and then uses a Fisher's exact test to assess the significance of the overlap. After computing these statistics for each comparison, LOLA ranks each database region set and provides a ranked summary of the top database sets. This procedure effectively pulls out the region sets in the database that are most similar to the query region set. 
 
-LOLA evaluates overlaps by comparing the query region set to each database region set and calculates the number of overlapping regions for each pairwise comparison. **The number of overlaps is called the Support** for that relationship. Along with a similar calculation for the universe region set, LOLA uses the number of overlaps and non-overlaps to build a contingency table, and then uses a Fisher's exact test to assess the significance of the overlap. After computing these statistics for each comparison, LOLA ranks each database region set and provides a ranked summary of the top database sets. This procedure effectively pulls out the region sets in the database that are most similar to the query region set. 
-
-[ ... ]
+LOLA uses three summary statistics to assess the degree of overlap: 1) the p-value and 2) odds ratio from a Fisher's exact test, and 3) the raw number of overlapping regions (called *support*). Each of these statistics emphasizes a different aspect of the comparison; for example, the number of overlapping regions emphasizes sheer volume of overlapping regions but does not correct for significance, while the odds ratio emphasizes relative enrichment but can be dominated by sets with small numbers of regions. To come up with an aggregate score that shares strengths of each of these statistics, LOLA ranks each pairwise comparison for each of these three statistics independently, and then calculates a combined rank for each region set by assigning it the worst (max) rank among these three. To rank highly in the combined rank, then, requires that a comparison do reasonably well on all three measures, because the worst score is taken. In our experience, this process prioritizes biologically relevant associations and eliminates spurious relationships.
 
 --------------------------------------------------------------------------------
+<a name="results-table"> </a>
+### What are the values in the results table?
+
+The columns in the results table are: 
+
+- **userSet and dbSet**: index into their respective input region sets.
+- **pvalueLog**: -log10(pvalue) from the fisher's exact result
+- **oddsRatio**: result from the fisher's exact test
+- **support**: number of regions in userSet overlapping databaseSet
+- **rnkPV, rnkOR, rnkSup:** rank in this table of p-value, oddsRatio, and Support respectively.
+- **maxRnk, meanRnk**: max and mean of the 3 previous ranks, providing a combined ranking system. 
+- **b, c, d**: 3 other values completing the 2x2 contingency table (with support). 
+- The remaining columns describe the dbSet for the row.
+
+--------------------------------------------------------------------------------
+
 <a name="how-to-cite"> </a>
 ### How do I cite LOLAweb?
 
@@ -112,9 +128,9 @@ assembly you have chosen. They may include tiling regions (which). LOLAweb
 includes a manually curated universe set that was derived by merging all of the
 DNAse hypersensitivity data from over 100 cell types from the ENCODE project.
 
-**Build restricted universe**:
+**Build universe from user sets**:
 
-**
+**Upload universe**
 
 [...]
 
@@ -274,7 +290,7 @@ example set used in the LOLA vignettes and the data were from Sheffield et al.
 
 **mesenchymal_DHS.bed**. This example set is derived from ENCODE DNase
 hypersensitivity data. It was derived by taking DNase hypersensitive sites with
-high scores in mesenchymal cell types and low scores in all other cell types
+high scores in mesenchymal cell types and low scores in all other cell types.
 
 
 --------------------------------------------------------------------------------
