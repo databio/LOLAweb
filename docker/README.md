@@ -26,9 +26,12 @@ LOLAweb needs access to a few folders where it can store results or logs, or acc
 
 To run the LOLAweb container (locally or on a server), you need to set these environment variables (for example, in your `.bashrc` or `.profile` file. These variables will be injected into the container when it is run.
 
+For example, set these variables to two different paths if you like. Or if you keep all five subfolders together in the same path, set these variables to the same value.
+
 ```
-export LREF='/home/mydir/lola'
-export LWLOCAL='/var/things/lola'
+# Example locations. Set to match your environment
+export LREF='/home/subdir/lola'
+export LWLOCAL='/var/things/loladata'
 ```
 
 
