@@ -24,15 +24,21 @@ LOLAweb needs access to a few folders where it can store results or logs, or acc
 * **$LWREF**, for LOLAweb reference data, which may be read-only
 * **$LWLOCAL**, where local results can be written.
 
-To get the LOLAweb container to work, you need to set these environment variables (for example, in your `.bashrc` or `.profile` file.
+To run the LOLAweb container (locally or on a server), you need to set these environment variables (for example, in your `.bashrc` or `.profile` file. These variables will be injected into the container when it is run.
+
+```
+export LREF='/home/mydir/lola'
+export LWLOCAL='/var/things/lola'
+```
+
 
 ### LWREF
 
-LOLAweb will look at the value in `LWREF` for the reference data. This folder should have subfolders called `databases`, `universes`, and `examples`. In each of these subfolders are another layer of subfolders for genome assemblies. See the [LOLAweb documentation](https://github.com/databio/LOLAweb/tree/master/apps/LOLAweb) for downloading reference data.
+LOLAweb will look at the value in `$LWREF` for the reference data. This folder should have subfolders called `databases`, `universes`, and `examples`. In each of these subfolders are another layer of subfolders for genome assemblies. See the [LOLAweb documentation](https://github.com/databio/LOLAweb/tree/master/apps/LOLAweb) for downloading reference data.
  
 ### LWLOCAL
 
-LOLAweb looks for `$LWLOCAL` to have two subfolders: `cache`, and `shinylogs`. This is where the app will write results and log files.
+LOLAweb looks for `$LWLOCAL` to have two subfolders: `cache`, and `shinylogs`. This is where the app will write results and log files. If running LOLAweb on a server, be sure these directories are writeable by the Docker process.
 
 ## Run the LOLAweb container locally with reference data:
 
@@ -52,7 +58,7 @@ http://localhost/LOLAweb/apps/LOLAweb
 
 ## Running a dev container
 
-You could also run the `dev` version of the container by pulling `databio/lolaweb:dev`. This will retrieve the dev tagged image from dockerhub.
+You could also run the `dev` version of the container by pulling `databio/lolaweb:dev`. This will retrieve the dev tagged image from dockerhub. Just add `:dev` to the container name at the end of the `docker run` command above.
 
 
 ## Running multiple LOLAweb containers simultaneously with Docker Swarm:
