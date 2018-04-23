@@ -466,8 +466,8 @@ server <- function(input, output, session) {
     if(nfiles$n > 1) {
       
       radioButtons("universe_opts", "Universe", 
-                   choiceValues = c("default", "user", "build"), 
-                   choiceNames = c("Use pre-loaded universe", "Upload universe", "Build universe with user sets"))
+                   choiceValues = c("default", "build", "user"), 
+                   choiceNames = c("Use pre-loaded universe", "Build universe with user sets", "Upload universe"))
 
     } else {
       
