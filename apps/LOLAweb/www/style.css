@@ -9,7 +9,7 @@
 }
 
 
-.headerBox {
+#runInputs {
 	min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
@@ -30,3 +30,38 @@
 #button_userset_upload {
   margin-top: 20px;
 }
+
+.disabledinputs {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.plot_header {
+  display: inline-block;
+}
+
+.js-irs-1 .irs-bar {
+border-top-color: #411;
+border-bottom-color: #411;
+} 
+
+.js-irs-1 .irs-bar-edge {
+border-color: #411;
+}
+
+.js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {
+background: #722;
+}
+
+/*.js-irs-1 .irs-bar {
+border-top-color: #10d010;
+border-bottom-color: #10d010;
+} 
+
+.js-irs-1 .irs-bar-edge {
+border-color: #10d010;
+}
+
+.js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {
+background: #0a0;
+}*/
