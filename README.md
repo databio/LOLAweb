@@ -7,6 +7,6 @@ This repository contains two components: 1) the shiny [app source code](apps/LOL
 
 LOLAweb is implemented as an interactive Shiny app. You can run this app locally by following the [instructions in the appfolder](apps/LOLAweb/).
 
-## Dockerfile
+## Docker
 
-We have also produced a Dockerfile and host an image on dockerhub (`databio/lolaweb`). You can read how to run LOLAweb locally in a docker container by reading the [instructions in the docker folder](docker/). 
+We have also produced a Dockerfile and published an image on Docker Hub (`databio/lolaweb`). Learn how to run LOLAweb locally in a docker container by reading the [instructions in the docker folder](docker/). 

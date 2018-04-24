@@ -8,12 +8,13 @@ services:
       - net
     ports:
       - "80"
+    environment:
+      - LWREF=$LWREF
+      - LWLOCAL=$LWLOCAL
     volumes:
-      - /data/lola/reference:/srv/shiny-server/LOLAweb/apps/LOLAweb/reference
-      - /data/lola/universes:/srv/shiny-server/LOLAweb/apps/LOLAweb/universes
-      - /data/lola/userSets:/srv/shiny-server/LOLAweb/apps/LOLAweb/userSets
-      - /data/lola/cache:/srv/shiny-server/LOLAweb/apps/LOLAweb/cache
-      - /data/lola/shinylog:/var/log/shiny-server
+      - ${LWLOCAL}:${LWLOCAL}
+      - ${LWREF}:${LWREF}
+      - ${LWLOCAL}/shinylog:/var/log/shiny-server
     deploy:
       mode: replicated
       replicas: 4

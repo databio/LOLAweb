@@ -126,11 +126,26 @@ query = read.table(file = "lola_vignette_data/setC_complete.bed", header = F)
 colnames(query) = c('chr','start','end','id','score','strand')
 query = with(query, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
 
-x = genomicDistribution(query, "hg19")
+query = readBed("lola_vignette_data/setC_complete.bed")
+
+x = aggregateOverGenomeBins(query, "hg19")
 
 # Then, plot the result:
-plotGenomicDist(x)
+p <- 
+  plotGenomeAggregate(x)
 
+ggplotly(p)
+
+y <-
+  TSSDistance(query, "hg19")
+
+q <-
+  plotFeatureDist(y)
+
+ggplotly(q)
+
+gp = genomicPartitions(query, "hg19")
+plotPartitions(gp)
 
 
 EnsDb = loadEnsDb("hg19")
@@ -266,17 +281,103 @@ x <- system.time({
 })
 
 
-userSet = readBed(file = "lola_vignette_data/setB_100.bed") 
-dbPath = "reference/Core/hg38/"
+
+##### ggplotly
+
+userSet = readBed(file = "lola_vignette_data/setB_100.bed")
+userSet2 = readBed(file = "lola_vignette_data/setC_100.bed")
+
+restrictedUniverse <- buildRestrictedUniverse(GRangesList(userSet, userSet2))
+data("sample_input", package="LOLA") # load userSets
+
+dbPath = "reference/Core/hg19/"
 regionDB = loadRegionDB(dbLocation=dbPath)
+# 
+# userUniverse = readBed("universes/hg19/tiles1000.hg19.bed")
+# # userUniverse = read.table(file = "universes/hg38/tiles.hg38.5000.bed", header = F) 
+# # colnames(userUniverse) <- c('chr','start','end','id','score','strand')
+# # userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+# 
+userSetsRedefined =	redefineUserSets(GRangesList(userSet, userSet2), restrictedUniverse)
+# 
+# 
+resRedefined = runLOLA(userSetsRedefined, restrictedUniverse, regionDB, cores=1)
 
-userUniverse = readBed("universes/hg38/tiles.hg38.5000.bed")
-userUniverse = read.table(file = "universes/hg38/tiles.hg38.5000.bed", header = F) 
-colnames(userUniverse) <- c('chr','start','end','id','score','strand')
-userUniverse <- with(userUniverse, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
+library(sodium)
 
-userSetsRedefined =	redefineUserSets(userSet, userUniverse)
+# keyphrase <- "9B1MPF7WEGYCZJ4"
+keyphrase <- "NHKZSD5B64EOLY1"
+loadCaches(keyphrase, assignToVariable = "cipher", loadEnvir = globalenv(), cacheDir = "cache")
 
+cipher <- get("cipher", envir = globalenv())
 
-resRedefined = runLOLA(userSetsRedefined, userUniverse, regionDB, cores=1)
+# keyphrase
+key <- hash(charToRaw(keyphrase))
+
+dat <- data_decrypt(cipher, key)
+
+res <- unserialize(dat)
+
+res$resRedefined$id <- paste(res$resRedefined$description, res$resRedefined$dbSet, sep = "_")
+res$resRedefined$axis_label <- strtrim(res$resRedefined$description, 50)
+
+library(magrittr)
+
+p <-
+  res$resRedefined %>%
+  filter(maxRnk < 200) %>%
+  arrange(desc(meanRnk)) %>%
+  # ggplot(aes(description, eval(parse(text = "meanRnk")), oddsRatio, fill = userSet, group = id)) +
+  ggplot(aes(reorder(axis_label, eval(parse(text = "meanRnk"))), rev(oddsRatio), fill = userSet, group = id)) +
+  # ggplot(aes(reorder(axis_label, eval(parse(text = "maxRnk"))), oddsRatio, fill = userSet, group = id)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  xlab("Description") +
+  ylab("Odds Ratio") +
+  coord_flip() +
+  theme_ns()
+
+library(plotly)
   
+ggplotly(p)
+
+
+noinfres <- res$resRedefined[!is.infinite(res$resRedefined$pValueLog),]
+
+# data with infinite pvalue log values
+inflogpval <- res$resRedefined[is.infinite(res$resRedefined$pValueLog),]
+inflogpval$pValueLog <- -1e-6
+
+# data with 
+infor <- 
+
+q <- 
+  # res$resRedefined %>%
+  # mutate(pValueLog = ifelse(is.infinite(pValueLog), -1e-6, pValueLog)) %>%
+  noinfres %>%
+  filter(maxRnk < 1000) %>%
+  arrange(desc(meanRnk)) %>%
+  ggplot(aes(pValueLog, oddsRatio), 
+             text = paste0("Collection: ", 
+                           collection, 
+                           "\n",
+                           "Description: ",
+                           axis_label)) +
+  geom_point(aes(size = log(support))) +
+  xlab("P Value Log") +
+  ylab("Odds Ratio") +
+  # coord_flip() +
+  geom_blank(aes(text = collection)) +
+  geom_point(col = "red", pch="O", alpha = 0.25, data = inflogpval) +
+  theme_ns()
+
+q
+
+ggplotly(q, tooltip = c("x"))
+
+x <-
+  ggplotly(q, tooltip = c("x", "y", "size")) %>%
+  layout(showlegend = TRUE, legendgroup = "size")
+
+x
+infcheck <- apply(res$resRedefined[,c("pValueLog", "oddsRatio")], 2, function(x) !is.infinite(x))
+res$resRedefined[infcheck[,1],]

@@ -36,12 +36,13 @@ services:
       - net
     ports:
       - "80"
+    environment:
+      - LWREF=$LWREF
+      - LWLOCAL=$LWLOCAL
     volumes:
-      - /data/lola/reference:/srv/shiny-server/LOLAweb/apps/LOLAweb/reference
-      - /data/lola/universes:/srv/shiny-server/LOLAweb/apps/LOLAweb/universes
-      - /data/lola/userSets:/srv/shiny-server/LOLAweb/apps/LOLAweb/userSets
-      - /data/lola/cache:/srv/shiny-server/LOLAweb/apps/LOLAweb/cache
-      - /data/lola/shinylog:/var/log/shiny-server
+      - ${LWLOCAL}:${LWLOCAL}
+      - ${LWREF}:${LWREF}
+      - ${LWLOCAL}/shinylog:/var/log/shiny-server
     deploy:
       mode: replicated
       replicas: 4
@@ -86,11 +87,12 @@ networks:
 Take note of a few important elements of this YAML file:
 
 - The `lolaweb` containers run on an internal overlay network, via port 80.
-- Each container mounts four local volumes to read LOLA reference data.
+- Each container mounts three local volumes to read LOLA reference data and universes, and to write logs to a common directory.
+- Each container also launches with two ENV variables used by LOLAweb: [LWREF](../README.md#lwref) and [LWLOCAL](../README.md#lwlocal).
 - The swarm runs 4 replicas of the `lolaweb` container, each capped at 12GB of memory.
-- The Shiny containers are labeled with additional information passed to the Tr&aelig;fik load balancer.
+- Shiny containers are labeled with additional information passed to the Tr&aelig;fik load balancer.
 - Tr&aelig;fik listens on the overlay network port 80, and is published to the host network over port 80. Port 8080 provides a monitoring interface if so desired.
-- One replica of the Tr&aelig;fik load balancer runs in that service, capped at 10MB of memory.
+- One replica of the Tr&aelig;fik load balancer runs as a part of that service, capped at 10MB of memory. Notice that it is "placed" on a specific Docker swarm node.
 - Tr&aelig;fik mounts and monitors the Docker socket file in order to automatically update anytime the swarm behind it is updated.
 
 ## Container Images
