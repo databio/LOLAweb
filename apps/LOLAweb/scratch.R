@@ -128,7 +128,9 @@ query = with(query, GRanges(chr, IRanges(start+1, end), strand, score, id=id))
 
 query = readBed("lola_vignette_data/setC_complete.bed")
 
-x = aggregateOverGenomeBins(query, "hg19")
+query = readBed("reference/examples/mm9/SE_bone_marrow.bed")
+
+x = aggregateOverGenomeBins(query, "mm9")
 
 # Then, plot the result:
 p <- 
@@ -139,12 +141,18 @@ ggplotly(p)
 y <-
   TSSDistance(query, "hg19")
 
+tryCatch({
+y <-
+  TSSDistance(query, "mm100")
+}
+)
+
 q <-
   plotFeatureDist(y)
 
 ggplotly(q)
 
-gp = genomicPartitions(query, "hg19")
+gp = genomicPartitions(query, "mm9")
 plotPartitions(gp)
 
 
