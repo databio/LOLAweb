@@ -209,10 +209,8 @@ ui <- list(
                column(DT::dataTableOutput("res"), width = 12)
                ),
       tabPanel("Run summary",
-               conditionalPanel(condition = "output.res",
                                 h4("Run summary"),
                                 tableOutput("run_sum"), style = "font-size:18px;")
-               )
            ),
       id = "result-tabs")))
   )
