@@ -55,7 +55,8 @@ plot_input <- function(res, metric, ylabel, sortcol) {
     ylab(ylabel) +
     coord_flip() +
     theme_ns() +
-    theme(axis.text=element_text(size=label_size))
+    theme(axis.text=element_text(size=label_size)) +
+    guides(fill=guide_legend(title="User set"))
   
 }
 

@@ -1173,7 +1173,9 @@ server <- function(input, output, session) {
       
     } else {
       
-      plotGenomeAggregate(genomeAggregate = genDist)
+      plotGenomeAggregate(genomeAggregate = genDist) +
+        guides(fill=guide_legend(title="User set"),
+               col = guide_legend(title="User set"))
       
     }
     
@@ -1199,7 +1201,9 @@ server <- function(input, output, session) {
       
     } else {
       
-      plotFeatureDist(TSSDist, featureName="TSS")
+      plotFeatureDist(TSSDist, featureName="TSS") +
+        guides(fill=guide_legend(title="User set"),
+               col = guide_legend(title="User set"))
       
     }
 
