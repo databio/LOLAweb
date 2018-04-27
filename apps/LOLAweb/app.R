@@ -209,10 +209,8 @@ ui <- list(
                column(DT::dataTableOutput("res"), width = 12)
                ),
       tabPanel("Run summary",
-               conditionalPanel(condition = "output.res",
                                 h4("Run summary"),
                                 tableOutput("run_sum"), style = "font-size:18px;")
-               )
            ),
       id = "result-tabs")))
   )
@@ -590,15 +588,42 @@ server <- function(input, output, session) {
         # need to make sure user set is discrete even if coded as number
         resRedefined$userSet = as.character(resRedefined$userSet)
         
+        gd_data <- utils::data(package="GenomicDistributions")$results[,"Item"]
+        
         # calculate distribution over chromosomes for plotting
-        genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+        if (paste0("chromSizes_", input$refgenome) %in% gd_data) {
+          
+          genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+          
+        } else {
+          
+          genDist = NULL
+          
+        }
   
         # calculate distances to TSSs
-        TSSDist = TSSDistance(userSets, input$refgenome)
+        if (paste0("TSS_", input$refgenome) %in% gd_data) {
+          
+          TSSDist = TSSDistance(userSets, input$refgenome)
+        
+          
+        } else {
+          
+          TSSDist = NULL
+          
+        }
         
         # distribution of overlaps for a query set to genomic partitions
-        gp = genomicPartitions(userSets, input$refgenome)
+        if (paste0("geneModels_", input$refgenome) %in% gd_data) {
+       
+          gp = genomicPartitions(userSets, input$refgenome)
         
+        } else {
+          
+          gp = NULL
+          
+        }
+          
       })
       
       run_sum <- 
@@ -1140,7 +1165,17 @@ server <- function(input, output, session) {
     
     genDist <- rawdat_res$genDist
     
-    plotGenomeAggregate(genomeAggregate = genDist)
+    if (is.null(genDist)) {
+      
+      NULL
+      
+    } else {
+      
+      plotGenomeAggregate(genomeAggregate = genDist) +
+        guides(fill=guide_legend(title="User set"),
+               col = guide_legend(title="User set"))
+      
+    }
     
   }
   
@@ -1158,8 +1193,18 @@ server <- function(input, output, session) {
     
     TSSDist <- rawdat_res$TSSDist
     
-    plotFeatureDist(TSSDist, featureName="TSS")
-    
+    if (is.null(TSSDist)) {
+      
+      NULL 
+      
+    } else {
+      
+      plotFeatureDist(TSSDist, featureName="TSS") +
+        guides(fill=guide_legend(title="User set"),
+               col = guide_legend(title="User set"))
+      
+    }
+
   }
   
   output$dist_plot <- renderPlot({
