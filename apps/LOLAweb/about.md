@@ -99,7 +99,7 @@ The columns in the results table are:
 
 LOLAweb is published in *Nucleic Acids Research*:
 
-V. P. Nagraj, N. E. Magee and N. C. Sheffield, "LOLAweb: a containerized web server for interactive genomic locus overlap enrichment analysis," Nucleic Acids Research, vol. 46, no. w1, pp. w194-w199. Jul. 2018.
+V. P. Nagraj, N. E. Magee and N. C. Sheffield, "LOLAweb: a containerized web server for interactive genomic locus overlap enrichment analysis," Nucleic Acids Research, vol. 46, no. w1, pp. w194-w199, Jul. 2018.
 
 [https://doi.org/10.1093/nar/gky464](https://doi.org/10.1093/nar/gky464)
 
