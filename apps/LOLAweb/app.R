@@ -1261,7 +1261,7 @@ server <- function(input, output, session) {
   )
   
   output$part_plot_dl <- downloadHandler(
-    filename = function() { paste("paritions",
+    filename = function() { paste("partitions",
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
