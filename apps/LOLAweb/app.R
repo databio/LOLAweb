@@ -133,7 +133,10 @@ ui <- list(
                     uiOutput("slider_pvalue"),
                     uiOutput("select_collection"),
                     uiOutput("select_sort"),
-                    uiOutput("select_userset")),
+                    uiOutput("select_userset"),
+                    downloadButton("all_plots_dl",
+                                   label = "Download all plots",
+                                   class = "dt-button")),
                     column(10,
                            shinyjs::hidden(
                              div(
@@ -210,7 +213,8 @@ ui <- list(
                ),
       tabPanel("Run summary",
                                 h4("Run summary"),
-                                tableOutput("run_sum"), style = "font-size:18px;")
+                                tableOutput("run_sum"),
+               style = "font-size:18px;")
            ),
       id = "result-tabs")))
   )
@@ -1266,6 +1270,23 @@ server <- function(input, output, session) {
                                   sep="") },
     content = function(file) {
       ggsave(file, plot = part_plot_input(), device = "pdf")
+    }
+  )
+  
+  output$all_plots_dl <- downloadHandler(
+    filename = function() {
+      "lolawebplots.pdf"
+    },
+    content = function(file) {
+      pdf(file)
+      print(scatterplot_input())
+      print(plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i))
+      print(plot_input(dat(), "support", "Support", input$select_sort_i))
+      print(plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i))
+      print(distrib_plot_input())
+      print(dist_plot_input())  
+      print(part_plot_input())
+      dev.off()
     }
   )
   
