@@ -1068,7 +1068,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = scatterplot_input()
+      ggsave(file, plot = scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9))
              , device = "pdf")
     }
   )
@@ -1088,7 +1088,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i)
+      ggsave(file, plot = plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9))
 , device = "pdf")
     }
   )
@@ -1122,7 +1122,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = plot_input(dat(), "support", "Support", input$select_sort_i)
+      ggsave(file, plot = plot_input(dat(), "support", "Support", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9))
 , device = "pdf")
     }
   )
@@ -1158,7 +1158,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i)
+      ggsave(file, plot = plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9))
 , device = "pdf")
     }
   )
@@ -1251,7 +1251,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = distrib_plot_input(), device = "pdf")
+      ggsave(file, plot = distrib_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)), device = "pdf", width = 11, height = 5)
     }
   )
   
@@ -1260,7 +1260,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = dist_plot_input(), device = "pdf")
+      ggsave(file, plot = dist_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)), device = "pdf")
     }
   )
   
@@ -1269,7 +1269,7 @@ server <- function(input, output, session) {
                                   ".pdf", 
                                   sep="") },
     content = function(file) {
-      ggsave(file, plot = part_plot_input(), device = "pdf")
+      ggsave(file, plot = part_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)), device = "pdf")
     }
   )
   
@@ -1279,13 +1279,13 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       pdf(file)
-      print(scatterplot_input())
-      print(plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i))
-      print(plot_input(dat(), "support", "Support", input$select_sort_i))
-      print(plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i))
-      print(distrib_plot_input())
-      print(dist_plot_input())  
-      print(part_plot_input())
+      print(scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      print(plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      print(plot_input(dat(), "support", "Support", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      print(plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      print(distrib_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      print(dist_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))  
+      print(part_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
       dev.off()
     }
   )
