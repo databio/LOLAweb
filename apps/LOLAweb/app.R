@@ -1273,21 +1273,82 @@ server <- function(input, output, session) {
     }
   )
   
+  # to save plots as a single PDF ...
+  
+  # output$all_plots_dl <- downloadHandler(
+  #   filename = function() {
+  #     "lolawebplots.pdf"
+  #   },
+  #   content = function(file) {
+  #     pdf(file)
+      # print(scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      # print(plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      # print(plot_input(dat(), "support", "Support", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      # print(plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      # print(distrib_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      # print(dist_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+      # print(part_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
+  #     dev.off()
+  #   }
+  # )
+  
+  # to zip all plots and save individually ...
+  
   output$all_plots_dl <- downloadHandler(
     filename = function() {
-      "lolawebplots.pdf"
+      paste("lolawebplots", "zip", sep=".")
     },
-    content = function(file) {
-      pdf(file)
-      print(scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
-      print(plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
-      print(plot_input(dat(), "support", "Support", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
-      print(plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
-      print(distrib_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
-      print(dist_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))  
-      print(part_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)))
-      dev.off()
-    }
+    content = function(fname) {
+      
+      dir.create("plots")
+
+      ggsave(filename = "scatter.pdf", 
+             plot = scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)), 
+             device = "pdf", 
+             path = "plots")
+      
+      ggsave(filename = "oddsratio.pdf", 
+             plot = plot_input(dat(), "oddsRatio", "Odds ratio", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)),
+             device = "pdf",
+             path = "plots")
+      
+      ggsave(filename = "support.pdf",
+             plot = plot_input(dat(), "support", "Support", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)),
+             device = "pdf",
+             path = "plots")
+      
+      ggsave(filename = "pvalue.pdf",
+             plot = plot_input(dat(), "pValueLog", "log(p value)", input$select_sort_i) + theme(axis.text = element_text(size = 9), text = element_text(size = 9)),
+             device = "pdf",
+             path = "plots")
+      
+      
+      ggsave(filename = "gendist.pdf", 
+             plot = distrib_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)), 
+             device = "pdf", 
+             width = 11, 
+             height = 5,
+             path = "plots")
+      
+      ggsave(filename = "tssdist.pdf", 
+             plot = dist_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)), 
+             device = "pdf",
+             path = "plots")
+      
+      ggsave(filename = "partitions.pdf",
+             plot = part_plot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)),
+             device = "pdf",
+             path = "plots")
+    
+      fs <- list.files("plots", full.names = TRUE)
+                 
+      zip(zipfile=fname, files=fs)
+      
+      unlink("plots", recursive = TRUE)
+      
+    },
+    contentType = "application/zip"
+    
   )
   
 
