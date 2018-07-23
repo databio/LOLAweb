@@ -1171,7 +1171,7 @@ server <- function(input, output, session) {
     
     if (is.null(genDist)) {
       
-      NULL
+      missing_plot()
       
     } else {
       
@@ -1199,7 +1199,7 @@ server <- function(input, output, session) {
     
     if (is.null(TSSDist)) {
       
-      NULL 
+      missing_plot()
       
     } else {
       
@@ -1226,7 +1226,7 @@ server <- function(input, output, session) {
     
     if(is.null(gp)) {
       
-      NULL
+      missing_plot()
       
     } else {
       

@@ -60,6 +60,22 @@ plot_input <- function(res, metric, ylabel, sortcol) {
   
 }
 
+# missing_plot() creates 
+missing_plot <- function() {
+  
+  ggplot(data.frame(x=1:5, y = 1:5), aes(x, y)) +
+  geom_blank() +
+  annotate("text", x = 3, y = 4, label = "Unable to render plot", size = 10, col = "red") +
+  xlab("") +
+  ylab("") +
+  theme(line = element_blank(), 
+        rect = element_blank(), 
+        axis.ticks.length = unit(0,"cm"),
+        axis.text = element_blank(),
+        legend.position = "none", 
+        panel.spacing = unit(0,"lines"), 
+        plot.margin = unit(c(0, 0, 0, 0), "lines"))
+}
 
 # This function just wraps the base Sys.gentenv function to provide a default
 # value for the case that the environment variable is not specified.
