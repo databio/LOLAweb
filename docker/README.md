@@ -2,6 +2,8 @@
 
 # Shiny LOLAweb for Docker
 
+The `databio/lolaweb` container is based on the `databio/shinybase` container, which you can find in its [github repository](https://github.com/databio/shinyBase) or [on dockerhub](https://hub.docker.com/r/databio/shinybase/).
+
 ## `build` the container image yourself
 
 1. Clone this repository

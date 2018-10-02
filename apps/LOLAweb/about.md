@@ -97,7 +97,13 @@ The columns in the results table are:
 <a name="how-to-cite"> </a>
 ### How do I cite LOLAweb?
 
-LOLAweb is pending publication. In the interim, please cite the LOLA R package:
+LOLAweb is published in *Nucleic Acids Research*:
+
+V. P. Nagraj, N. E. Magee and N. C. Sheffield, "LOLAweb: a containerized web server for interactive genomic locus overlap enrichment analysis," Nucleic Acids Research, vol. 46, no. w1, pp. w194-w199, Jul. 2018.
+
+[https://doi.org/10.1093/nar/gky464](https://doi.org/10.1093/nar/gky464)
+
+The LOLA R package is published in *Bioinformatics*:
 
 N. C. Sheffield and C. Bock, “LOLA: enrichment analysis for genomic region sets and regulatory elements in R and Bioconductor,” Bioinformatics, vol. 32, no. 4, pp. 587–589, Oct. 2016.
 
