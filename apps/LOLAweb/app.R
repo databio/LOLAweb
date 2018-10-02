@@ -1283,8 +1283,6 @@ server <- function(input, output, session) {
     },
     content = function(fname) {
 
-      dir.create("plots")
-
       ggsave(filename = "scatter.pdf",
              plot = scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)),
              device = "pdf",
@@ -1325,7 +1323,7 @@ server <- function(input, output, session) {
       zip(zipfile=fname, files=fs)
       
       # delete tmp plot files after zip is done
-      unlink("plots", recursive = TRUE)
+      unlink(fs)
 
     },
     contentType = "application/zip"
