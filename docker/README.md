@@ -1,4 +1,4 @@
-[![Docker pulls](https://img.shields.io/docker/pulls/databio/lolaweb.svg)](https://hub.docker.com/r/databio/lolaweb/) [![Build Status](https://travis-ci.org/databio/LOLAweb.svg?branch=master)](https://travis-ci.org/databio/LOLAweb)
+[![Docker pulls](https://img.shields.io/docker/pulls/databio/lolaweb.svg)](https://hub.docker.com/r/databio/lolaweb/) [![Build Status](https://travis-ci.org/databio/LOLAweb.svg?branch=master)](https://travis-ci.org/databio/LOLAweb) [![](https://images.microbadger.com/badges/image/databio/lolaweb.svg)](https://microbadger.com/images/databio/lolaweb "Get your own image badge on microbadger.com")
 
 # Shiny LOLAweb for Docker
 
