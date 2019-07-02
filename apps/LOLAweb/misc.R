@@ -95,7 +95,7 @@ localDir = getEnv("LWLOCAL", "/data/lola/")
 cacheDir = paste0(localDir, "cache/")
 logDir = paste0(localDir, "shinylog/")
 resultsDir = paste0(localDir, "results/")
-
+tempDir = paste0(localDir, "temp/")
 
 refDir = getEnv("LWREF", "/mnt/q/shefflab/LOLAweb/")
 
@@ -108,3 +108,4 @@ message("Reference data dir: ", refDir)
 message("universe dir: ", universeDir)
 message("dbDir data dir: ", dbDir)
 message("exampleDir dir: ", exampleDir)
+message("tempDir dir: ", tempDir)

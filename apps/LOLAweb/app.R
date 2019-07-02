@@ -5,10 +5,10 @@ source("misc.R")
 source("disabler.R")
 
 db_url <- "mongodb://localhost:27017"
-db_name <- "low2"
+db_name <- "lolaweb"
 
 # where do the caches live?
-cache_dir <- "cache"
+# cache_dir <- "cache"
 
 # establish connection to jobdb
 con <- shinyqueue::connect(db_url = db_url, db_name = db_name)
@@ -26,8 +26,8 @@ library(plotly)
 
 setCacheDir(cacheDir)
 
-cache_dir <- cacheDir
-
+# cache_dir <- cacheDir
+  
 # get lolaweb version
 lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
 
@@ -678,9 +678,23 @@ server <- function(input, output, session) {
       # 
       # return(res)
       
+      for (i in 1:length(input$userset[,1])) {
+        
+        # # get basename of input file
+        # bn <- basename(input$userset[[i, 'datapath']])
+        # 
+        # # overwrite with tempdir
+        # input$userset[[i, 'datapath']]  <- paste0("~/VP/tempdir/", bn)
+        
+        file.copy(input$userset[[i, 'datapath']],
+                   file.path(tempDir, input$userset[[i, 'name']]) )
+        
+        }
+      
+      
       shinyqueue::submit(con, 
                          job_type = "lolaweb",
-                         cache_dir = cache_dir,
+                         cache_dir = cacheDir,
                          input = input,
                          job_id = keyphrase(),
                          encrypt = TRUE)
@@ -693,9 +707,15 @@ server <- function(input, output, session) {
     
     cachenames <- tools::file_path_sans_ext(list.files(cacheDir))
     
-    if(length(query()) != 0 && !query()[[1]] %in% cachenames) {
-      message("Cachenames: ", cachenames)
-      message("cacheDir: ", cacheDir)
+    if(length(query() != 0)) {
+      
+      processed <- query()[[1]] %in% cachenames
+      submitted <- query()[[1]] %in% con$find()$job_id
+      bad_query <- length(query()) != 0 && !processed && !submitted
+    
+    if(bad_query) {
+      # message("Cachenames: ", cachenames)
+      # message("cacheDir: ", cacheDir)
       showModal(modalDialog(
         title = "Bad Request",
         HTML(paste0("The cache '",
@@ -703,6 +723,16 @@ server <- function(input, output, session) {
                     "' does not exist."))
         )
       )
+    } else if (submitted && !processed) {
+      
+      showModal(modalDialog(
+        title = "In progess",
+        HTML(paste0("The cache '",
+                    query()[[1]], 
+                    "' does not exist yet.<br>The job is currently in the queue to be processed."))
+      )
+      )
+    }
     }
     
   })
@@ -938,7 +968,7 @@ server <- function(input, output, session) {
   
   
   # retrieve job
-  shinyqueue::retrieve(con = con, cache_dir = cache_dir, encrypt = TRUE)
+  shinyqueue::retrieve(con = con, cache_dir = cacheDir, encrypt = TRUE)
   
   scatterplot_input <- function() {
     

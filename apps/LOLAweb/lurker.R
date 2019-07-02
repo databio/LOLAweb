@@ -1,3 +1,4 @@
+# get environment variables captured in misc.R
 source("misc.R")
 library(LOLA)
 library(GenomicRanges)
@@ -6,6 +7,12 @@ library(sodium)
 library(GenomicDistributions)
 
 lwcrunch <- function() {
+  
+  # get lw version
+  lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", 
+                       intern = TRUE)
+  
+  refgenome <- unlist(input$refgenome)
   
   message("Calculating region set enrichments ...")
   
@@ -17,26 +24,40 @@ lwcrunch <- function() {
     userSets <- list()
     
     # if(!exampleuserset$toggle) {
-    if(!is.null(input$userset)) {
-      
-      message("Loading uploaded data")
-      
-      for (i in 1:length(input$userset[,1])) {
+    # if(!is.null(input$userset)) {
+    
+    input_userset  <- as.data.frame(input$userset)
+    
+    if(ncol(input_userset) != 0) {
         
-        userSet = readBed(input$userset[[i, 'datapath']])
+      message("Loading uploaded data")
+    
+      
+      # for (i in 1:length(input$userset[,1])) {
+      for (i in 1:nrow(input_userset)) {
+          
+        
+        # fixing file path to env var for tempdir
+        fp <- paste0(tempDir, input_userset[i, 'name'])
+        
+        # userSet <- readBed(input_userset[i, 'datapath'])
+        userSet <- readBed(fp)
+        
         userSets[[i]] <- userSet
         
       }
       
+      #print(list(userSet,userSets))
+    
       userSets = GRangesList(userSets)
       
-      names(userSets) = input$userset[,"name"]
+      names(userSets) = input_userset[,"name"]
       
     } else {
       
       message("Loading example data")
       
-      datapath <- paste0(exampleDir, input$refgenome, "/", input$defaultuserset)
+      datapath <- paste0(exampleDir, refgenome, "/", input$defaultuserset)
       
       userSet = readBed(datapath)
       userSets[[1]] <- userSet
@@ -57,7 +78,9 @@ lwcrunch <- function() {
       
     } else if (input$universe_opts == "default") {
       
-      datapath <- paste0(universeDir, input$refgenome, "/", input$defaultuniverse)
+      datapath <- paste0(universeDir, 
+                         refgenome, "/", 
+                         unlist(input$defaultuniverse))
       
       userUniverse <- readBed(file = datapath)
       
@@ -67,7 +90,9 @@ lwcrunch <- function() {
       
       userUniverse <- buildRestrictedUniverse(userSets)
       
-      universename <- paste0(c(names(userSets), "universe"), collapse = "_")
+      universename <- paste0(c(names(userSets), 
+                               "universe"),
+                             collapse = "_")
       
     }
     
@@ -76,7 +101,7 @@ lwcrunch <- function() {
     # set up path to databases for given reference genome
     dbPath = paste(dbDir,
                    input$loladb,
-                   input$refgenome,
+                   refgenome,
                    sep = "/"
     )
     
@@ -97,9 +122,9 @@ lwcrunch <- function() {
     gd_data <- utils::data(package="GenomicDistributions")$results[,"Item"]
     
     # calculate distribution over chromosomes for plotting
-    if (paste0("chromSizes_", input$refgenome) %in% gd_data) {
+    if (paste0("chromSizes_", refgenome) %in% gd_data) {
       
-      genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+      genDist = aggregateOverGenomeBins(userSets, refgenome)
       
     } else {
       
@@ -108,9 +133,9 @@ lwcrunch <- function() {
     }
     
     # calculate distances to TSSs
-    if (paste0("TSS_", input$refgenome) %in% gd_data) {
+    if (paste0("TSS_", refgenome) %in% gd_data) {
       
-      TSSDist = TSSDistance(userSets, input$refgenome)
+      TSSDist = TSSDistance(userSets, refgenome)
       
       
     } else {
@@ -120,9 +145,9 @@ lwcrunch <- function() {
     }
     
     # distribution of overlaps for a query set to genomic partitions
-    if (paste0("geneModels_", input$refgenome) %in% gd_data) {
+    if (paste0("geneModels_", refgenome) %in% gd_data) {
       
-      gp = genomicPartitions(userSets, input$refgenome)
+      gp = genomicPartitions(userSets, refgenome)
       
     } else {
       
@@ -137,11 +162,11 @@ lwcrunch <- function() {
       start_time = as.character(start_time),
       end_time = as.character(Sys.time()),
       run_time = paste0(round(run_time[3])+1, " seconds"),
-      cache_name = keyphrase(),
+      cache_name = unlist(input$job_id),
       query_set = paste(gsub(".bed","",unique(resRedefined$userSet)), collapse = "\n"),
-      genome = input$refgenome,
+      genome = refgenome,
       universe = gsub(".bed", "", universename),
-      region_db = input$loladb,
+      region_db = unlist(input$loladb),
       commit = lw_version
     )
   
@@ -154,12 +179,12 @@ lwcrunch <- function() {
   
   # caching
   # need to call keyphrase from reactive above because it is used to construct link
-  key <- hash(charToRaw(keyphrase()))
+  key <- hash(charToRaw(unlist(input$job_id)))
   msg <- serialize(res,connection = NULL)
   
   cipher <- data_encrypt(msg, key)
   
-  simpleCache(cacheName = keyphrase(), 
+  simpleCache(cacheName = unlist(input$job_id), 
               instruction = { cipher },
               noload = TRUE)
   
@@ -169,10 +194,10 @@ lwcrunch <- function() {
 
 # what is the name of the db for the jobs
 db_url <- "mongodb://localhost:27017"
-db_name <- "low2"
+db_name <- "lolaweb"
 
-# where do the caches live?
-cache_dir <- "cache/"
+# # where do the caches live?
+# cache_dir <- "cache/"
 
 # establish connection to jobdb
 con <- shinyqueue::connect(db_url = db_url, db_name = db_name)
