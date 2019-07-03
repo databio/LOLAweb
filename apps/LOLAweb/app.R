@@ -4,7 +4,7 @@ source("themes.R")
 source("misc.R")
 source("disabler.R")
 
-db_url <- "mongodb://localhost:27017"
+db_url <- "mongodb://lwdb:27017"
 db_name <- "lolaweb"
 
 # where do the caches live?

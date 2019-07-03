@@ -193,7 +193,7 @@ lwcrunch <- function() {
 }
 
 # what is the name of the db for the jobs
-db_url <- "mongodb://localhost:27017"
+db_url <- "mongodb://lwdb:27017"
 db_name <- "lolaweb"
 
 # # where do the caches live?
