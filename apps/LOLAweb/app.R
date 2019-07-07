@@ -113,7 +113,7 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=F1NJU8KSWI59H4E'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=M2LZOJXEQSKG98A'>Sample Results</a></div>")
         ),
   id = "runInputs"),
   
@@ -124,7 +124,7 @@ ui <- list(
            htmlOutput("messages"))
   )),
   tabPanel("Results",
-           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=F1NJU8KSWI59H4E'>sample results</a>.</div>"), id = "noresultsmsg")
+           fluidRow(div(HTML("<div class='alert alert-warning'><strong>Results</strong> is currently empty.<br>To generate result output, visit <strong>Run</strong> or view <a href = '?key=M2LZOJXEQSKG98AE'>sample results</a>.</div>"), id = "noresultsmsg")
            ),
            fluidRow(
              column(10,
@@ -1336,8 +1336,6 @@ server <- function(input, output, session) {
     },
     content = function(fname) {
 
-      dir.create("plots")
-
       ggsave(filename = "scatter.pdf",
              plot = scatterplot_input() + theme(axis.text = element_text(size = 9), text = element_text(size = 9)),
              device = "pdf",
@@ -1378,7 +1376,7 @@ server <- function(input, output, session) {
       zip(zipfile=fname, files=fs)
       
       # delete tmp plot files after zip is done
-      unlink("plots", recursive = TRUE)
+      unlink(fs)
 
     },
     contentType = "application/zip"
