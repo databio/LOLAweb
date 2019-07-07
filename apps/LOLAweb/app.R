@@ -1230,7 +1230,7 @@ server <- function(input, output, session) {
       
     } else {
       
-      plotGenomeAggregate(genomeAggregate = genDist) +
+      plotChromBins(genomeAggregate = genDist) +
         guides(fill=guide_legend(title="User set"),
                col = guide_legend(title="User set"))
       
