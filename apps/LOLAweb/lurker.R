@@ -124,7 +124,7 @@ lwcrunch <- function() {
     # calculate distribution over chromosomes for plotting
     if (paste0("chromSizes_", refgenome) %in% gd_data) {
       
-      genDist = aggregateOverGenomeBins(userSets, refgenome)
+      genDist = calcChromBinsRef(userSets, refgenome)
       
     } else {
       
@@ -135,7 +135,7 @@ lwcrunch <- function() {
     # calculate distances to TSSs
     if (paste0("TSS_", refgenome) %in% gd_data) {
       
-      TSSDist = TSSDistance(userSets, refgenome)
+      TSSDist = calcFeatureDistRefTSS(userSets, refgenome)
       
       
     } else {
@@ -147,7 +147,7 @@ lwcrunch <- function() {
     # distribution of overlaps for a query set to genomic partitions
     if (paste0("geneModels_", refgenome) %in% gd_data) {
       
-      gp = genomicPartitions(userSets, refgenome)
+      gp = calcPartitionsRef(userSets, refgenome)
       
     } else {
       
@@ -193,7 +193,7 @@ lwcrunch <- function() {
 }
 
 # what is the name of the db for the jobs
-db_url <- "mongodb://lwdb:27017"
+db_url <- "mongodb://lw-db:27017"
 db_name <- "lolaweb"
 
 # # where do the caches live?
