@@ -598,7 +598,7 @@ server <- function(input, output, session) {
         # calculate distribution over chromosomes for plotting
         if (paste0("chromSizes_", input$refgenome) %in% gd_data) {
           
-          genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+          genDist = calcChromBinsRef(userSets, input$refgenome)
           
         } else {
           
@@ -609,7 +609,7 @@ server <- function(input, output, session) {
         # calculate distances to TSSs
         if (paste0("TSS_", input$refgenome) %in% gd_data) {
           
-          TSSDist = TSSDistance(userSets, input$refgenome)
+          TSSDist = calcFeatureDistRefTSS(userSets, input$refgenome)
         
           
         } else {
@@ -621,7 +621,7 @@ server <- function(input, output, session) {
         # distribution of overlaps for a query set to genomic partitions
         if (paste0("geneModels_", input$refgenome) %in% gd_data) {
        
-          gp = genomicPartitions(userSets, input$refgenome)
+          gp = calcPartitionsRef(userSets, input$refgenome)
         
         } else {
           
@@ -1177,7 +1177,7 @@ server <- function(input, output, session) {
       
     } else {
       
-      plotGenomeAggregate(genomeAggregate = genDist) +
+      plotChromBins(genomeAggregate = genDist) +
         guides(fill=guide_legend(title="User set"),
                col = guide_legend(title="User set"))
       
