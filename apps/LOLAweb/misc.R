@@ -92,16 +92,16 @@ getEnv = function(envVar, default="") {
 
 # Set up cache dir based on environment variable
 localDir = getEnv("LWLOCAL", "/data/lola/")
-cacheDir = paste0(localDir, "cache/")
-logDir = paste0(localDir, "shinylog/")
-resultsDir = paste0(localDir, "results/")
 
+cacheDir = file.path(localDir, "cache/")
+logDir = file.path(localDir, "shinylog/")
+resultsDir = file.path(localDir, "results/")
 
 refDir = getEnv("LWREF", "/mnt/q/shefflab/LOLAweb/")
 
-dbDir = paste0(refDir, "databases/")
-universeDir = paste0(refDir, "universes/")
-exampleDir =  paste0(refDir, "examples/")
+dbDir = file.path(refDir, "databases/")
+universeDir = file.path(refDir, "universes/")
+exampleDir = file.path(refDir, "examples/")
 message("Local dir: ", localDir)
 message("Cache dir: ", cacheDir)
 message("Reference data dir: ", refDir)
