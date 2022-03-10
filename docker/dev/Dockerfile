@@ -1,6 +1,6 @@
-FROM databio/shinybase:latest
+FROM ghcr.io/databio/shinybase:latest
 
-MAINTAINER VP Nagraj "vpnagraj@virginia.edu"
+MAINTAINER VP Nagraj "nagraj@nagraj.net"
 
 # move conf files
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
