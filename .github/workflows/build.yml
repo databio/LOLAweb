@@ -12,10 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - 
-        name: Prints the current branch name
-        run: echo "${GITHUB_BRANCH##*/}"
-        env:
-          GH_BRANCH: ${{ github.ref }}
+        name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.1
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -35,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/databio/lolaweb:${GH_BRANCH}
+          tags: ghcr.io/databio/lolaweb:${{ steps.branch-name.outputs.current_branch }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -44,10 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Prints the current branch name
-        run: echo "${GITHUB_BRANCH##*/}"
-        env:
-          GH_BRANCH: ${{ github.ref }}
+        name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.1
       - 
         name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -60,4 +58,4 @@ jobs:
         uses: isbang/sqs-action@v0.1.1
         with:
           sqs-url: https://queue.amazonaws.com/474683445819/lola-updates
-          message: ${GH_BRANCH}
+          message: ${{ steps.branch-name.outputs.current_branch }}
