@@ -1,46 +1,47 @@
-name: Build & Deploy
+name: Docker Image CI
 
 on:
   push:
-    branches:
-    - 'master'
-    - 'main'
-    - 'dev'
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - 
-        name: Login to GHCR
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Build DEV
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          docker build -t ghcr.io/databio/lolaweb:dev docker/dev
+
+      - name: Build MASTER
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker build -t ghcr.io/databio/lolaweb:latest docker
+
+      - name: Login to GHCR
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PAT }}
-      -
-        name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
+
+      - name: Push :latest to GHCR
+        id: push_latest_ghcr
         if: github.ref == 'refs/heads/master'
-          with:
-            file: docker/Dockerfile
-            push: true
-            tags: ghcr.io/databio/lolaweb:master
+        run: docker push ghcr.io/databio/lolaweb:latest
+
+      - name: Push :dev to GHCR
+        id: push_dev_ghcr
         if: github.ref == 'refs/heads/dev'
-          with:
-            file: docker/dev/Dockerfile
-            push: true
-            tags: ghcr.io/databio/lolaweb:dev
-      -
-        name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+        run: docker push ghcr.io/databio/lolaweb:dev
+
+      - name: Image digest
+        run: echo ${{ steps.push_ghcr.outputs.digest }}
 
   deploy:
     runs-on: ubuntu-latest
