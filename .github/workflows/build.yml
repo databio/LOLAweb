@@ -1,0 +1,63 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+    - 'master'
+    - 'main'
+    - 'dev'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Prints the current branch name
+        run: echo "${GITHUB_BRANCH##*/}"
+        env:
+          GH_BRANCH: ${{ github.ref }}
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - 
+        name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PAT }}
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ghcr.io/databio/lolaweb:$GH_BRANCH
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Prints the current branch name
+        run: echo "${GITHUB_BRANCH##*/}"
+        env:
+          GH_BRANCH: ${{ github.ref }}
+      - 
+        name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.LOLA_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.LOLA_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - 
+        name: Send SQS message
+        uses: isbang/sqs-action@v0.1.1
+        with:
+          sqs-url: https://queue.amazonaws.com/474683445819/lola-updates
+          message: $GH_BRANCH
