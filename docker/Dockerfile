@@ -1,10 +1,10 @@
-FROM databio/shinybase:latest
+FROM ghcr.io/databio/shinybase:latest
 
 MAINTAINER VP Nagraj "vpnagraj@virginia.edu"
 
 # move conf files
-COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
-COPY shiny-server.sh /usr/bin/shiny-server.sh
+COPY ./shiny-server.conf  /etc/shiny-server/shiny-server.conf
+COPY ./shiny-server.sh /usr/bin/shiny-server.sh
 
 # get the code
 WORKDIR /srv/shiny-server
