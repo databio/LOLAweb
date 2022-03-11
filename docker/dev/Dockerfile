@@ -1,4 +1,5 @@
-FROM databio/shinybase:latest
+FROM ghcr.io/databio/shinybase:latest
+# FROM databio/shinybase:latest
 
 MAINTAINER VP Nagraj "vpnagraj@virginia.edu"
 
