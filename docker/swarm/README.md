@@ -207,14 +207,14 @@ To remove a service:
 ## Continuous Integration
 
 To ease the deployment of production and dev containers for this project, we make use of a continuous
-integration workflow using Travis-CI and Amazon SQS. This automates the build and deployment steps after
+integration workflow using GitHub Actions and Amazon SQS. This automates the build and deployment steps after
 code changes are committed and pushed back to GitHub. Automated builds and deployments take approximately 10-15
 minutes to complete.
 
 The workflow steps are:
 
 1. Developers push code changes back to a specific branch of the project in GitHub.
-2. Travis-CI is plugged in with steps defined in `.travis.yml`. Travis builds the appropriate container, based on Dockerfiles specific to each branch. It then pushes the container to GHCR, and sends a simple SQS message to a queue with the name of the updated branch.
+2. GitHub Actions are triggered to execute steps defined in `.github/workflows/build.yml`. GHA builds the appropriate container, based on Dockerfiles specific to each branch. It then pushes the container image to GHCR, and sends a simple SQS message to a queue with the name of the updated branch.
 3. Finally, the LOLAweb servers use a cron job that runs long polling requests to SQS, waiting for a message. When one arrives, the Docker service is updated with the new container image.
 
 ## More Information
@@ -225,6 +225,6 @@ The workflow steps are:
 - [Compose Documentation](https://docs.docker.com/compose/reference/)
 - [Swarm Documentation](https://docs.docker.com/get-started/part4/)
 - [Tr&aelig;fik Load Balancer](https://docs.traefik.io/)
-- [Travis Continuous Integration](https://docs.travis-ci.com/)
+- [GitHub Actions Continuous Integration](https://lab.github.com/githubtraining/github-actions:-continuous-integration)
 
 This solution is based on the [slopp/Load-Test](https://github.com/slopp/Load-Test/) documentation in GitHub.
