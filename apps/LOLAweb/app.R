@@ -105,7 +105,7 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=M2LZOJXEQSKG98A'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=AY86BGRD9EC5Z7T'>Sample Results</a></div>")
         ),
   id = "runInputs"),
   
