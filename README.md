@@ -12,7 +12,7 @@ LOLAweb is implemented as an interactive Shiny app. You can run this app locally
 
 ## Docker
 
-The `ghcr.io/databio/lolaweb` container is based on the `ghcr.io/databio/shinybase` container, which you can find in its [github repository](https://github.com/databio/shinyBase) or in the [GitHub Container Registry](https://github.com/databio/shinyBase/pkgs/container/shinybase).
+The `ghcr.io/databio/lolaweb` container is based on the `ghcr.io/databio/shinybase` container, which you can find in its [GitHub repository](https://github.com/databio/shinyBase) or in the [GitHub Container Registry](https://github.com/databio/shinyBase/pkgs/container/shinybase).
 
 ### `build` the container image yourself
 
