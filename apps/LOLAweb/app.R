@@ -17,8 +17,12 @@ library(plotly)
 
 setCacheDir(cacheDir)
 # get lolaweb version
-lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
-
+#lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
+if(file.exists("version.txt")) {
+  lw_version <- readLines("version.txt")
+} else {
+  lw_version <- NA
+}
 ui <- list( 
   
   # # need empty fluid page at top with height 0 to preserve window title
@@ -229,9 +233,9 @@ ui <- list(
     target = 'blank'>Sheffield Computational Biology Lab</a> and <a href = 'https://somrc.virginia.edu'
     target='blank'>SOMRC</a> at UVA. <br>View <a href
     ='https://github.com/databio/LOLAweb' target = 'blank'>source code on GitHub</a> or run it locally with <a
-    href='https://github.com/databio/LOLAweb/blob/master/docker/README.md'
+    href='https://github.com/databio/LOLAweb/blob/master/README.md'
     target = 'blank'>our docker image</a>", "<br>LOLAweb version: <a href
-    ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version,
+    ='https://github.com/databio/LOLAweb/releases/tag/", lw_version, "' target='blank'>", lw_version,
     "</a></div>")
     ), 
     align = "center", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
@@ -900,7 +904,7 @@ server <- function(input, output, session) {
         "Genome ",
         "Universe ",
         "Database ",
-        "LOLAweb commit used "),
+        "LOLAweb version used "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
