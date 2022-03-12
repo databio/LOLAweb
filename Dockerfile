@@ -1,6 +1,6 @@
 FROM ghcr.io/databio/shinybase:latest
 
-MAINTAINER VP Nagraj "vpnagraj@virginia.edu"
+MAINTAINER VP Nagraj "nagraj@nagraj.net"
 
 # move conf files
 COPY ./shiny-server.conf  /etc/shiny-server/shiny-server.conf
@@ -8,7 +8,7 @@ COPY ./shiny-server.sh /usr/bin/shiny-server.sh
 
 # get the code
 WORKDIR /srv/shiny-server
-RUN git clone https://github.com/databio/LOLAweb.git
+COPY apps/LOLAweb /srv/shiny-server/LOLAweb/apps/LOLAweb
 
 # add dir for cache
 RUN mkdir LOLAweb/cache
@@ -18,5 +18,5 @@ RUN chown -R shiny:shiny LOLAweb/cache
 RUN mkdir LOLAweb/apps/LOLAweb/plots
 RUN chown -R shiny:shiny LOLAweb/apps/LOLAweb/plots
 
-# run the server setup script
+## run the server setup script
 CMD ["/usr/bin/shiny-server.sh"]
