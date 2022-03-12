@@ -120,9 +120,9 @@ http://localhost/LOLAweb/apps/LOLAweb
 
 You could also run the `dev` version of the container by pulling `ghcr.io/databio/lolaweb:dev`. This will retrieve the dev tagged image from the GitHub Container Registry. Just add `:dev` to the container name at the end of the `docker run` command above.
 
-### Running multiple LOLAweb containers simultaneously with Docker Swarm:
+### Running multiple LOLAweb containers simultaneously with Docker Swarm
 
-For the typical use case of an individual user, a single running container will suffice. But if you need to set up an enterprise-level LOLAweb server that can handle concurrent users, we've also made that easy by using docker swarm. This is how we run the main LOLAweb servers, and you could do the same thing if you want your own local implementation. Docker Swarm is a technique for running multiple instances of the same container. [Read more](swarm/README.md) about how to set up your own swarm.
+For the typical use case of an individual user, a single running container will suffice. But if you need to set up an enterprise-level LOLAweb server that can handle concurrent users, we've also made that easy by using Docker Swarm. This is how we run the main LOLAweb servers, and you could do the same thing if you want your own local implementation. Docker Swarm is a technique for running multiple instances of the same container. [Read more](swarm/README.md) about how to set up your own swarm.
 
 ### Troubleshooting
 
