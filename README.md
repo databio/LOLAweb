@@ -49,7 +49,7 @@ LOLAweb will look at the value in `$LWREF` for the reference data. This folder s
  
 LOLAweb looks for `$LWLOCAL` to have two subfolders: `cache`, and `shinylogs`. This is where the app will write results and log files. If running LOLAweb on a server, be sure these directories are writeable by the Docker process.
 
-The following instructions demonstrate a minimal example of how to download and configure the LOLAweb data directories for a `hg19` reference data:
+The following instructions demonstrat how to download and configure the LOLAweb data directories for a minimal example using `hg19` reference data:
 
 ```
 ## assign env vars for data path
