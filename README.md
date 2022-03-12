@@ -100,6 +100,7 @@ mkdir -p shinylog
 
 ```
 ## run the docker image
+## NOTE: this run command uses image pulled from ghcr.io/databio/lolaweb
 docker run -d \
   -p 80:80 \
   -e LWREF=$LWREF \
@@ -107,7 +108,7 @@ docker run -d \
   --volume ${LWLOCAL}:${LWLOCAL} \
   --volume ${LWREF}:${LWREF} \
   --volume ${LWLOCAL}/shinylog:/var/log/shiny-server \
-  databio/lolaweb
+  ghcr.io/databio/lolaweb
 ```
 
 Open a browser to:
