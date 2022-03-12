@@ -16,12 +16,12 @@ jobs:
       - name: Build DEV
         if: github.ref == 'refs/heads/dev'
         run: |
-          docker build -t ghcr.io/databio/lolaweb:dev docker/dev
+          docker build -t ghcr.io/databio/lolaweb:dev .
 
       - name: Build MASTER
         if: github.ref == 'refs/heads/master'
         run: |
-          docker build -t ghcr.io/databio/lolaweb:latest docker
+          docker build -t ghcr.io/databio/lolaweb:latest .
 
       - name: Login to GHCR
         uses: docker/login-action@v1
