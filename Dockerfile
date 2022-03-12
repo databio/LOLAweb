@@ -3,8 +3,8 @@ FROM ghcr.io/databio/shinybase:latest
 MAINTAINER VP Nagraj "nagraj@nagraj.net"
 
 # move conf files
-COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
-COPY shiny-server.sh /usr/bin/shiny-server.sh
+COPY ./shiny-server.conf  /etc/shiny-server/shiny-server.conf
+COPY ./shiny-server.sh /usr/bin/shiny-server.sh
 
 # get the code
 WORKDIR /srv/shiny-server

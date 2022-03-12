@@ -1,8 +1,9 @@
-[![Docker pulls](https://img.shields.io/docker/pulls/databio/lolaweb.svg)](https://hub.docker.com/r/databio/lolaweb/) [![Build Status](https://travis-ci.org/databio/LOLAweb.svg?branch=master)](https://travis-ci.org/databio/LOLAweb) [![](https://images.microbadger.com/badges/image/databio/lolaweb.svg)](https://microbadger.com/images/databio/lolaweb "Get your own image badge on microbadger.com")
+[![Docker Image CI](https://github.com/databio/LOLAweb/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/databio/LOLAweb/actions/workflows/build.yml)
+
 
 # Shiny LOLAweb for Docker
 
-The `databio/lolaweb` container is based on the `databio/shinybase` container, which you can find in its [github repository](https://github.com/databio/shinyBase) or [on dockerhub](https://hub.docker.com/r/databio/shinybase/).
+The `ghcr.io/databio/lolaweb` container is based on the `ghcr.io/databio/shinybase` container, which you can find in its [github repository](https://github.com/databio/shinyBase) or in the [GitHub Container Registry](https://github.com/databio/shinyBase/pkgs/container/shinybase).
 
 ## `build` the container image yourself
 
@@ -14,10 +15,9 @@ The `databio/lolaweb` container is based on the `databio/shinybase` container, w
 
 ## Or `pull` the container image:
 
-```docker pull databio/lolaweb```
+```docker pull ghcr.io/databio/lolaweb```
 
-The image itself is hosted at dockerhub: https://hub.docker.com/r/databio/lolaweb/
-
+The container image itself is hosted in the GitHub Container Registry: https://github.com/databio/LOLAweb/pkgs/container/lolaweb
 
 ## Container volumes and reference data
 
@@ -54,16 +54,16 @@ LOLAweb looks for `$LWLOCAL` to have two subfolders: `cache`, and `shinylogs`. T
       --volume ${LWLOCAL}:${LWLOCAL} \
       --volume ${LWREF}:${LWREF} \
       --volume ${LWLOCAL}/shinylog:/var/log/shiny-server
-      databio/lolaweb
+      ghcr.io/databio/lolaweb
 
 Open a browser to:
 ```
 http://localhost/LOLAweb/apps/LOLAweb
 ```
 
-## Running a dev container
+## Running a `dev` container
 
-You could also run the `dev` version of the container by pulling `databio/lolaweb:dev`. This will retrieve the dev tagged image from dockerhub. Just add `:dev` to the container name at the end of the `docker run` command above.
+You could also run the `dev` version of the container by pulling `ghcr.io/databio/lolaweb:dev`. This will retrieve the dev tagged image from the GitHub Container Registry. Just add `:dev` to the container name at the end of the `docker run` command above.
 
 
 ## Running multiple LOLAweb containers simultaneously with Docker Swarm:
