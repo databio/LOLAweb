@@ -113,7 +113,7 @@ docker run -d \
 
 Open a browser to:
 ```
-http://localhost/LOLAweb/apps/LOLAweb
+http://localhost
 ```
 
 ### Running a `dev` container
