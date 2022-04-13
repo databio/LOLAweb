@@ -20,6 +20,8 @@ The main elements of this stack:
     - Tr&aelig;fik load balancer - distributes traffic to containers using sticky sessions and websockets
 2. Network definition - creates an overlay network for communication between containers
 
+You should update the label `traefik.frontend.rule=Host:` to an appropriate fully qualified domain name before deploying, along with the `docker.domain` in the 
+`loadbal` stanza.
 
 ## Docker Stack Definition
 
@@ -54,7 +56,7 @@ services:
         - "traefik.port=80"
         - "traefik.frontend.rule=PathPrefix:/;"
         - "traefik.backend.loadbalancer.sticky=true"
-        - "traefik.frontend.rule=Host:lolaweb.databio.org;AddPrefix:/LOLAweb/apps/LOLAweb;"
+        - "traefik.frontend.rule=Host:lolaweb.databio.org;"
 
   loadbal:
     image: traefik
