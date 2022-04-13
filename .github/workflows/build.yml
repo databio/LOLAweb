@@ -56,7 +56,15 @@ jobs:
           aws-region: us-east-1
       - 
         name: Send SQS message
+        if: github.ref == 'refs/heads/master'
         uses: isbang/sqs-action@v0.1.1
         with:
           sqs-url: https://queue.amazonaws.com/474683445819/lola-updates
-          message: ${GITHUB_REF##*/}
+          message: 'master'
+      - 
+        name: Send SQS message
+        if: github.ref == 'refs/heads/dev'
+        uses: isbang/sqs-action@v0.1.1
+        with:
+          sqs-url: https://queue.amazonaws.com/474683445819/lola-updates
+          message: 'dev'
