@@ -17,8 +17,12 @@ library(plotly)
 
 setCacheDir(cacheDir)
 # get lolaweb version
-lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
-
+#lw_version <- system(command = "git rev-parse HEAD | cut -c1-9", intern = TRUE)
+if(file.exists("version.txt")) {
+  lw_version <- readLines("version.txt")
+} else {
+  lw_version <- NA
+}
 ui <- list( 
   
   # # need empty fluid page at top with height 0 to preserve window title
@@ -101,7 +105,7 @@ ui <- list(
                actionButton("run",
                             "RUN LOLA", 
                             class = "runLOLA"),
-               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=M2LZOJXEQSKG98A'>Sample Results</a></div>")
+               HTML("<div id='samplereslink' style='padding-top:15px; padding-left:5px;'><a href = '?key=AY86BGRD9EC5Z7T'>Sample Results</a></div>")
         ),
   id = "runInputs"),
   
@@ -229,9 +233,9 @@ ui <- list(
     target = 'blank'>Sheffield Computational Biology Lab</a> and <a href = 'https://somrc.virginia.edu'
     target='blank'>SOMRC</a> at UVA. <br>View <a href
     ='https://github.com/databio/LOLAweb' target = 'blank'>source code on GitHub</a> or run it locally with <a
-    href='https://github.com/databio/LOLAweb/blob/master/docker/README.md'
+    href='https://github.com/databio/LOLAweb/blob/master/README.md'
     target = 'blank'>our docker image</a>", "<br>LOLAweb version: <a href
-    ='https://github.com/databio/lolaweb/commit/", lw_version, "'>", lw_version,
+    ='https://github.com/databio/LOLAweb/releases/tag/", lw_version, "' target='blank'>", lw_version,
     "</a></div>")
     ), 
     align = "center", style = " bottom:0; width:100%; height:10px; padding: 10px; padding-bottom:20px; z-index: 1000;"),
@@ -598,7 +602,7 @@ server <- function(input, output, session) {
         # calculate distribution over chromosomes for plotting
         if (paste0("chromSizes_", input$refgenome) %in% gd_data) {
           
-          genDist = aggregateOverGenomeBins(userSets, input$refgenome)
+          genDist = calcChromBinsRef(userSets, input$refgenome)
           
         } else {
           
@@ -609,7 +613,7 @@ server <- function(input, output, session) {
         # calculate distances to TSSs
         if (paste0("TSS_", input$refgenome) %in% gd_data) {
           
-          TSSDist = TSSDistance(userSets, input$refgenome)
+          TSSDist = calcFeatureDistRefTSS(userSets, input$refgenome)
         
           
         } else {
@@ -621,7 +625,7 @@ server <- function(input, output, session) {
         # distribution of overlaps for a query set to genomic partitions
         if (paste0("geneModels_", input$refgenome) %in% gd_data) {
        
-          gp = genomicPartitions(userSets, input$refgenome)
+          gp = calcPartitionsRef(userSets, input$refgenome)
         
         } else {
           
@@ -900,7 +904,7 @@ server <- function(input, output, session) {
         "Genome ",
         "Universe ",
         "Database ",
-        "LOLAweb commit used "),
+        "LOLAweb version used "),
       y = 
         c(as.character(rawdat_res$run_sum$start_time),
           as.character(rawdat_res$run_sum$end_time),
@@ -1177,7 +1181,7 @@ server <- function(input, output, session) {
       
     } else {
       
-      plotGenomeAggregate(genomeAggregate = genDist) +
+      plotChromBins(genomeAggregate = genDist) +
         guides(fill=guide_legend(title="User set"),
                col = guide_legend(title="User set"))
       

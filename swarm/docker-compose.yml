@@ -3,7 +3,7 @@ version: "3"
 services:
 
   production:
-    image: databio/lolaweb:latest
+    image: ghcr.io/databio/lolaweb:latest
     networks:
       - net
     ports:

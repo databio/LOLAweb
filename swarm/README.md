@@ -20,6 +20,8 @@ The main elements of this stack:
     - Tr&aelig;fik load balancer - distributes traffic to containers using sticky sessions and websockets
 2. Network definition - creates an overlay network for communication between containers
 
+You should update the label `traefik.frontend.rule=Host:` to an appropriate fully qualified domain name before deploying, along with the `docker.domain` in the 
+`loadbal` stanza.
 
 ## Docker Stack Definition
 
@@ -31,7 +33,7 @@ version: "3"
 services:
 
   production:
-    image: databio/lolaweb:latest
+    image: ghcr.io/databio/lolaweb:latest
     networks:
       - net
     ports:
@@ -54,7 +56,7 @@ services:
         - "traefik.port=80"
         - "traefik.frontend.rule=PathPrefix:/;"
         - "traefik.backend.loadbalancer.sticky=true"
-        - "traefik.frontend.rule=Host:lolaweb.databio.org;AddPrefix:/LOLAweb/apps/LOLAweb;"
+        - "traefik.frontend.rule=Host:lolaweb.databio.org;"
 
   loadbal:
     image: traefik
@@ -96,12 +98,12 @@ Take note of a few important elements of this YAML file:
 - Tr&aelig;fik mounts and monitors the Docker socket file in order to automatically update anytime the swarm behind it is updated.
 
 ## Container Images
-Images used in this stack must be downloadable as pre-built images from a container repository such as [Docker Hub](https://hub.docker.com/).
+Images used in this stack must be downloadable as pre-built images from a container repository such as [Docker Hub](https://hub.docker.com/) or the GitHub Container Registry.
 Hand-built local images will fail to deploy unless you push them to a repository (such as Docker Hub) and then pull from there.
 
 Pull the LOLAweb and Tr&aelig;fik container images:
 
-    $ docker pull databio/lolaweb
+    $ docker pull ghcr.io/databio/lolaweb
     $ docker pull traefik
 
 
@@ -153,9 +155,9 @@ First, list the services in your stack:
 
     $ docker service ls
 
-    ID                  NAME                MODE                REPLICAS            IMAGE                     PORTS
-    d7lzimlt0ayj        lola_loadbal        replicated          1/1                 traefik:latest            *:80->80/tcp,*:3939->8080/tcp
-    572dn5lstoh0        lola_app            replicated          4/4                 databio/lolaweb:latest    *:30003->80/tcp
+    ID                  NAME                MODE                REPLICAS            IMAGE                             PORTS
+    d7lzimlt0ayj        lola_loadbal        replicated          1/1                 traefik:latest                    *:80->80/tcp,*:3939->8080/tcp
+    572dn5lstoh0        lola_app            replicated          4/4                 ghcr.io/databio/lolaweb:latest    *:30003->80/tcp
 
 
 If necessary, inspect the specific service you want to update (by name):
@@ -165,12 +167,12 @@ If necessary, inspect the specific service you want to update (by name):
 
 Next, pull the newer container image(s):
 
-    $ docker pull databio/lolaweb:latest
+    $ docker pull ghcr.io/databio/lolaweb:latest
 
 
 Finally, update the service to reference the newest version of the container:
 
-    $ docker service update --image databio/lolaweb:latest lola_app
+    $ docker service update --image ghcr.io/databio/lolaweb:latest lola_app
 
 
 If you change parameters of the `docker-compose.yml` file, just run the `docker stack deploy` command again to refresh:
@@ -207,14 +209,14 @@ To remove a service:
 ## Continuous Integration
 
 To ease the deployment of production and dev containers for this project, we make use of a continuous
-integration workflow using Travis-CI and Amazon SQS. This automates the build and deployment steps after
+integration workflow using GitHub Actions and Amazon SQS. This automates the build and deployment steps after
 code changes are committed and pushed back to GitHub. Automated builds and deployments take approximately 10-15
 minutes to complete.
 
 The workflow steps are:
 
 1. Developers push code changes back to a specific branch of the project in GitHub.
-2. Travis-CI is plugged in with steps defined in `.travis.yml`. Travis builds the appropriate container, based on Dockerfiles specific to each branch. It then pushes the container to Docker Hub, and sends a simple SQS message to a queue with the name of the updated branch.
+2. GitHub Actions are triggered to execute steps defined in `.github/workflows/build.yml`. GHA builds the appropriate container, based on Dockerfiles specific to each branch. It then pushes the container image to GHCR, and sends a simple SQS message to a queue with the name of the updated branch.
 3. Finally, the LOLAweb servers use a cron job that runs long polling requests to SQS, waiting for a message. When one arrives, the Docker service is updated with the new container image.
 
 ## More Information
@@ -225,6 +227,6 @@ The workflow steps are:
 - [Compose Documentation](https://docs.docker.com/compose/reference/)
 - [Swarm Documentation](https://docs.docker.com/get-started/part4/)
 - [Tr&aelig;fik Load Balancer](https://docs.traefik.io/)
-- [Travis Continuous Integration](https://docs.travis-ci.com/)
+- [GitHub Actions Continuous Integration](https://lab.github.com/githubtraining/github-actions:-continuous-integration)
 
 This solution is based on the [slopp/Load-Test](https://github.com/slopp/Load-Test/) documentation in GitHub.

@@ -340,8 +340,8 @@ Here are some links to other resources related to LOLA and LOLAweb:
 
 - [LOLAweb issue tracker](https://github.com/databio/LOLAweb/issues) - please use this for support requests for LOLAweb.
 - [LOLAweb GitHub source code](https://github.com/databio/LOLAweb)
-- [Dockerhub docker image](https://hub.docker.com/r/databio/lolaweb/)
-- Manuscript (pending)
+- [Docker image](https://hub.docker.com/r/databio/lolaweb/)
+- [Manuscript](https://doi.org/10.1093/nar/gky464)
 - [LOLA R package at Bioconductor](http://bioconductor.org/packages/LOLA/)
 - [LOLA R package source code at GitHub](https://github.com/nsheff/LOLA)
 - [LOLA R package documentation](http://code.databio.org/LOLA)
